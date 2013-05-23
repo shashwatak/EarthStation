@@ -1,4 +1,4 @@
-var EarthStation = angular.module('EarthStation', []);
+var EarthStation = angular.module('EarthStation', ['monospaced.mousewheel']);
 EarthStation.config(['$routeProvider', function($routeProvider) {
   $routeProvider.
       when('/',    {
