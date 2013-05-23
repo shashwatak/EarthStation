@@ -31,8 +31,7 @@ function ThreeDCtrl($scope) {
         skybox_segments    = 500,
         skybox_rings       = 100;
     var skybox_sphere      = new THREE.SphereGeometry( skybox_radius, skybox_segments, skybox_rings );
-    var skybox_texture     = new THREE.ImageUtils.loadTexture("img/stars.jpg");
-    var skybox_material    = new THREE.MeshBasicMaterial({ map: skybox_texture, wireframe: false, side: THREE.BackSide});
+    var skybox_material    = new THREE.MeshBasicMaterial({ color: 0x111111, wireframe: false, side: THREE.BackSide});
     // Create map 3D object
     skybox = new THREE.Mesh(skybox_sphere, skybox_material);
 
@@ -48,8 +47,8 @@ function ThreeDCtrl($scope) {
 
     // Rotating this pivot allows reasonable camera manipulations.
     camera_pivot = new THREE.Object3D();
-    earth.add( camera_pivot );
-    camera_pivot.add( camera );
+    earth.add(camera_pivot);
+    camera_pivot.add(camera);
 
     // Add the Earth and Sky to the scene
     scene.add(skybox);
@@ -68,7 +67,6 @@ function ThreeDCtrl($scope) {
       renderer.render( scene, camera );
     }
   };
-
 
   var mouse_is_down = false;
   var mouse_X = 0;
@@ -94,7 +92,6 @@ function ThreeDCtrl($scope) {
   };
 
   $scope.mouse_wheel = function (event, delta, deltaX, deltaY){
-    console.log("HOLD!");
     event.preventDefault();
     zoom_camera_for_mouse_delta(delta);
   };
@@ -124,9 +121,10 @@ function ThreeDCtrl($scope) {
   };
 
   function zoom_camera_for_mouse_delta (delta){
-    console.log("HOLD!");
+    // Move camera inwards when user scrolls up
+    // Move camera out when user scrolls down.
     var new_camera_position = delta*10 + camera.position.x;
-    if (new_camera_position > 7000 && new_camera_position < 99999){
+    if (new_camera_position > 10000 && new_camera_position < 80000){
       camera.position.x = new_camera_position;
     }
   }

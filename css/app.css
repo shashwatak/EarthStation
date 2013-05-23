@@ -1,14 +1,30 @@
-body,html{
-  height:100%;
-  width:100%;
+body, html {
+  height: 100%;
+  width: 100%;
 }
 
 #chrome_app {
-    width: 100%;
+    /*this one can be used for more global stuff*/
     height: 100%;
+    width: 100%;
 }
 
 #three_d_display {
-    width: 100%;
+    /* web gl context in here */
+    float: right;
     height: 100%;
+    width:  74%%;
+    margin: auto;
+}
+
+#sidebar {
+    float: left;
+    height: 100%;
+    width:  25%;
+}
+
+#search_bar {
+    vertical-align: center;
+    width: 100%;
+    font-size: 18pt;
 }
