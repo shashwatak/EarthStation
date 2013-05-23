@@ -59,3 +59,7 @@ Images
 ------
 [Skybox](http://phl.upr.edu/library/notes/syntheticstars)
 [Globe](http://eoimages.gsfc.nasa.gov/images/imagerecords/74000/74443/world.topo.200409.3x5400x2700.png)
+
+License
+-------
+The License applies to all code in here that isn't already licensed.
