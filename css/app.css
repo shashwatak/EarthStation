@@ -11,17 +11,34 @@ body, html {
 
 #three_d_display {
     /* web gl context in here */
-    float: right;
+    position: absolute;
     height: 100%;
-    width:  74%%;
+    width:  100%%;
     margin: auto;
+}
+
+#sidebar_panel {
+    position: absolute;
+    left: -33%;
+    float: left;
+    height: 100%;
+    width:  35%;
+    transition: all 0.2s ease-in-out;
+}
+
+#sidebar_panel:hover {
+    left: auto;
 }
 
 #sidebar {
     float: left;
     height: 100%;
-    width:  25%;
+    width: 93%;
+    background-color: white;
+    opacity: 0.5;
 }
+
+
 
 #search_bar {
     vertical-align: center;

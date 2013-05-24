@@ -2,9 +2,12 @@
    ng-mousedown="mouse_down($event)"
    ng-mouseup="mouse_up($event)"
    ng-mousemove="mouse_move($event)"
-   msd-wheel="mouse_wheel($event, $delta, $deltaX, $deltaY)"></div>
+   msd-wheel="mouse_wheel($event, $delta, $deltaX, $deltaY)">
+</div>
 
-<div id="sidebar">
-  <input id="search_bar"></input>
-  <div ng-repeat="sat in sat_list">{{sat.name}}</div>
-</div
+<div id="sidebar_panel">
+  <div id="sidebar">
+    <input id="search_bar"></input>
+    <div ng-repeat="sat in sat_list">{{sat.name}}</div>
+  </div>
+</div>
