@@ -43,3 +43,7 @@ body, html {
     width: 100%;
     font-size: 18pt;
 }
+
+button {
+    font-size: 18pt;
+}

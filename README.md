@@ -3,6 +3,17 @@ EarthStation (v0.1)
 This software is part of a larger project, to build a working
 Ground Station for Satellite Communication as part of the Amateur Radio Service at UCSC.
 
+How To Run
+----------
+Eventually, the app will be available on the Google Chrome Web Store. For now:
+1. Clone this Git repo.
+2. Install the Google Chrome web browser.
+3. In Google Chrome, navigate to "chrome://extensions".
+4. Set your Chrome to "Develeoper Mode", by checking the box.
+5. Select "Load Unpacked Extension", and choose the folder named 'EarthStation'.
+
+Once you have the app running, go to the sidebar on the right and select "Import 3LE File", I've provided one in this repo called "test_sat_tles.txt".
+
 ###Mentors
 Professor Steve Petersen (AC6P)
 Professor John Vesecky (AXXX) //will ask Jason and put it in
@@ -62,4 +73,5 @@ Images
 
 License
 -------
+MIT License, co woned by Shashwat Kandadai and UCSC 2013
 The License applies to all code in here that isn't already licensed.
