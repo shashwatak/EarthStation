@@ -11,6 +11,7 @@ How To Run
 
 ###Run The App
 Eventually, the app will be available on the Google Chrome Web Store. For now:
+
 1. Install the Google Chrome web browser.
 2. In Google Chrome, navigate to "chrome://extensions".
 3. Set your Chrome to "Develeoper Mode", by checking the box.
@@ -18,21 +19,26 @@ Eventually, the app will be available on the Google Chrome Web Store. For now:
 
 Once you have the app running, go to the sidebar on the right and select "Import 3LE File", I've provided one in this repo called "test_sat_tles.txt".
 
-###Mentors
-Professor Steve Petersen (AC6P)
-Professor John Vesecky (AXXX) //will ask Jason and put it in
-Paul Naud
-
 ###ARS Ground Station Team
+
 **Jason Ragland** (AG6RM)
-  Team Lead
-  Antenna Design
+Team Lead Antenna Design
+
 **Andrew Martino** (KJ6RFK)
-  Power, Motor, and Mechanical Systems
+Power, Motor, and Mechanical Systems
+
 **Sander Middour** (KK6BSI)
-  Digital Motor Control
+Digital Motor Control
+
 **Shashwat Kandadai** (KK6BSH)
-  Tracking Software
+Tracking Software
+
+###Mentors
+**Professor Steve Petersen** (AC6P)
+
+**Professor John Vesecky** (AXXX)
+
+**Paul Naud**
 
 ###Further Acknowledgments
 Steve Petersen
@@ -52,13 +58,11 @@ We considered many different approaches to building this app before settling on 
 
 Frameworks
 -----------
-*[Angular.js](http://angularjs.org/)
 
-*[satellite.js](https://github.com/shashwatak/satellite-js)
-
-*[three.js](http://threejs.org/) (with a little jquery)
-
-*[d3.js](http://d3js.org/)
+* [Angular.js](http://angularjs.org/)
+* [satellite.js](https://github.com/shashwatak/satellite-js)
+* [three.js](http://threejs.org/) (with a little jquery)
+* [d3.js](http://d3js.org/)
 
 High Level Architecture
 -----------------
