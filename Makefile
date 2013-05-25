@@ -13,16 +13,22 @@
 JS = js
 JS_SRC = js-src
 
-CONTROLLERS = ${JS}/controllers.js
-CONTROLLERS_SRC = ${JS_SRC}/controllers/*
-
 APP = ${JS}/app.js
 APP_SRC = ${JS_SRC}/app.js
 
-all : app controllers
+CONTROLLERS = ${JS}/controllers.js
+CONTROLLERS_SRC = ${JS_SRC}/controllers/*
+
+DIRECTIVES = ${JS}/directives.js
+DIRECTIVES_SRC = ${JS_SRC}/directives/*
+
+all : app controllers directives
 
 app : ${JS}
 	cat ${APP_SRC} > ${APP}
+
+directives : ${JS}
+	cat ${DIRECTIVES_SRC} > ${DIRECTIVES}
 
 controllers : ${JS}
 	cat ${CONTROLLERS_SRC} > ${CONTROLLERS}

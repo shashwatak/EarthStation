@@ -2,7 +2,6 @@
   "name": "Earth Station",
   "description" : "The goals of this software are to: point an antenna at an orbiting satellite; add Doppler correction to radio communications; provide the user with a display of what's going on.",
   "version": "1",
-  "homepage_url" : "",
 
   "manifest_version": 2,
   "minimum_chrome_version": "23",
@@ -14,7 +13,9 @@
   },
   "permissions": [
     {"fileSystem": ["write"]},
-    "serial"
+    "serial",
+    "fullscreen",
+    "storage"
   ],
   "requirements": {
     "3D": {
