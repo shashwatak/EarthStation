@@ -42,9 +42,12 @@ Tracking Software
 
 ###Further Acknowledgments
 Steve Petersen
+
 TS Kelso
+
 http://www.aerotwist.com/
-stackoverflow
+
+stackoverflow.com
 
 
 Introduction
@@ -79,8 +82,9 @@ The 'js-src' directory contains all the actual source code for the AngularJS app
 
 Images
 ------
-[Skybox](http://phl.upr.edu/library/notes/syntheticstars)
-[Globe](http://eoimages.gsfc.nasa.gov/images/imagerecords/74000/74443/world.topo.200409.3x5400x2700.png)
+[Skybox Texture](http://phl.upr.edu/library/notes/syntheticstars)
+
+[Globe Texture](http://eoimages.gsfc.nasa.gov/images/imagerecords/74000/74443/world.topo.200409.3x5400x2700.png)
 
 License
 -------
