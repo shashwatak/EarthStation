@@ -36,7 +36,7 @@ Tracking Software
 ###Mentors
 **Professor Steve Petersen** (AC6P)
 
-**Professor John Vesecky** (AXXX)
+**Professor John Vesecky** (AE6TL)
 
 **Paul Naud**
 
