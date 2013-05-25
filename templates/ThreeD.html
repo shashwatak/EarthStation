@@ -7,7 +7,10 @@
 
 <div id="sidebar_panel">
   <div id="sidebar">
+    <button ng-click="choose_file()">Choose File</button>
     <input id="search_bar"></input>
-    <div ng-repeat="sat in sat_list">{{sat.name}}</div>
+    <div ng-repeat="(satnum, sat) in sat_table">
+      <p>{{sat.name}}</p>
+    </div>
   </div>
 </div>

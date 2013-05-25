@@ -1,6 +1,8 @@
 function ThreeDCtrl($scope) {
   var three_d_running = false;
   var camera, scene, renderer, earth, skybox, camera_pivot;
+  $scope.sat_table = {};
+
   var request_id;
   var $container  = $('#three_d_display');
   var WIDTH       = $container.width(),
@@ -9,6 +11,11 @@ function ThreeDCtrl($scope) {
       ASPECT      = WIDTH / HEIGHT,
       NEAR        = 0.1,
       FAR         = 1000000;
+
+  var import_tles = new Worker('lib/workers/import_tles.js');
+  var propagate_path = new Worker('lib/workers/propagate_path.js');
+  import_tles.addEventListener('message', worker_update);
+  propagate_path.addEventListener('message', worker_update);
 
   init();
   animate();
@@ -72,6 +79,21 @@ function ThreeDCtrl($scope) {
   var mouse_X = 0;
   var mouse_Y = 0;
 
+  $scope.choose_file = function  () {
+    chrome.fileSystem.chooseEntry({type: 'openFile'}, function(tle_file) {
+      if (!tle_file) {
+        console.log ('No file selected.');
+        return;
+      }
+      readAsText(tle_file, function (result) {
+        // Send the file to a wen worker to be parsed.
+        // The webworker will update the main thread
+        // with new information.
+        import_tles.postMessage(result);
+      });
+    });
+  };
+
   $scope.mouse_down = function (event) {
     mouse_is_down = true;
   };
@@ -127,6 +149,58 @@ function ThreeDCtrl($scope) {
     if (new_camera_position > 10000 && new_camera_position < 80000){
       camera.position.x = new_camera_position;
     }
-  }
+  };
 
+  function geometry_from_points (path_points) {
+    var spline = new THREE.Spline();
+    spline.initFromArray (path_points);
+    var geometry = new THREE.Geometry();
+    var colors = [];
+    var n_sub = 6;
+    for ( var i = 0; i < path_points.length * n_sub; i++ ) {
+      var index = i / ( path_points.length * n_sub );
+      var position = spline.getPoint(index);
+      geometry.vertices[ i ] = new THREE.Vector3( position.x, position.y, position.z );
+      colors[ i ] = new THREE.Color( 0xff00ff );
+      //colors[ i ].setHSV( 0.6, ( 200 + position.x ) / 400, 1.0 );
+    }
+    geometry.colors = colors;
+    return geometry;
+  };
+
+  function worker_update (e){
+    if (e.data.cmd === 'update'){
+      var sat_item = e.data.sat_item;
+      if (! $scope.sat_table[sat_item.satnum]) {
+        // if no entry exists for this catalog number,
+        // add this sat to the sat table, under this catalog number.
+        $scope.$apply(function (){
+          $scope.sat_table[sat_item.satnum] = sat_item;
+        });
+        propagate_path.postMessage(sat_item.satrec);
+      }
+      else {
+        // This sat is already in the table, just update
+        // the pertinent fields.
+        if (sat_item.ecf_coords){
+          $scope.$apply(function (){
+            $scope.sat_table[sat_item.satnum]["ecf_coords"] = sat_item.ecf_coords;
+          });
+          if ($scope.sat_table[sat_item.satnum][path_ecf]){
+            console.log("Update existing paths");
+          }
+          else{
+            // No path has been rendered for this.
+            var path_material_ecf = new THREE.LineBasicMaterial( { color: 0x708090, opacity: 1, linewidth: 3, vertexColors: THREE.VertexColors } );
+            var path_ecf = new THREE.Line( geometry_from_points(sat_item.ecf_coords),  path_material_ecf );
+            $scope.sat_table[sat_item.satnum][path_ecf] = path_ecf;
+            scene.add(path_ecf);
+          }
+
+        }
+      }
+    }
+  };
 };
+
+
