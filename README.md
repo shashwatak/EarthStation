@@ -53,8 +53,11 @@ We considered many different approaches to building this app before settling on 
 Frameworks
 -----------
 *[Angular.js](http://angularjs.org/)
+
 *[satellite.js](https://github.com/shashwatak/satellite-js)
+
 *[three.js](http://threejs.org/) (with a little jquery)
+
 *[d3.js](http://d3js.org/)
 
 High Level Architecture
