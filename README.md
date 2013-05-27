@@ -13,9 +13,6 @@ Major TODOs
 ####Logic
 -   AOS, TCA, LOS calculations.
 -   Worker for live tracking.
-####Pull up from Sandbox
--   Radio control
--   Motor control
 ####UI
 -   Sorted, filterable list of sats, collapsible.
 -   Tooltips with opentip.
@@ -24,7 +21,9 @@ Major TODOs
 -   Stargazer mode (upwards view of Az/El).
     -   Displays motors heading.
 -   Get all of AC6Ps satellite contact information out of his database.
-
+####Pull up from Sandbox
+-   Radio control
+-   Motor control
 How To Run
 ----------
 ###Build The Project
@@ -40,6 +39,15 @@ Eventually, the app will be available on the Google Chrome Web Store. For now:
 4. Select "Load Unpacked Extension", and choose the 'EarthStation' directory.
 
 Once you have the app running, go to the sidebar on the right and select "Import 3LE File", I've provided one in this repo called "test_sat_tles.txt".
+
+Introduction
+------------
+The goals of this software are to:
+- Point an antenna at an orbiting satellite
+- Add Doppler correction to radio communications
+- Provide the user with a display of what's going on
+
+We considered many different approaches to building this app before settling on making a Google Chrome Packaged App. High on our list of priorities was cross OS support, and Chrome is available on all major OSs. The Packaged App approach allows us to access USB and COM ports, to manipulate external hardware. Further, a Packaged App is installed on the user's computer, which means it can run completely offline. Finally, the relatively new `performance.now()` function gives us microsecond precise timing.
 
 ###ARS Ground Station Team
 
@@ -71,16 +79,6 @@ http://www.aerotwist.com/
 
 stackoverflow.com
 
-
-Introduction
-------------
-The goals of this software are to:
-- Point an antenna at an orbiting satellite
-- Add Doppler correction to radio communications
-- Provide the user with a display of what's going on
-
-We considered many different approaches to building this app before settling on making a Google Chrome Packaged App. High on our list of priorities was cross OS support, and Chrome is available on all major OSs. The Packaged App approach allows us to access USB and COM ports, to manipulate external hardware. Further, a Packaged App is installed on the user's computer, which means it can run completely offline. Finally, the relatively new `performance.now()` function gives us microsecond precise timing.
-
 Frameworks
 -----------
 
@@ -93,15 +91,15 @@ Hardware Architecture
 -----------------
 The Tracking Software runs on a Computer, and connects to an external Motor Controller. The Computer sends the Motor Controller aiming directions. The Motor Controller then sends Power to the Motors to move the Antenna.
 
-[Hardware Block Diagram](http://i.imgur.com/In3WzoE.gif Hardware Block Diagram)
+![Hardware Block Diagram](http://i.imgur.com/In3WzoE.gif Hardware Block Diagram)
 
 Software Architecture
 ----------------------
 Ideally, we make use of WebWorkers to offload the mathematically intense logic to separate threads.
 
-[Proposed Data Flow](http://i.imgur.com/gxiF07h.gif Proposed Data Flow)
+![Proposed Data Flow](http://i.imgur.com/gxiF07h.gif Proposed Data Flow)
 
-[Chrome Data Flow](http://i.imgur.com/XuIy5L9.gif Chrome Data Flow)
+![Chrome Data Flow](http://i.imgur.com/XuIy5L9.gif Chrome Data Flow)
 
 
 Makefile
