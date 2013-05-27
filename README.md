@@ -3,6 +3,28 @@ EarthStation (v0.1)
 This software is part of a larger project, to build a working
 Ground Station for Satellite Communication as part of the Amateur Radio Service at UCSC.
 
+Major TODOs
+===========
+####Architecture
+-   Rearrange logic so that AngularJS controllers are minimal.
+    -   Move logic to directives, services.
+-   Utilize localStorage to preserve environment between sessions.
+-   Eradicate all jquery (append ThreeJS renderer using AngularJS).
+####Logic
+-   AOS, TCA, LOS calculations.
+-   Worker for live tracking.
+####Pull up from Sandbox
+-   Radio control
+-   Motor control
+####UI
+-   Sorted, filterable list of sats, collapsible.
+-   Tooltips with opentip.
+-   ThreeJS mousehover detection.
+-   Geodetic-Normalized and Actual sat paths.
+-   Stargazer mode (upwards view of Az/El).
+    -   Displays motors heading.
+-   Get all of AC6Ps satellite contact information out of his database.
+
 How To Run
 ----------
 ###Build The Project
@@ -67,17 +89,23 @@ Frameworks
 * [three.js](http://threejs.org/) (with a little jquery)
 * [d3.js](http://d3js.org/)
 
-High Level Architecture
+Hardware Architecture
 -----------------
 The Tracking Software runs on a Computer, and connects to an external Motor Controller. The Computer sends the Motor Controller aiming directions. The Motor Controller then sends Power to the Motors to move the Antenna.
 
-INSERT BLOCK DIAGRAM HERE
+[Hardware Block Diagram](http://i.imgur.com/In3WzoE.gif Hardware Block Diagram)
+
+Software Architecture
+----------------------
+Ideally, we make use of WebWorkers to offload the mathematically intense logic to separate threads.
+
+[Proposed Data Flow](http://i.imgur.com/gxiF07h.gif Proposed Data Flow)
+
+[Chrome Data Flow](http://i.imgur.com/XuIy5L9.gif Chrome Data Flow)
 
 
 Makefile
 --------
-The common approach in AngularJS is to put all of the necessary logic in controllers.js, filters.js, services.js, and directives.js. These files can get pretty large, so we break them down into their component parts and put them all together when it's time to run.
-
 The 'js-src' directory contains all the actual source code for the AngularJS app. When `make` is run, the individual files in 'js-src' and its subdirectories are concatenated together and written to their final locations in the 'js' folder.
 
 Images
@@ -88,5 +116,5 @@ Images
 
 License
 -------
-MIT License, co woned by Shashwat Kandadai and UCSC 2013
+MIT License, co-owned by Shashwat Kandadai and UCSC, 2013.
 The License applies to all code in here that isn't already licensed.
