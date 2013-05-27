@@ -10,9 +10,11 @@ Major TODOs
     -   Move logic to directives, services.
 -   Utilize localStorage to preserve environment between sessions.
 -   Eradicate all jquery (append ThreeJS renderer using AngularJS).
+
 ####Logic
 -   AOS, TCA, LOS calculations.
 -   Worker for live tracking.
+
 ####UI
 -   Sorted, filterable list of sats, collapsible.
 -   Tooltips with opentip.
@@ -21,6 +23,7 @@ Major TODOs
 -   Stargazer mode (upwards view of Az/El).
     -   Displays motors heading.
 -   Get all of AC6Ps satellite contact information out of his database.
+
 ####Pull up from Sandbox
 -   Radio control
 -   Motor control
