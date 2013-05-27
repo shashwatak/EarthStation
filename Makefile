@@ -22,13 +22,19 @@ CONTROLLERS_SRC = ${JS_SRC}/controllers/*
 DIRECTIVES = ${JS}/directives.js
 DIRECTIVES_SRC = ${JS_SRC}/directives/*
 
-all : app controllers directives
+SERVICES = ${JS}/services.js
+SERVICES_SRC = ${JS_SRC}/services/*
+
+all : app controllers directives services
 
 app : ${JS}
 	cat ${APP_SRC} > ${APP}
 
 directives : ${JS}
 	cat ${DIRECTIVES_SRC} > ${DIRECTIVES}
+
+services : ${JS}
+	cat ${SERVICES_SRC} > ${SERVICES}
 
 controllers : ${JS}
 	cat ${CONTROLLERS_SRC} > ${CONTROLLERS}
