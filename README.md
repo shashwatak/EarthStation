@@ -93,7 +93,7 @@ Frameworks
 
 Hardware Architecture
 -----------------
-The Tracking Software runs on a Computer, and connects to an external Motor Controller. The Computer sends the Motor Controller aiming directions. The Motor Controller then sends Power to the Motors to move the Antenna.
+The Tracking Software runs on a Computer, and connects to an external Motor Controller. The Computer sends the Motor Controller aiming directions. The Motor Controller then sends Power to the Motors to move the Antenna. The Computer also connects to the Radio and corrects the transmission frequencies for the Doppler effect.
 
 ![Hardware Block Diagram](http://i.imgur.com/In3WzoE.gif Hardware Block Diagram)
 
