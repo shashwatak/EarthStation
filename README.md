@@ -3,6 +3,45 @@ EarthStation (v0.1)
 This software is part of a larger project, to build a working
 Ground Station for Satellite Communication as part of the Amateur Radio Service at UCSC.
 
+Introduction
+------------
+The goals of this software are to make satellite radio contacts:
+- Point an antenna at an orbiting satellite
+- Add Doppler correction to radio communications
+- Provide the user with a display of what's going on
+
+We considered many different approaches to building this app before settling on making a Google Chrome Packaged App. High on our list of priorities was cross OS support, and Chrome is available on all major OSs. The Packaged App approach allows us to access USB and COM ports, to manipulate external hardware. Further, a Packaged App is installed on the user's computer, which means it can run completely offline. Finally, the relatively new `performance.now()` function gives us microsecond precise timing.
+
+###ARS Ground Station Team
+
+**Jason Ragland** (AG6RM)
+Team Lead Antenna Design
+
+**Andrew Martino** (KJ6RFK)
+Power, Motor, and Mechanical Systems
+
+**Sander Middour** (KK6BSI)
+Digital Motor Control
+
+**Shashwat Kandadai** (KK6BSH)
+Tracking Software
+
+###Mentors
+**Professor Steve Petersen** (AC6P)
+
+**Professor John Vesecky** (AE6TL)
+
+**Paul Naud**
+
+###Further Acknowledgments
+Steve Petersen
+
+TS Kelso
+
+http://www.aerotwist.com/
+
+stackoverflow.com
+
 Major TODOs
 ===========
 ####Architecture
@@ -43,45 +82,6 @@ Eventually, the app will be available on the Google Chrome Web Store. For now:
 4. Select "Load Unpacked Extension", and choose the 'EarthStation' directory.
 
 Once you have the app running, go to the sidebar on the right and select "Import 3LE File", I've provided one in this repo called "test_sat_tles.txt".
-
-Introduction
-------------
-The goals of this software are to:
-- Point an antenna at an orbiting satellite
-- Add Doppler correction to radio communications
-- Provide the user with a display of what's going on
-
-We considered many different approaches to building this app before settling on making a Google Chrome Packaged App. High on our list of priorities was cross OS support, and Chrome is available on all major OSs. The Packaged App approach allows us to access USB and COM ports, to manipulate external hardware. Further, a Packaged App is installed on the user's computer, which means it can run completely offline. Finally, the relatively new `performance.now()` function gives us microsecond precise timing.
-
-###ARS Ground Station Team
-
-**Jason Ragland** (AG6RM)
-Team Lead Antenna Design
-
-**Andrew Martino** (KJ6RFK)
-Power, Motor, and Mechanical Systems
-
-**Sander Middour** (KK6BSI)
-Digital Motor Control
-
-**Shashwat Kandadai** (KK6BSH)
-Tracking Software
-
-###Mentors
-**Professor Steve Petersen** (AC6P)
-
-**Professor John Vesecky** (AE6TL)
-
-**Paul Naud**
-
-###Further Acknowledgments
-Steve Petersen
-
-TS Kelso
-
-http://www.aerotwist.com/
-
-stackoverflow.com
 
 Frameworks
 -----------
