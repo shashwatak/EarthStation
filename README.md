@@ -45,20 +45,17 @@ stackoverflow.com
 Major TODOs
 ===========
 ####Architecture
--   Rearrange logic so that AngularJS controllers are minimal.
-    -   Move logic to directives, services.
 -   Utilize localStorage to preserve environment between sessions.
--   Eradicate all jquery (append ThreeJS renderer using AngularJS).
 
 ####Logic
 -   AOS, TCA, LOS calculations.
 -   Worker for live tracking.
 
 ####UI
--   Sorted, filterable list of sats, collapsible.
+-   Sorted, filterable, collapsible, hide-able, list of sats.
 -   Tooltips with opentip.
 -   ThreeJS mousehover detection.
--   Geodetic-Normalized and Actual sat paths.
+-   Geodetic-Normalized and Actual sat paths display.
 -   Stargazer mode (upwards view of Az/El).
     -   Displays motors heading.
 -   Get all of AC6Ps satellite contact information out of his database.
