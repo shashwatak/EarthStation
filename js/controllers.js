@@ -1,4 +1,4 @@
-function ThreeDCtrl($scope, ThreeJS) {
+function UICtrl($scope, ThreeJS) {
   $scope.sat_table = {};
   var import_tles = new Worker('lib/workers/import_tles.js');
   var propagate_path = new Worker('lib/workers/propagate_path.js');
