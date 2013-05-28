@@ -49,7 +49,6 @@ Major TODOs
 
 ####Logic
 -   AOS, TCA, LOS calculations.
--   Worker for live tracking.
 
 ####UI
 -   Sorted, filterable, collapsible, hide-able, list of sats.

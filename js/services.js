@@ -1,4 +1,4 @@
-function ThreeJS() {
+function ThreeJS(LiveTracking) {
   var three_d_running = false;
   var camera, scene, renderer, earth, skybox, camera_pivot;
 
@@ -72,11 +72,25 @@ function ThreeJS() {
       three_d_running = false;
     }
   }
-
-  function animate() {
-    if (three_d_running){
+  var wait_time = 0;
+  function animate(anim_time) {
+    if (three_d_running) {
       request_id = requestAnimationFrame( animate );
       renderer.render( scene, camera );
+      var now = new Date();
+      var time = {
+        year   : now.getUTCFullYear(),
+        month  : now.getUTCMonth()+1,
+        day    : now.getUTCDate(),
+        hour   : now.getUTCHours(),
+        minute : now.getUTCMinutes(),
+        second : now.getUTCSeconds()
+      };
+      if ((anim_time - wait_time) > 1000){
+        LiveTracking.update_sats(time);
+        wait_time = anim_time;
+      }
+
     }
   };
 
@@ -145,9 +159,40 @@ function ThreeJS() {
     stop_animation : stop_animation,
     add_path : add_path,
     pivot_camera_for_mouse_deltas : pivot_camera_for_mouse_deltas,
-    zoom_camera_for_mouse_delta : zoom_camera_for_mouse_delta
+    zoom_camera_for_mouse_delta : zoom_camera_for_mouse_delta,
   }
 
 };
 
+function LiveTracking (){
+  var track_sat = new Worker('../lib/workers/track_sat.js');
+
+  function register_message_listener (event_listener_callback) {
+    track_sat.addEventListener('message', function (e) {
+      if( console4Worker.filterEvent(e) ) {
+        console.log(e);
+      }
+      else if (e.data.cmd === 'track_update'){
+        var sat_item = e.data.sat_item;
+        if (event_listener_callback){
+          event_listener_callback (sat_item);
+        };
+      };
+    });
+  };
+
+  function add_satellite (satrec) {
+    track_sat.postMessage({cmd : 'add_satellite', satrec : satrec});
+  };
+
+  function update_sats (time) {
+    track_sat.postMessage({cmd : 'update_sats', time : time});
+  };
+
+  return {
+    register_message_listener : register_message_listener,
+    add_satellite : add_satellite,
+    update_sats : update_sats
+  }
+}
 

@@ -1,14 +1,21 @@
-function UICtrl($scope, ThreeJS) {
+function UICtrl($scope, ThreeJS, LiveTracking) {
   $scope.sat_table = {};
   var import_tles = new Worker('lib/workers/import_tles.js');
   var propagate_path = new Worker('lib/workers/propagate_path.js');
   import_tles.addEventListener('message', worker_update);
   propagate_path.addEventListener('message', worker_update);
+
   ThreeJS.init();
   ThreeJS.start_animation();
-  var mouse_is_down = false;
-  var mouse_X = 0;
-  var mouse_Y = 0;
+  LiveTracking.register_message_listener(live_tracking_callback);
+  function live_tracking_callback (sat_item){
+    //console.log(sat_item);
+    $scope.$apply(function(){
+      $scope.sat_table[sat_item.satnum]["look_angles"] = sat_item.look_angles;
+      $scope.sat_table[sat_item.satnum]["position_ecf"] = sat_item.position_ecf;
+      $scope.sat_table[sat_item.satnum]["lat_long_alt"] = sat_item.lat_long_alt;
+    });
+  }
 
   $scope.choose_file = function  () {
     chrome.fileSystem.chooseEntry({type: 'openFile'}, function(tle_file) {
@@ -25,6 +32,10 @@ function UICtrl($scope, ThreeJS) {
     });
   };
 
+  var mouse_is_down = false;
+  var mouse_X = 0;
+  var mouse_Y = 0;
+
   $scope.mouse_down = function (event) {
     mouse_is_down = true;
   };
@@ -32,7 +43,6 @@ function UICtrl($scope, ThreeJS) {
   $scope.mouse_up = function (event) {
     mouse_is_down = false;
   };
-
 
   $scope.mouse_move = function (event) {
     if (mouse_is_down) {
@@ -58,15 +68,14 @@ function UICtrl($scope, ThreeJS) {
         $scope.$apply(function (){
           $scope.sat_table[sat_item.satnum] = sat_item;
         });
+        LiveTracking.add_satellite(sat_item.satrec);
         propagate_path.postMessage(sat_item.satrec);
       }
       else {
         // This sat is already in the table, just update
         // the pertinent fields.
         if (sat_item.ecf_coords){
-          $scope.$apply(function (){
-            $scope.sat_table[sat_item.satnum]["ecf_coords"] = sat_item.ecf_coords;
-          });
+          $scope.sat_table[sat_item.satnum]["ecf_coords"] = sat_item.ecf_coords;
           if ($scope.sat_table[sat_item.satnum][path_ecf]){
             console.log("Update existing paths");
           }
@@ -77,8 +86,8 @@ function UICtrl($scope, ThreeJS) {
         }
       }
     }
+    $scope.$apply();
   };
-
 };
 
 

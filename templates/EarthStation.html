@@ -11,6 +11,9 @@
     <input id="search_bar"></input>
     <div ng-repeat="(satnum, sat) in sat_table">
       <p>{{sat.name}}</p>
+      <p>Lat: {{sat.lat_long_alt[0]}}</p>
+      <p>Lon: {{sat.lat_long_alt[1]}}</p>
+      <p>Alt: {{sat.lat_long_alt[2]}}</p>
     </div>
   </div>
 </div>

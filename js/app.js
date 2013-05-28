@@ -8,4 +8,5 @@ EarthStation.config(['$routeProvider', function($routeProvider) {
       otherwise({redirectTo: '/'});
 }]);
 EarthStation.service('ThreeJS', ThreeJS);
+EarthStation.service('LiveTracking', LiveTracking);
 
