@@ -16,7 +16,7 @@ function ThreeDCtrl($scope, ThreeJS) {
         console.log ('No file selected.');
         return;
       }
-      readAsText(tle_file, function (result) {
+      google_file_utils.readAsText(tle_file, function (result) {
         // Send the file to a webworker to be parsed.
         // The webworker will update the main thread
         // with new information.

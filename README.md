@@ -103,9 +103,9 @@ Ideally, we make use of WebWorkers to offload the mathematically intense logic t
 ![Chrome Data Flow](http://i.imgur.com/XuIy5L9.gif Chrome Data Flow)
 
 
-Makefile
---------
-The 'js-src' directory contains all the actual source code for the AngularJS app. When `make` is run, the individual files in 'js-src' and its subdirectories are concatenated together and written to their final locations in the 'js' folder.
+~~Makefile~~
+-------------
+The Makefile has been removed. Instead, we will just organize our controllers so they are small, offloading work to services and directives. This has a number of benefits over using a Makefile. The Debugger now provides us with accurate line numbers, and the github repository will act as a demo.
 
 Images
 ------
