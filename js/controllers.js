@@ -18,6 +18,19 @@ function UICtrl($scope, ThreeJS, LiveTracking) {
     });
   }
 
+  var is_fullscreen = false;
+  $scope.fullscreen = function () {
+    if (!is_fullscreen){
+      is_fullscreen = true;
+      document.body.webkitRequestFullscreen();
+    }
+    else {
+      is_fullscreen = false;
+      document.webkitCancelFullScreen();
+    }
+
+  }
+
   $scope.choose_file = function  () {
     chrome.fileSystem.chooseEntry({type: 'openFile'}, function(tle_file) {
       if (!tle_file) {

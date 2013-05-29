@@ -58,6 +58,7 @@ function ThreeJS(LiveTracking) {
     scene.add(earth);
     // when window is ready, render
     renderer.render(scene, camera);
+    THREEx.WindowResize(renderer, camera);
   };
 
   function start_animation() {
@@ -86,16 +87,13 @@ function ThreeJS(LiveTracking) {
         minute : now.getUTCMinutes(),
         second : now.getUTCSeconds()
       };
-      if ((anim_time - wait_time) > 1000){
+      if ((anim_time - wait_time) > 200){
         LiveTracking.update_sats(time);
         wait_time = anim_time;
       }
-
     }
+
   };
-
-
-
 
   function pivot_camera_for_mouse_deltas (mouse_delta_X, mouse_delta_Y) {
     /*  Apparent Up-Down rotation of the Earth,
@@ -159,7 +157,7 @@ function ThreeJS(LiveTracking) {
     stop_animation : stop_animation,
     add_path : add_path,
     pivot_camera_for_mouse_deltas : pivot_camera_for_mouse_deltas,
-    zoom_camera_for_mouse_delta : zoom_camera_for_mouse_delta,
+    zoom_camera_for_mouse_delta : zoom_camera_for_mouse_delta
   }
 
 };

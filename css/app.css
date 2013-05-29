@@ -41,8 +41,23 @@ body, html {
 
 #search_bar {
     vertical-align: center;
-    width: 100%;
+    width: 95%;
     font-size: 18pt;
+}
+
+
+#footer {
+    position: absolute;
+    bottom: 0%;
+    clear: both;
+    height: 5%;
+    width: 100%;
+}
+
+#fullscreen_button {
+    position: absolute;
+    right: 0%;
+    float: right;
 }
 
 button {
