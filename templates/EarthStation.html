@@ -11,9 +11,20 @@
     <input id="search_bar"></input>
     <div ng-repeat="(satnum, sat) in sat_table">
       <p>{{sat.name}}</p>
-      <p>Lat: {{sat.lat_long_alt[0]}}</p>
-      <p>Lon: {{sat.lat_long_alt[1]}}</p>
-      <p>Alt: {{sat.lat_long_alt[2]}}</p>
+      <p>Uplink frequency: {{sat.uplink_freq}}</p>
+      <p>Downlink frequency: {{sat.downlink_freq}}</p>
+      <p>Uplink mode: {{sat.uplink_mode}}</p>
+      <p>Downlink mode: {{sat.downlink_mode}}</p>
+      <p>
+        {{sat.position_gd[0] | longitude}}
+        {{sat.position_gd[1] | latitude}}
+        {{sat.position_gd[2] | distance}}
+      </p>
+      <p>
+        {{sat.look_angles[0] | azimuth}}
+        {{sat.look_angles[1] | elevation}}
+        {{sat.look_angles[2] | distance}}
+      </p>
     </div>
   </div>
 </div>

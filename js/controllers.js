@@ -8,12 +8,13 @@ function UICtrl($scope, ThreeJS, LiveTracking) {
   ThreeJS.init();
   ThreeJS.start_animation();
   LiveTracking.register_message_listener(live_tracking_callback);
+
   function live_tracking_callback (sat_item){
     //console.log(sat_item);
-    $scope.$apply(function(){
+    $scope.$apply(function() {
       $scope.sat_table[sat_item.satnum]["look_angles"] = sat_item.look_angles;
       $scope.sat_table[sat_item.satnum]["position_ecf"] = sat_item.position_ecf;
-      $scope.sat_table[sat_item.satnum]["lat_long_alt"] = sat_item.lat_long_alt;
+      $scope.sat_table[sat_item.satnum]["position_gd"] = sat_item.position_gd;
     });
   }
 
@@ -74,13 +75,13 @@ function UICtrl($scope, ThreeJS, LiveTracking) {
       else {
         // This sat is already in the table, just update
         // the pertinent fields.
-        if (sat_item.ecf_coords){
-          $scope.sat_table[sat_item.satnum]["ecf_coords"] = sat_item.ecf_coords;
+        if (sat_item.ecf_coords_list){
+          $scope.sat_table[sat_item.satnum]["ecf_coords_list"] = sat_item.ecf_coords_list;
           if ($scope.sat_table[sat_item.satnum][path_ecf]){
             console.log("Update existing paths");
           }
           else{
-            var path_ecf = ThreeJS.add_path (sat_item.ecf_coords);
+            var path_ecf = ThreeJS.add_path (sat_item.ecf_coords_list);
             $scope.sat_table[sat_item.satnum][path_ecf] = path_ecf;
           }
         }
