@@ -1,22 +1,58 @@
-function UICtrl($scope, ThreeJS, LiveTracking) {
+function UICtrl($scope, ThreeJS, WorkerManager) {
   $scope.sat_table = {};
-  var import_tles = new Worker('lib/workers/import_tles.js');
-  var propagate_path = new Worker('lib/workers/propagate_path.js');
-  import_tles.addEventListener('message', worker_update);
-  propagate_path.addEventListener('message', worker_update);
 
   ThreeJS.init();
   ThreeJS.start_animation();
-  LiveTracking.register_message_listener(live_tracking_callback);
 
-  function live_tracking_callback (sat_item){
-    //console.log(sat_item);
+  WorkerManager.register_command_callback("tles_update", import_callback);
+  function import_callback (data) {
+    var sat_item = data.sat_item;
+    var satnum = sat_item.satnum;
+    if (!$scope.sat_table[satnum]){
+      $scope.sat_table[satnum] = sat_item;
+      WorkerManager.add_satellite(sat_item.satrec);
+    }
+  };
+
+  WorkerManager.register_command_callback("done_import", done_import_callback);
+  function done_import_callback (data) {
+    WorkerManager.update_paths();
+  };
+
+  WorkerManager.register_command_callback("live_update", live_update_callback);
+  function live_update_callback (data) {
+    // When the WorkerManager service updates the satellite data,
+    // it callbacks the controller to update the model here.
+    var sat_item = data.sat_item;
+    var satnum = sat_item.satnum;
     $scope.$apply(function() {
-      $scope.sat_table[sat_item.satnum]["look_angles"] = sat_item.look_angles;
-      $scope.sat_table[sat_item.satnum]["position_ecf"] = sat_item.position_ecf;
-      $scope.sat_table[sat_item.satnum]["position_gd"] = sat_item.position_gd;
+      // I apply these right away because I want these to refresh in the UI.
+      $scope.sat_table[satnum]["look_angles"] = sat_item.look_angles;
+      $scope.sat_table[satnum]["position_ecf"] = sat_item.position_ecf;
+      $scope.sat_table[satnum]["position_gd"] = sat_item.position_gd;
     });
-  }
+    if (!$scope.sat_table[satnum]["marker_ecf"]){
+      $scope.sat_table[satnum]["marker_ecf"] =
+        ThreeJS.add_marker(sat_item.position_ecf);
+    }
+    else {
+      ThreeJS.update_marker($scope.sat_table[satnum]["marker_ecf"],
+        sat_item.position_ecf);
+    }
+  };
+
+  WorkerManager.register_command_callback("path_update", path_update_callback);
+  function path_update_callback (data) {
+    var sat_item = data.sat_item;
+    var satnum = sat_item.satnum;
+    if (!$scope.sat_table[satnum]["path_ecf"]){
+      $scope.sat_table[satnum]["path_ecf"] =
+        ThreeJS.add_path(sat_item.ecf_coords_list);
+    }/*
+    else {
+      ThreeJS.update_path($scope.sat_table[satnum]["path_ecf"], sat_item.ecf_coords_list);
+    }*/
+  };
 
   var is_fullscreen = false;
   $scope.fullscreen = function () {
@@ -41,7 +77,7 @@ function UICtrl($scope, ThreeJS, LiveTracking) {
         // Send the file to a webworker to be parsed.
         // The webworker will update the main thread
         // with new information.
-        import_tles.postMessage(result);
+        WorkerManager.update_tles(result);
       });
     });
   };
@@ -70,38 +106,6 @@ function UICtrl($scope, ThreeJS, LiveTracking) {
 
   $scope.mouse_wheel = function (event, delta, deltaX, deltaY){
     event.preventDefault();
-    ThreeJS.zoom_camera_for_mouse_delta(delta);
-  };
-
-  function worker_update (e){
-    if (e.data.cmd === 'update'){
-      var sat_item = e.data.sat_item;
-      if (! $scope.sat_table[sat_item.satnum]) {
-        // if no entry exists for this catalog number,
-        // add this sat to the sat table, under this catalog number.
-        $scope.$apply(function (){
-          $scope.sat_table[sat_item.satnum] = sat_item;
-        });
-        LiveTracking.add_satellite(sat_item.satrec);
-        propagate_path.postMessage(sat_item.satrec);
-      }
-      else {
-        // This sat is already in the table, just update
-        // the pertinent fields.
-        if (sat_item.ecf_coords_list){
-          $scope.sat_table[sat_item.satnum]["ecf_coords_list"] = sat_item.ecf_coords_list;
-          if ($scope.sat_table[sat_item.satnum][path_ecf]){
-            console.log("Update existing paths");
-          }
-          else{
-            var path_ecf = ThreeJS.add_path (sat_item.ecf_coords_list);
-            $scope.sat_table[sat_item.satnum][path_ecf] = path_ecf;
-          }
-        }
-      }
-    }
-    $scope.$apply();
+    ThreeJS.zoom_camera_for_scroll_delta(delta);
   };
 };
-
-

@@ -7,7 +7,7 @@ EarthStation.filter('latitude', function() {
             return "Error";
         }
 
-        if (degrees < 0){
+        if (degrees > 0){
             degrees = degrees+" N";
         }
         else{
