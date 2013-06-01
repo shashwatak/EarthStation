@@ -3,14 +3,13 @@ function ThreeJS(WorkerManager) {
   // Please familiarize yourself with this magnificent library.
   var camera, scene, renderer, earth, skybox, camera_pivot;
   var sat_table = {};
-  /*  sat_table = {
-        satnum: {
-          path_ecf : THREE.Line,
-          marker_ecf: THREE.Mesh,
-          etc
-        }
+  /*sat_table = {
+      satnum: {
+        path_ecf : THREE.Line,
+        marker_ecf: THREE.Mesh,
+        etc
       }
-  */
+    }*/
   var request_id;
   var $container  = $('#three_d_display');
   var WIDTH       = $container.width(),
@@ -80,6 +79,22 @@ function ThreeJS(WorkerManager) {
     }
   };
 
+  function get_start_time (){
+    var d_now = new Date();
+    var time = {
+      year   : d_now.getUTCFullYear(),
+      month  : d_now.getUTCMonth()+1,
+      date_of_month    : d_now.getUTCDate(),
+      hour   : d_now.getUTCHours(),
+      minute : d_now.getUTCMinutes(),
+      second : d_now.getUTCSeconds()
+    };
+    var p_now = performance.now();
+    var start_time = increment_time.by_milliseconds(time, -p_now);
+    return start_time;
+  };
+
+  var start_time = get_start_time();
   function animate(anim_time) {
     if (three_d_running) {
       request_id = requestAnimationFrame( animate );
@@ -87,31 +102,15 @@ function ThreeJS(WorkerManager) {
       animate_for_time(anim_time);
     }
   };
+  current_time = start_time;
   var update_wait_time = 0;
-  var start_time = get_start_time();
   function animate_for_time (anim_time){
-    if ((anim_time - update_wait_time) > 200){
-      var current_time = increment_time.by_milliseconds(start_time, anim_time);
+    if ((anim_time - update_wait_time) > 200){ // update every .2s, 5 Hz
+      current_time = increment_time.by_milliseconds(start_time, anim_time);
       WorkerManager.update_sats(current_time);
-      WorkerManager.update_paths(current_time);
       update_wait_time = anim_time;
     }
-  }
-  function get_start_time (){
-    var now = new Date();
-    var p_now = performance.now();
-    var time = {
-      year   : now.getUTCFullYear(),
-      month  : now.getUTCMonth()+1,
-      date_of_month    : now.getUTCDate(),
-      hour   : now.getUTCHours(),
-      minute : now.getUTCMinutes(),
-      second : now.getUTCSeconds()
-    };
-    var start_time = increment_time.by_milliseconds(time, -p_now);
-    return start_time;
-  }
-
+  };
 
 
   function camera_left_right_pivot (mouse_delta_X) {
@@ -204,6 +203,7 @@ function ThreeJS(WorkerManager) {
     if (!sat_table[satnum]){
       sat_table[satnum] = {};
     }
+    WorkerManager.update_one_path(data.sat_item.satrec, current_time, 1);
   };
 
   WorkerManager.register_command_callback("live_update", live_update_callback);
@@ -340,8 +340,17 @@ function WorkerManager (){
     track_sat_worker.postMessage({cmd : 'update_sats', time : time});
   };
 
-  function update_paths (time) {
+  function update_all_paths (time) {
     propagate_path_worker.postMessage({cmd : 'update_all_paths', time : time});
+  }
+
+  function update_one_path (satrec, time, orbit_fraction) {
+    propagate_path_worker.postMessage({
+      cmd : 'update_path',
+      time : time,
+      satrec : satrec,
+      orbit_fraction : orbit_fraction
+    });
   }
 
   function update_tles (read_file){
@@ -351,7 +360,8 @@ function WorkerManager (){
   return {
     register_command_callback : register_command_callback,
     add_satellite : add_satellite,
-    update_paths: update_paths,
+    update_all_paths: update_all_paths,
+    update_one_path : update_one_path,
     update_sats : update_sats,
     update_tles : update_tles
   }
