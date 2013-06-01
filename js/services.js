@@ -169,7 +169,7 @@ function ThreeJS(WorkerManager) {
     spline.initFromArray (path_points);
     var geometry = new THREE.Geometry();
     var colors = [];
-    var n_sub = 6;
+    var n_sub = 5;
     for ( var i = 0; i < path_points.length * n_sub; i++ ) {
       var index = i / ( path_points.length * n_sub );
       var position = spline.getPoint(index);
@@ -341,7 +341,7 @@ function WorkerManager (){
   };
 
   function update_paths (time) {
-    propagate_path_worker.postMessage({cmd : 'update_paths', time : time});
+    propagate_path_worker.postMessage({cmd : 'update_all_paths', time : time});
   }
 
   function update_tles (read_file){
