@@ -31,27 +31,6 @@ function UICtrl($scope, ThreeJS, WorkerManager) {
       $scope.sat_table[satnum]["position_ecf"] = sat_item.position_ecf;
       $scope.sat_table[satnum]["position_gd"] = sat_item.position_gd;
     });
-    if (!$scope.sat_table[satnum]["marker_ecf"]){
-      $scope.sat_table[satnum]["marker_ecf"] =
-        ThreeJS.add_marker(sat_item.position_ecf);
-    }
-    else {
-      ThreeJS.update_marker($scope.sat_table[satnum]["marker_ecf"],
-        sat_item.position_ecf);
-    }
-  };
-
-  WorkerManager.register_command_callback("path_update", path_update_callback);
-  function path_update_callback (data) {
-    var sat_item = data.sat_item;
-    var satnum = sat_item.satnum;
-    if (!$scope.sat_table[satnum]["path_ecf"]){
-      $scope.sat_table[satnum]["path_ecf"] =
-        ThreeJS.add_path(sat_item.ecf_coords_list);
-    }/*
-    else {
-      ThreeJS.update_path($scope.sat_table[satnum]["path_ecf"], sat_item.ecf_coords_list);
-    }*/
   };
 
   var is_fullscreen = false;
@@ -64,7 +43,6 @@ function UICtrl($scope, ThreeJS, WorkerManager) {
       is_fullscreen = false;
       document.webkitCancelFullScreen();
     }
-
   }
 
   $scope.choose_file = function  () {

@@ -2,7 +2,15 @@ function ThreeJS(WorkerManager) {
   // This is for the most part a very standard THREEjs setup.
   // Please familiarize yourself with this magnificent library.
   var camera, scene, renderer, earth, skybox, camera_pivot;
-
+  var sat_table = {};
+  /*  sat_table = {
+        satnum: {
+          path_ecf : THREE.Line,
+          marker_ecf: THREE.Mesh,
+          etc
+        }
+      }
+  */
   var request_id;
   var $container  = $('#three_d_display');
   var WIDTH       = $container.width(),
@@ -93,7 +101,6 @@ function ThreeJS(WorkerManager) {
         sat_update_wait_time = anim_time;
       }
     }
-
   };
 
   function camera_left_right_pivot (mouse_delta_X) {
@@ -180,6 +187,40 @@ function ThreeJS(WorkerManager) {
     }
   };
 
+  WorkerManager.register_command_callback("tles_update", import_callback);
+  function import_callback (data) {
+    var satnum = data.sat_item.satnum;
+    if (!sat_table[satnum]){
+      sat_table[satnum] = {};
+    }
+  };
+
+  WorkerManager.register_command_callback("live_update", live_update_callback);
+  function live_update_callback (data) {
+    // When the WorkerManager service updates the satellite data,
+    // it callbacks the controller to update the model here.
+    var sat_item = data.sat_item;
+    var satnum = sat_item.satnum;
+    if (!sat_table[satnum]["marker_ecf"]){
+      sat_table[satnum]["marker_ecf"] =
+        add_marker(sat_item.position_ecf);
+    }
+    else {
+      update_marker(sat_table[satnum]["marker_ecf"],
+        sat_item.position_ecf);
+    }
+  };
+
+  WorkerManager.register_command_callback("path_update", path_update_callback);
+  function path_update_callback (data) {
+    var sat_item = data.sat_item;
+    var satnum = sat_item.satnum;
+    if (!sat_table[satnum]["path_ecf"]){
+      sat_table[satnum]["path_ecf"] =
+        add_path(sat_item.ecf_coords_list);
+    }
+  };
+
   function add_path(ecf_coords_list){
     var path_material_ecf = new THREE.LineBasicMaterial( { color: 0x708090, opacity: 1, linewidth: 1, vertexColors: THREE.VertexColors } );
     var path_ecf = new THREE.Line ( geometry_from_points(ecf_coords_list),  path_material_ecf );
@@ -219,8 +260,6 @@ function ThreeJS(WorkerManager) {
     scene.remove(path_ecf);
   }
 
-
-
   return {
     // All the exposed functions of the ThreeJS Service.
     // Should be enough to allow users of this service to
@@ -237,7 +276,6 @@ function ThreeJS(WorkerManager) {
     pivot_camera_for_mouse_deltas : pivot_camera_for_mouse_deltas,
     zoom_camera_for_scroll_delta   : zoom_camera_for_scroll_delta
   }
-
 };
 
 function WorkerManager (){
