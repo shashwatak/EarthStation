@@ -14,11 +14,6 @@ function UICtrl($scope, ThreeJS, WorkerManager) {
     }
   };
 
-  WorkerManager.register_command_callback("done_import", done_import_callback);
-  function done_import_callback (data) {
-    WorkerManager.update_paths();
-  };
-
   WorkerManager.register_command_callback("live_update", live_update_callback);
   function live_update_callback (data) {
     // When the WorkerManager service updates the satellite data,

@@ -80,28 +80,39 @@ function ThreeJS(WorkerManager) {
     }
   };
 
-  var sat_update_wait_time = 0;
-  var path_update_wait_time = 0;
   function animate(anim_time) {
     if (three_d_running) {
       request_id = requestAnimationFrame( animate );
       renderer.render( scene, camera );
-
-      if ((anim_time - sat_update_wait_time) > 200){
-        var now = new Date();
-        var time = {
-          year   : now.getUTCFullYear(),
-          month  : now.getUTCMonth()+1,
-          day    : now.getUTCDate(),
-          hour   : now.getUTCHours(),
-          minute : now.getUTCMinutes(),
-          second : now.getUTCSeconds()
-        };
-        WorkerManager.update_sats(time);
-        sat_update_wait_time = anim_time;
-      }
+      animate_for_time(anim_time);
     }
   };
+  var update_wait_time = 0;
+  var start_time = get_start_time();
+  function animate_for_time (anim_time){
+    if ((anim_time - update_wait_time) > 200){
+      var current_time = increment_time.by_milliseconds(start_time, anim_time);
+      WorkerManager.update_sats(current_time);
+      WorkerManager.update_paths(current_time);
+      update_wait_time = anim_time;
+    }
+  }
+  function get_start_time (){
+    var now = new Date();
+    var p_now = performance.now();
+    var time = {
+      year   : now.getUTCFullYear(),
+      month  : now.getUTCMonth()+1,
+      date_of_month    : now.getUTCDate(),
+      hour   : now.getUTCHours(),
+      minute : now.getUTCMinutes(),
+      second : now.getUTCSeconds()
+    };
+    var start_time = increment_time.by_milliseconds(time, -p_now);
+    return start_time;
+  }
+
+
 
   function camera_left_right_pivot (mouse_delta_X) {
     //  IMPORTANT NOTE:
@@ -295,7 +306,7 @@ function WorkerManager (){
   // fires all registered callbacks keyed with e.data.cmd.
   var callbacks_table = {};
   function worker_update (e){
-    if( console4Worker.filterEvent(e) ) { console.log(e);   }
+    if( console4Worker.filterEvent(e) ) { console.log(e.data.data.data[0]);   }
     else {
       if (callbacks_table[e.data.cmd]){
         var callbacks = callbacks_table[e.data.cmd];
@@ -330,7 +341,7 @@ function WorkerManager (){
   };
 
   function update_paths (time) {
-    propagate_path_worker.postMessage({cmd : 'update_paths'});
+    propagate_path_worker.postMessage({cmd : 'update_paths', time : time});
   }
 
   function update_tles (read_file){
