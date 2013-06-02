@@ -23,26 +23,26 @@ body, html {
     float: left;
     height: 100%;
     width:  35%;
+    overflow-y:auto;
     transition: all 0.2s ease-in-out;
 }
 
 #sidebar_panel:hover {
-    left: auto;
+    left: 1%;
+
 }
 
 #sidebar {
     float: left;
     height: 100%;
-    overflow-y:auto;
-    width: 93%;
-    background-color: white;
-    opacity: 0.5;
+    width: 94%;
+    background-color: transparent;
 }
 
 #search_bar {
     vertical-align: center;
-    width: 95%;
     font-size: 18pt;
+    width: 96%;
 }
 
 
@@ -53,6 +53,36 @@ body, html {
     height: 5%;
     width: 100%;
 }
+
+.sat_panel {
+    color: red;
+    overflow:hidden;
+    font-size: 18pt;
+    border: solid;
+    border-radius: 12px;
+    background-color: black;
+    opacity: .3
+}
+
+.sat_body {
+    height: 0px;
+    overflow: hidden;
+}
+
+.sat_panel:hover {
+    background-color: rgb(11, 11, 11);
+}
+
+.overhead {
+    color: lime;
+}
+
+.selected {
+    background-color: rgb(22, 22, 22);
+    height: auto;
+}
+
+
 
 #fullscreen_button {
     position: absolute;

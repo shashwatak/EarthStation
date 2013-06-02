@@ -7,25 +7,33 @@
 
 <div id="sidebar_panel">
   <div id="sidebar">
-    <button ng-click="choose_file()">Import 3LE File</button>
     <input id="search_bar"></input>
     <div ng-repeat="(satnum, sat) in sat_table">
-      <p>{{sat.name}}</p>
-      <p>Uplink frequency: {{sat.uplink_freq}}</p>
-      <p>Downlink frequency: {{sat.downlink_freq}}</p>
-      <p>Uplink mode: {{sat.uplink_mode}}</p>
-      <p>Downlink mode: {{sat.downlink_mode}}</p>
-      <p>
-        {{sat.position_gd[0] | longitude}}
-        {{sat.position_gd[1] | latitude}}
-        {{sat.position_gd[2] | distance}}
-      </p>
-      <p>
-        {{sat.look_angles[0] | azimuth}}
-        {{sat.look_angles[1] | elevation}}
-        {{sat.look_angles[2] | distance}}
-      </p>
+      <div class="sat_panel" ng-click="select_sat(sat)"
+          ng-class="{overhead: sat.look_angles[1] > 0}">
+        <div class="sat_header">
+          <p>{{sat.name}}</p>
+        </div>
+        <div class="sat_body" ng-class="{selected : sat.selected}">
+          <p>{{sat.selected}}</p>
+          <p>Uplink frequency: {{sat.uplink_freq}}</p>
+          <p>Downlink frequency: {{sat.downlink_freq}}</p>
+          <p>Uplink mode: {{sat.uplink_mode}}</p>
+          <p>Downlink mode: {{sat.downlink_mode}}</p>
+          <p>
+            {{sat.position_gd[0] | longitude}}
+            {{sat.position_gd[1] | latitude}}
+            {{sat.position_gd[2] | distance}}
+          </p>
+          <p>
+            {{sat.look_angles[0] | azimuth}}
+            {{sat.look_angles[1] | elevation}}
+            {{sat.look_angles[2] | distance}}
+          </p>
+        </div>
+      </div>
     </div>
+    <button ng-click="choose_file()">Import 3LE File</button>
   </div>
 </div>
 <div id="footer">

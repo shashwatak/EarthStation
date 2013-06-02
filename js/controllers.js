@@ -40,6 +40,10 @@ function UICtrl($scope, ThreeJS, WorkerManager) {
     }
   }
 
+  $scope.select_sat = function (sat) {
+    sat.selected = !sat.selected;
+  }
+
   $scope.choose_file = function  () {
     chrome.fileSystem.chooseEntry({type: 'openFile'}, function(tle_file) {
       if (!tle_file) {

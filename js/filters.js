@@ -71,10 +71,10 @@ EarthStation.filter('elevation', function() {
         var degrees = (input/Math.PI*180) % (360);
         degrees = degrees.toPrecision(4);
         if (degrees > 180 || degrees < 0){
-            degrees+="U";
+            degrees+="D";
         }
         else {
-            degrees+="D";
+            degrees+="U";
         }
         return degrees;
     };
