@@ -16,8 +16,8 @@ function ThreeJS(WorkerManager) {
       HEIGHT      = $container.height();
   var VIEW_ANGLE  = 35,
       ASPECT      = WIDTH / HEIGHT,
-      NEAR        = 0.1,
-      FAR         = 1000000;
+      NEAR        = 100,
+      FAR         = 500000;
 
   function init (){
     // Initialize the big three
@@ -154,7 +154,7 @@ function ThreeJS(WorkerManager) {
     // Move camera inwards when user scrolls up
     // Move camera out when user scrolls down.
     var new_camera_position = delta*10 + camera.position.x;
-    if (new_camera_position > 20000 && new_camera_position < 50000){
+    if (new_camera_position > 10000 && new_camera_position < 100000){
       camera.position.x = new_camera_position;
     }
   };
@@ -233,7 +233,7 @@ function ThreeJS(WorkerManager) {
   };
 
   function add_path(ecf_coords_list){
-    var path_material_ecf = new THREE.LineBasicMaterial( { color: 0x708090, opacity: 1, linewidth: 1, vertexColors: THREE.VertexColors } );
+    var path_material_ecf = new THREE.LineBasicMaterial( { color: 0x708090, opacity: 1, linewidth: 3, vertexColors: THREE.VertexColors } );
     var path_ecf = new THREE.Line ( geometry_from_points(ecf_coords_list),  path_material_ecf );
     scene.add(path_ecf);
     return path_ecf;
