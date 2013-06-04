@@ -56,6 +56,7 @@ body, html {
 
 .sat_panel {
     color: red;
+    padding: 1px;
     overflow:hidden;
     font-size: 18pt;
     border: solid;
@@ -64,7 +65,12 @@ body, html {
     opacity: .3
 }
 
+.sat_head {
+    padding: 1px;
+}
+
 .sat_body {
+    padding: 1px;
     height: 0px;
     overflow: hidden;
 }
@@ -81,8 +87,6 @@ body, html {
     background-color: rgb(22, 22, 22);
     height: auto;
 }
-
-
 
 #fullscreen_button {
     position: absolute;

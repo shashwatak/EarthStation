@@ -10,5 +10,6 @@ EarthStation.config(['$routeProvider', function($routeProvider) {
 
 EarthStation.service('ThreeJS', ThreeJS);
 EarthStation.service('WorkerManager', WorkerManager);
+EarthStation.service('Motors', Motors);
 
 

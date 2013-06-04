@@ -9,9 +9,9 @@
   <div id="sidebar">
     <input id="search_bar"></input>
     <div ng-repeat="(satnum, sat) in sat_table">
-      <div class="sat_panel" ng-click="select_sat(sat)"
+      <div class="sat_panel"
           ng-class="{overhead: sat.look_angles[1] > 0}">
-        <div class="sat_header">
+        <div class="sat_header" ng-click="select_sat(sat)">
           <p>{{sat.name}}</p>
         </div>
         <div class="sat_body" ng-class="{selected : sat.selected}">
@@ -29,6 +29,29 @@
             {{sat.look_angles[0] | azimuth}}
             {{sat.look_angles[1] | elevation}}
             {{sat.look_angles[2] | distance}}
+          </p>
+          <p>
+            {{sat.motor_az | azimuth}}
+            {{sat.motor_el | elevation}}
+          </p>
+          <p>
+            <select ng-model="selected_port" ng-options="port for port in COM_list"></select>
+            <select ng-model="selected_motor_type" ng-options="motor_type for motor_type in supported_motor_types"></select>
+            <button
+              ng-click="connect_motors_to_sat(satnum, selected_port, selected_motor_type)">
+              Open
+            </button>
+            <button
+              ng-click="start_motor_tracking(satnum)">
+              Start
+            </button>
+            <button
+              ng-click="stop_motor_tracking(satnum)">
+              Stop
+            </button>
+            <button ng-click="close_motors(satnum)">
+              Close
+            </button>
           </p>
         </div>
       </div>

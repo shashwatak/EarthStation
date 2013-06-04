@@ -1,4 +1,4 @@
-function UICtrl($scope, ThreeJS, WorkerManager) {
+function UICtrl($scope, ThreeJS, WorkerManager, Motors) {
   $scope.sat_table = {};
 
   ThreeJS.init();
@@ -85,4 +85,55 @@ function UICtrl($scope, ThreeJS, WorkerManager) {
     event.preventDefault();
     ThreeJS.zoom_camera_for_scroll_delta(delta);
   };
+
+
+  /* Prepare Motor Controller. */
+  $scope.COM_list = [];
+  $scope.selected_port = "";
+
+  $scope.supported_motor_types = Motors.get_supported_motors();
+  $scope.selected_motor_type = "";
+
+  chrome.serial.getPorts(function(ports) {
+    if (ports.length > 0) {
+      var i = 0;
+      for (i = 0; i < ports.length; i++) {
+        console.log (ports[i]);
+        $scope.$apply (function () {
+          $scope.COM_list.push(ports[i]);
+        });
+      }
+      $scope.$apply (function () {
+        $scope.selected_port = ports[0];
+      });
+    }
+    else {
+      $scope.selected_port = "¡ERROR, HOMBRE!";
+    }
+  });
+
+  $scope.connect_motors_to_sat = function (satnum, selected_port, selected_motor_type){
+    Motors.connect_motors(selected_port, selected_motor_type, satnum);
+  }
+
+  $scope.sat_table[satnum]["motor_az"] = 0;
+  $scope.sat_table[satnum]["motor_el"] = 0;
+
+  $scope.start_motor_tracking = function (satnum) {
+    function motor_tracking_callback(az_rad, el_rad) {
+      $scope.sat_table[satnum]["motor_az"] = az_rad;
+      $scope.sat_table[satnum]["motor_el"] = el_rad;
+    };
+    Motors.start_motor_tracking(satnum, motor_tracking_callback);
+  }
+
+  $scope.stop_motor_tracking = function (satnum) {
+    Motors.stop_motor_tracking(satnum);
+  }
+
+  $scope.close_motors = function (satnum) {
+    Motors.close_motors (satnum);
+  }
 };
+
+
