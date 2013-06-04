@@ -176,7 +176,7 @@ as well as index.html, to include the new motor logic:
 
 ~~Makefile~~
 -------------
-The Makefile has been removed. Instead, we will just organize our controllers so they are small, offloading work to services and directives. This has a number of benefits over using a Makefile. The Debugger now provides us with accurate line numbers, and the github repository will act as a demo.
+The Makefile has been removed. Instead, we will just organize our controllers so they are small, offloading work to services and directives. This has a number of benefits over using a Makefile. The Debugger now provides us with accurate line numbers.
 
 Images
 ------
