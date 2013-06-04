@@ -102,7 +102,7 @@ Ideally, we make use of WebWorkers to offload the mathematically intense logic t
 
 Serial Hardware Interfacing
 ---------------------
-With the goal of keeping the motor control logic as modular as possible, one can add motor control logic to this project with relative ease. Simply define the serial
+With the goal of keeping the motor control logic as modular as possible, one can add motor control logic to this project with relative ease.
 
 The hardware logic should be a self executing function that returns the following functions in a uniquely named global value:
 ```javascript
