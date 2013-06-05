@@ -7,7 +7,7 @@ function ThreeJS(WorkerManager) {
       satnum: {
         path_ecf : THREE.Line,
         marker_ecf: THREE.Mesh,
-        etc
+        is_tracking: true
       }
     }*/
   var request_id;
@@ -23,7 +23,7 @@ function ThreeJS(WorkerManager) {
     // Initialize the big three
     renderer      = new THREE.WebGLRenderer();
     scene         = new THREE.Scene();
-    ambient_light = new THREE.AmbientLight(0x707070);
+    ambient_light = new THREE.AmbientLight(0x404040);
 
     // Add initialized renderer to the DOM
     renderer.setSize(WIDTH, HEIGHT);
@@ -44,7 +44,7 @@ function ThreeJS(WorkerManager) {
         earth_rings       = 100;
     var earth_sphere      = new THREE.SphereGeometry( earth_radius, earth_segments, earth_rings );
     var earth_texture     = new THREE.ImageUtils.loadTexture("../img/world.jpg");
-    var earth_material    = new THREE.MeshPhongMaterial({ map : earth_texture, wireframe: false });
+    var earth_material    = new THREE.MeshPhongMaterial({ map : earth_texture, wireframe: false, shininess: 1 });
     // Create map 3D object
     earth = new THREE.Mesh(earth_sphere, earth_material);
 
@@ -207,20 +207,14 @@ function ThreeJS(WorkerManager) {
     if (!sat_table[satnum]){
       sat_table[satnum] = {};
     }
-    if (sat_table[satnum]["marker_ecf"]){
-      update_marker(satnum, sat_item.position_ecf);
+    if (sat_table[satnum]["is_tracking"]){
+      if (sat_table[satnum]["marker_ecf"]){
+        update_marker(satnum, sat_item.position_ecf);
+      }
+      else {
+        add_marker(satnum, sat_item.position_ecf);
+      };
     }
-    else {
-      add_marker(satnum, sat_item.position_ecf);
-    };
-  };
-
-  WorkerManager.register_command_callback("sat_removed", no_more_tracking_callback);
-  function no_more_tracking_callback (data) {
-    // When the WorkerManager service removes the satellite.
-    var satnum = data.satnum;
-    remove_marker(satnum);
-    remove_path(satnum);
   };
 
   WorkerManager.register_command_callback("path_update", path_update_callback);
@@ -230,21 +224,32 @@ function ThreeJS(WorkerManager) {
     if (!sat_table[satnum]){
       sat_table[satnum] = {};
     };
-    if (sat_table[satnum]["path_ecf"]){
-      update_path(satnum, sat_item["ecf_coords_list"]);
+    if (sat_table[satnum]["is_tracking"]){
+      if (sat_table[satnum]["path_ecf"]){
+        update_path(satnum, sat_item["ecf_coords_list"]);
+      }
+      else {
+        add_path(satnum, sat_item["ecf_coords_list"]);
+      };
     }
-    else {
-      add_path(satnum, sat_item["ecf_coords_list"]);
-    };
   };
 
   function add_satellite (satnum, satrec){
-    WorkerManager.add_satellite(satrec);
-    WorkerManager.propagate_orbit(satrec, current_time, 1);
+    if (!sat_table[satnum]){
+      sat_table[satnum] = {};
+      sat_table[satnum]["is_tracking"] = true;
+      WorkerManager.add_satellite(satrec);
+      WorkerManager.propagate_orbit(satrec, current_time, 1);
+    };
   };
 
   function remove_satellite (satnum) {
-    WorkerManager.remove_satellite(satnum);
+    if (sat_table[satnum]){
+      WorkerManager.remove_satellite(satnum);
+      remove_path(satnum);
+      remove_marker(satnum);
+      sat_table[satnum] = undefined;
+    };
   }
 
   function add_marker(satnum, position_ecf){
@@ -252,7 +257,7 @@ function ThreeJS(WorkerManager) {
         marker_segments    = 5,
         marker_rings       = 5;
     var marker_sphere      = new THREE.SphereGeometry( marker_radius, marker_segments, marker_rings );
-    var marker_material    = new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: false, side: THREE.BackSide});
+    var marker_material    = new THREE.MeshPhongMaterial({ color: 0xffffff, emissive : 0xffffff, wireframe: false});
     // Create marker 3D object
     var marker_ecf = new THREE.Mesh(marker_sphere, marker_material);
     var position = ecf_array_to_webgl_pos(position_ecf);
