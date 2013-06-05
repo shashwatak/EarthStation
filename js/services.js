@@ -197,28 +197,19 @@ function ThreeJS(WorkerManager) {
     };
   };
 
-  WorkerManager.register_command_callback("tles_update", import_callback);
-  function import_callback (data) {
-    var satnum = data.sat_item.satnum;
-    if (!sat_table[satnum]){
-      sat_table[satnum] = {};
-    };
-    WorkerManager.update_one_path(data.sat_item.satrec, current_time, 1);
-  };
-
   WorkerManager.register_command_callback("live_update", live_update_callback);
   function live_update_callback (data) {
-    // When the WorkerManager service updates the satellite data,
-    // it callbacks the controller to update the model here.
+    // When the WorkerManager service updates the satellite data.
     var sat_item = data.sat_item;
     var satnum = sat_item.satnum;
-    if (!sat_table[satnum]["marker_ecf"]){
-      sat_table[satnum]["marker_ecf"] =
-        add_marker(sat_item.position_ecf);
+    if (!sat_table[satnum]){
+      sat_table[satnum] = {};
+    }
+    if (sat_table[satnum]["marker_ecf"]){
+      update_marker(satnum, sat_item.position_ecf);
     }
     else {
-      update_marker(sat_table[satnum]["marker_ecf"],
-        sat_item.position_ecf);
+      add_marker(satnum, sat_item.position_ecf);
     };
   };
 
@@ -226,25 +217,29 @@ function ThreeJS(WorkerManager) {
   function path_update_callback (data) {
     var sat_item = data.sat_item;
     var satnum = sat_item.satnum;
-    if (!sat_table[satnum]["path_ecf"]){
-      sat_table[satnum]["path_ecf"] =
-        add_path(sat_item.ecf_coords_list);
-    };
+    if (!sat_table[satnum]){
+      sat_table[satnum] = {};
+    }
+    if (sat_table[satnum]["path_ecf"]){
+      update_path(satnum, sat_item["ecf_coords_list"]);
+    }
+    else {
+      add_path(satnum, sat_item["ecf_coords_list"]);
+    };;
   };
 
-  function add_path(ecf_coords_list){
-    var path_material_ecf = new THREE.LineBasicMaterial( { color: 0x708090, opacity: 1, linewidth: 3, vertexColors: THREE.VertexColors } );
-    var path_ecf = new THREE.Line ( geometry_from_points(ecf_coords_list),  path_material_ecf );
-    scene.add(path_ecf);
-    return path_ecf;
+  function add_satellite (satnum, satrec){
+    WorkerManager.add_satellite(satrec);
+    WorkerManager.propagate_orbit(satrec, current_time, 1);
   };
 
-  function update_path (path_ecf, ecf_coords_list) {
-    var path_material_ecf = new THREE.LineBasicMaterial( { color: 0x708090, opacity: 1, linewidth: 1, vertexColors: THREE.VertexColors } );
-    path_ecf = new THREE.Line ( geometry_from_points(ecf_coords_list),  path_material_ecf );
-  };
+  function remove_satellite (satnum) {
+    WorkerManager.remove_satellite(satnum);
+    remove_path(satnum);
+    remove_marker(satnum);
+  }
 
-  function add_marker(position_ecf){
+  function add_marker(satnum, position_ecf){
     var marker_radius      = 50,
         marker_segments    = 5,
         marker_rings       = 5;
@@ -255,37 +250,47 @@ function ThreeJS(WorkerManager) {
     var position = ecf_array_to_webgl_pos(position_ecf);
     marker_ecf.position = position;
     scene.add(marker_ecf);
-    return marker_ecf;
+    sat_table[satnum]["marker_ecf"] = marker_ecf;
   };
 
-  function update_marker(marker_ecf, position_ecf){
+  function add_path(satnum, ecf_coords_list){
+    var path_material_ecf = new THREE.LineBasicMaterial( { color: 0x708090, opacity: 1, linewidth: 3, vertexColors: THREE.VertexColors } );
+    var path_ecf = new THREE.Line ( geometry_from_points(ecf_coords_list),  path_material_ecf );
+    scene.add(path_ecf);
+    sat_table[satnum]["path_ecf"] = path_ecf;
+  };
+
+  function update_marker(satnum, position_ecf){
     var position = ecf_array_to_webgl_pos(position_ecf);
-    marker_ecf.position = position;
+    sat_table[satnum]["marker_ecf"].position = position;
   };
 
-  function remove_marker (marker_ecf) {
-    scene.remove(marker_ecf);
+  function update_path (satnum, ecf_coords_list) {
+    remove_path (satnum);
+    add_path (satnum, ecf_coords_list);
   };
 
-  function remove_path (path_ecf) {
-    scene.remove(path_ecf);
+  function remove_marker (satnum) {
+    scene.remove(sat_table[satnum]["marker_ecf"]);
+    sat_table[satnum]["marker_ecf"] = undefined;
+  };
+
+  function remove_path (satnum) {
+    scene.remove(sat_table[satnum]["path_ecf"]);
+    sat_table[satnum]["path_ecf"] = undefined;
   };
 
   return {
     // All the exposed functions of the ThreeJS Service.
     // Should be enough to allow users of this service to
-    // initialize, and add objects, and move camera
+    // initialize, and add satellites, and move camera
     init                          : init,
     start_animation               : start_animation,
     stop_animation                : stop_animation,
-    add_path                      : add_path,
-    add_marker                    : add_marker,
-    update_path                   : update_path,
-    update_marker                 : update_marker,
-    remove_path                   : remove_path,
-    remove_marker                 : remove_marker,
+    add_satellite                 : add_satellite,
+    remove_satellite              : remove_satellite,
     pivot_camera_for_mouse_deltas : pivot_camera_for_mouse_deltas,
-    zoom_camera_for_scroll_delta   : zoom_camera_for_scroll_delta
+    zoom_camera_for_scroll_delta  : zoom_camera_for_scroll_delta
   };
 };
 
@@ -333,20 +338,19 @@ function WorkerManager (){
 
   function add_satellite (satrec) {
     track_sat_worker.postMessage({cmd : 'add_satellite', satrec : satrec});
-    propagate_path_worker.postMessage({cmd : 'add_satellite', satrec : satrec});
   };
 
   function update_sats (time) {
     track_sat_worker.postMessage({cmd : 'update_sats', time : time});
   };
 
-  function update_all_paths (time) {
-    propagate_path_worker.postMessage({cmd : 'update_all_paths', time : time});
+  function remove_satellite (satnum) {
+    track_sat_worker.postMessage({cmd : 'remove_satellite', satnum : satnum});
   };
 
-  function update_one_path (satrec, time, orbit_fraction) {
+  function propagate_orbit (satrec, time, orbit_fraction) {
     propagate_path_worker.postMessage({
-      cmd : 'update_path',
+      cmd : 'propagate_orbit',
       time : time,
       satrec : satrec,
       orbit_fraction : orbit_fraction
@@ -360,10 +364,10 @@ function WorkerManager (){
   return {
     register_command_callback : register_command_callback,
     add_satellite : add_satellite,
-    update_all_paths: update_all_paths,
-    update_one_path : update_one_path,
+    propagate_orbit : propagate_orbit,
     update_sats : update_sats,
-    update_tles : update_tles
+    update_tles : update_tles,
+    remove_satellite : remove_satellite
   };
 };
 

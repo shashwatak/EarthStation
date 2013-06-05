@@ -9,10 +9,11 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors) {
     var sat_item = data.sat_item;
     var satnum = sat_item.satnum;
     if (!$scope.sat_table[satnum]){
-      $scope.sat_table[satnum] = sat_item;
-      $scope.sat_table[satnum]["motor_az"] = 0;
-      $scope.sat_table[satnum]["motor_el"] = 0;
-      WorkerManager.add_satellite(sat_item.satrec);
+      $scope.$apply(function(){
+        $scope.sat_table[satnum] = sat_item;
+        $scope.sat_table[satnum]["motor_az"] = 0;
+        $scope.sat_table[satnum]["motor_el"] = 0;
+      });
     }
   };
 
@@ -42,9 +43,16 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors) {
     }
   }
 
-  $scope.select_sat = function (sat) {
-    sat.selected = !sat.selected;
-  }
+  $scope.select_sat = function (satnum, sat) {
+    if (!sat.selected) {
+      ThreeJS.add_satellite(satnum, sat.satrec);
+      sat.selected = true;
+    }
+    else {
+      ThreeJS.remove_satellite(satnum);
+      sat.selected = false;
+    };
+  };
 
   $scope.choose_file = function  () {
     chrome.fileSystem.chooseEntry({type: 'openFile'}, function(tle_file) {
