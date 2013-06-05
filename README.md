@@ -107,48 +107,48 @@ With the goal of keeping the motor control logic as modular as possible, one can
 The hardware logic should be a self executing function that returns the following functions in a uniquely named global value:
 ```javascript
 your_global = (function(){
+  /* Motor control logic */
 
-    /* Motor control logic */
-    function stop_motors (connectionId, callback) {
-      /*
-        Serial reading and writing needed to stop the motors goes here
-      */
-     callback(motor_data); // OPTIONAL CALLBACK
-    }
-    function move_az_to (connectionId, azimuth, callback) {
-      /*
-        Serial reading and writing needed to move az motors to desired azimuth.
-      */
-      callback(motor_data); // OPTIONAL CALLBACK
-    }
-    function move_el_to (connectionId, elevation, callback) {
-      /*
-        Serial reading and writing needed to move el motors to desired elevation
-      */
-     callback(motor_data); // OPTIONAL CALLBACK
-    }
-    function get_motor_status (connectionId, callback) {
-      /*
-        Serial reading and writing needed to poll the motors for their current headings, without changing their course
-      */
-     callback(motor_data); // REQUIRED CALLBACK
-    }
+  function stop_motors (connectionId, callback) {
+    /*
+      Serial reading and writing needed to stop the motors goes here
+    */
+    callback(motor_data); // OPTIONAL CALLBACK
+  }
+  function move_az_to (connectionId, azimuth, callback) {
+    /*
+      Serial reading and writing needed to move az motors to desired azimuth.
+    */
+    callback(motor_data); // OPTIONAL CALLBACK
+  }
+  function move_el_to (connectionId, elevation, callback) {
+    /*
+      Serial reading and writing needed to move el motors to desired elevation
+    */
+    callback(motor_data); // OPTIONAL CALLBACK
+  }
+  function get_motor_status (connectionId, callback) {
+    /*
+      Serial reading and writing needed to poll the motors for their current headings, without changing their course
+    */
+    callback(motor_data); // REQUIRED CALLBACK
+  }
 
-  return {
-    stop_motors : stop_motors,
-    move_az_to  : move_az_to,
-    move_el_to  : move_el_to,
-    get_status  : get_motor_status
-  };
+return {
+  stop_motors : stop_motors,
+  move_az_to  : move_az_to,
+  move_el_to  : move_el_to,
+  get_status  : get_motor_status
+};
 })();
 ```
 
 You must execute the callback at the end of get_motor_status(), its parameter, motor_data, should be a single object of the form:
 ```javascript
 callback ({ // callback should be passed an object like this
-  azimuth : motor_az,
-  elevation : motor_el,
-  status : motor_status
+azimuth : motor_az,
+elevation : motor_el,
+status : motor_status
 });
 ```
 
@@ -157,14 +157,14 @@ This will return the expected data to the rest of the application.
 Be sure to update the following part of the Motors Angular service, in services.js:
 ```javascript
 var supported_motors = {
-  'Slug Motor' : {
-    functions : slug_motor, // This is the global variable that the motor control logic should return
-    bitrate : 57600 // specify the optimal bitrate
-  },
-  'Your Custom Motors' : {
-    functions : your_global,
-    bitrate : 115200
-  }
+'Slug Motor' : {
+  functions : slug_motor, // This is the global variable that the motor control logic should return
+  bitrate : 57600 // specify the optimal bitrate
+},
+'Your Custom Motors' : {
+  functions : your_global,
+  bitrate : 115200
+}
 };
 ```
 as well as index.html, to include the new motor logic:
@@ -180,8 +180,6 @@ The Makefile has been removed. Instead, we will just organize our controllers so
 
 Images
 ------
-[Skybox Texture](http://phl.upr.edu/library/notes/syntheticstars)
-
 [Globe Texture](http://eoimages.gsfc.nasa.gov/images/imagerecords/74000/74443/world.topo.200409.3x5400x2700.png)
 
 License
