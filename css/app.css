@@ -1,6 +1,7 @@
 body, html {
   height: 100%;
   width: 100%;
+  font-family: Helvetica;
 }
 
 #chrome_app {
@@ -29,7 +30,6 @@ body, html {
 
 #sidebar_panel:hover {
     left: 1%;
-
 }
 
 #sidebar {
@@ -55,32 +55,32 @@ body, html {
 }
 
 .sat_panel {
-    color: red;
-    padding: 1px;
+    color: white;
     overflow:hidden;
     font-size: 18pt;
-    border: solid;
+    border: none;
     border-radius: 12px;
     background-color: black;
-    opacity: .3
+    opacity: .8
 }
 
-.sat_head {
-    padding: 1px;
-}
 
 .sat_body {
-    padding: 1px;
     height: 0px;
     overflow: hidden;
 }
 
+.sidebar_text {
+    margin: 0pt;
+    padding: 5pt;
+}
+
 .sat_panel:hover {
-    background-color: rgb(11, 11, 11);
+    background-color: rgb(22, 22, 22);
 }
 
 .overhead {
-    color: lime;
+    background-color: lime;
 }
 
 .selected {

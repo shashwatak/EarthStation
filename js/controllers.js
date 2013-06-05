@@ -10,6 +10,8 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors) {
     var satnum = sat_item.satnum;
     if (!$scope.sat_table[satnum]){
       $scope.sat_table[satnum] = sat_item;
+      $scope.sat_table[satnum]["motor_az"] = 0;
+      $scope.sat_table[satnum]["motor_el"] = 0;
       WorkerManager.add_satellite(sat_item.satrec);
     }
   };
@@ -113,18 +115,18 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors) {
   });
 
   $scope.connect_motors_to_sat = function (satnum, selected_port, selected_motor_type){
-    Motors.connect_motors(selected_port, selected_motor_type, satnum);
+    function motor_tracking_callback(motor_data) {
+      $scope.$apply(function() {
+        $scope.sat_table[satnum]["motor_az"] = motor_data["azimuth"];
+        $scope.sat_table[satnum]["motor_el"] = motor_data["elevation"];
+        $scope.sat_table[satnum]["motor_status"] = motor_data["motor_status"];
+      });
+    };
+    Motors.connect_motors(satnum, selected_port, selected_motor_type, motor_tracking_callback);
   }
 
-  $scope.sat_table[satnum]["motor_az"] = 0;
-  $scope.sat_table[satnum]["motor_el"] = 0;
-
   $scope.start_motor_tracking = function (satnum) {
-    function motor_tracking_callback(az_rad, el_rad) {
-      $scope.sat_table[satnum]["motor_az"] = az_rad;
-      $scope.sat_table[satnum]["motor_el"] = el_rad;
-    };
-    Motors.start_motor_tracking(satnum, motor_tracking_callback);
+    Motors.start_motor_tracking(satnum);
   }
 
   $scope.stop_motor_tracking = function (satnum) {
