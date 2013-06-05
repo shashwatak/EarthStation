@@ -1,4 +1,4 @@
-EarthStation (v0.1)
+EarthStation (v0.2)
 ===================
 This software is part of a larger project, to build a working
 Ground Station for Satellite Communication as part of the Amateur Radio Service at UCSC.
