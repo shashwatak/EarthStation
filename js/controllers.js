@@ -108,7 +108,6 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors) {
     if (ports.length > 0) {
       var i = 0;
       for (i = 0; i < ports.length; i++) {
-        console.log (ports[i]);
         $scope.$apply (function () {
           $scope.COM_list.push(ports[i]);
         });

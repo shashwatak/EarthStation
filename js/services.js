@@ -1,7 +1,7 @@
 function ThreeJS(WorkerManager) {
   // This is for the most part a very standard THREEjs setup.
   // Please familiarize yourself with this magnificent library.
-  var camera, scene, renderer, earth, skybox, camera_pivot;
+  var camera, scene, renderer, earth, skybox, camera_pivot, ambient_light;
   var sat_table = {};
   /*sat_table = {
       satnum: {
@@ -21,8 +21,9 @@ function ThreeJS(WorkerManager) {
 
   function init (){
     // Initialize the big three
-    renderer    = new THREE.WebGLRenderer();
-    scene       = new THREE.Scene();
+    renderer      = new THREE.WebGLRenderer();
+    scene         = new THREE.Scene();
+    ambient_light = new THREE.AmbientLight(0x707070);
 
     // Add initialized renderer to the DOM
     renderer.setSize(WIDTH, HEIGHT);
@@ -43,7 +44,7 @@ function ThreeJS(WorkerManager) {
         earth_rings       = 100;
     var earth_sphere      = new THREE.SphereGeometry( earth_radius, earth_segments, earth_rings );
     var earth_texture     = new THREE.ImageUtils.loadTexture("../img/world.jpg");
-    var earth_material    = new THREE.MeshBasicMaterial({ map : earth_texture, wireframe: false });
+    var earth_material    = new THREE.MeshPhongMaterial({ map : earth_texture, wireframe: false });
     // Create map 3D object
     earth = new THREE.Mesh(earth_sphere, earth_material);
 
@@ -60,6 +61,7 @@ function ThreeJS(WorkerManager) {
     // Add the Earth and Sky to the scene
     scene.add(skybox);
     scene.add(earth);
+    scene.add(ambient_light);
     // when window is ready, render
     renderer.render(scene, camera);
     THREEx.WindowResize(renderer, camera);
@@ -213,19 +215,27 @@ function ThreeJS(WorkerManager) {
     };
   };
 
+  WorkerManager.register_command_callback("sat_removed", no_more_tracking_callback);
+  function no_more_tracking_callback (data) {
+    // When the WorkerManager service removes the satellite.
+    var satnum = data.satnum;
+    remove_marker(satnum);
+    remove_path(satnum);
+  };
+
   WorkerManager.register_command_callback("path_update", path_update_callback);
   function path_update_callback (data) {
     var sat_item = data.sat_item;
     var satnum = sat_item.satnum;
     if (!sat_table[satnum]){
       sat_table[satnum] = {};
-    }
+    };
     if (sat_table[satnum]["path_ecf"]){
       update_path(satnum, sat_item["ecf_coords_list"]);
     }
     else {
       add_path(satnum, sat_item["ecf_coords_list"]);
-    };;
+    };
   };
 
   function add_satellite (satnum, satrec){
@@ -235,8 +245,6 @@ function ThreeJS(WorkerManager) {
 
   function remove_satellite (satnum) {
     WorkerManager.remove_satellite(satnum);
-    remove_path(satnum);
-    remove_marker(satnum);
   }
 
   function add_marker(satnum, position_ecf){
@@ -249,8 +257,12 @@ function ThreeJS(WorkerManager) {
     var marker_ecf = new THREE.Mesh(marker_sphere, marker_material);
     var position = ecf_array_to_webgl_pos(position_ecf);
     marker_ecf.position = position;
+    var point_light = new THREE.PointLight( 0xffffff, 2, 0 );
+    point_light.position = position;
+    marker_ecf.add(point_light);
     scene.add(marker_ecf);
     sat_table[satnum]["marker_ecf"] = marker_ecf;
+    earth.material.needsUpdate = true;
   };
 
   function add_path(satnum, ecf_coords_list){
