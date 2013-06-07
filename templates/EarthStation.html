@@ -20,6 +20,7 @@
         <p class="sidebar_text">Downlink frequency: {{sat.downlink_freq}}</p>
         <p class="sidebar_text">Uplink mode: {{sat.uplink_mode}}</p>
         <p class="sidebar_text">Downlink mode: {{sat.downlink_mode}}</p>
+        <p class="sidebar_text">Doppler Factor: {{sat.doppler_factor}}</p>
         <p class="sidebar_text">
           {{sat.position_gd[0] | longitude}}
           {{sat.position_gd[1] | latitude}}
@@ -33,10 +34,6 @@
         <p class="sidebar_text">
           {{sat.motor_az | azimuth}}
           {{sat.motor_el | elevation}}
-        </p>
-        <p class="sidebar_text">
-          {{sat.uplink_freq}}
-          {{sat.downlink_freq}}
         </p>
         <p>
           <button ng-click="refresh_com_ports_list()">
@@ -61,7 +58,7 @@
         </p>
         <p>
           <select ng-model="selected_radio_port" ng-options="port for port in COM_list"></select>
-          <select ng-model="selected_motor_type" ng-options="radio_type for radio_type in supported_radio_types"></select>
+          <select ng-model="selected_radio_type" ng-options="radio_type for radio_type in supported_radio_types"></select>
           <button ng-click="connect_radio_to_sat(satnum, selected_radio_port, selected_radio_type)">
             Open Radio
           </button>
