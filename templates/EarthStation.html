@@ -34,23 +34,45 @@
           {{sat.motor_az | azimuth}}
           {{sat.motor_el | elevation}}
         </p>
+        <p class="sidebar_text">
+          {{sat.uplink_freq}}
+          {{sat.downlink_freq}}
+        </p>
         <p>
-          <select ng-model="selected_port" ng-options="port for port in COM_list"></select>
+          <button ng-click="refresh_com_ports_list()">
+            Refresh COM List
+          </button>
+        </p>
+        <p>
+          <select ng-model="selected_motor_port" ng-options="port for port in COM_list"></select>
           <select ng-model="selected_motor_type" ng-options="motor_type for motor_type in supported_motor_types"></select>
-          <button
-            ng-click="connect_motors_to_sat(satnum, selected_port, selected_motor_type)">
-            Open
+          <button ng-click="connect_motors_to_sat(satnum, selected_motor_port, selected_motor_type)">
+            Open Motor
           </button>
-          <button
-            ng-click="start_motor_tracking(satnum)">
-            Start
+          <button ng-click="start_motor_tracking(satnum)">
+            Start Motor
           </button>
-          <button
-            ng-click="stop_motor_tracking(satnum)">
-            Stop
+          <button ng-click="stop_motor_tracking(satnum)">
+            Stop Motor
           </button>
           <button ng-click="close_motors(satnum)">
-            Close
+            Close Motor
+          </button>
+        </p>
+        <p>
+          <select ng-model="selected_radio_port" ng-options="port for port in COM_list"></select>
+          <select ng-model="selected_motor_type" ng-options="radio_type for radio_type in supported_radio_types"></select>
+          <button ng-click="connect_radio_to_sat(satnum, selected_radio_port, selected_radio_type)">
+            Open Radio
+          </button>
+          <button ng-click="start_radio_tracking(satnum)">
+            Start Doppler
+          </button>
+          <button ng-click="stop_radio_tracking(satnum)">
+            Stop Doppler
+          </button>
+          <button ng-click="close_radio(satnum)">
+            Close Radio
           </button>
         </p>
       </div>

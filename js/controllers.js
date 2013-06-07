@@ -1,4 +1,4 @@
-function UICtrl($scope, ThreeJS, WorkerManager, Motors) {
+function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios) {
   $scope.sat_table = {};
 
   ThreeJS.init();
@@ -97,29 +97,37 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors) {
   };
 
 
-  /* Prepare Motor Controller. */
+  /* Prepare Motor/Radio Controller. */
   $scope.COM_list = [];
-  $scope.selected_port = "";
+  $scope.selected_motor_port = "";
+  $scope.selected_radio_port = "";
 
   $scope.supported_motor_types = Motors.get_supported_motors();
+  $scope.supported_radio_types = Radios.get_supported_radios();
   $scope.selected_motor_type = "";
+  $scope.selected_radio_type = "";
 
-  chrome.serial.getPorts(function(ports) {
-    if (ports.length > 0) {
-      var i = 0;
-      for (i = 0; i < ports.length; i++) {
+  function refresh_com_ports_list () {
+    chrome.serial.getPorts(function(ports) {
+      if (ports.length > 0) {
+        var i = 0;
+        for (i = 0; i < ports.length; i++) {
+          $scope.$apply (function () {
+            $scope.COM_list.push(ports[i]);
+          });
+        };
         $scope.$apply (function () {
-          $scope.COM_list.push(ports[i]);
+          $scope.selected_port = ports[0];
         });
       }
-      $scope.$apply (function () {
-        $scope.selected_port = ports[0];
-      });
-    }
-    else {
-      $scope.selected_port = "¡ERROR, HOMBRE!";
-    }
-  });
+      else {
+        $scope.selected_port = "¡ERROR, HOMBRE!";
+      };
+    });
+  };
+  refresh_com_ports_list();
+
+  $scope.refresh_com_ports_list = refresh_com_ports_list;
 
   $scope.connect_motors_to_sat = function (satnum, selected_port, selected_motor_type){
     function motor_tracking_callback(motor_data) {
@@ -130,19 +138,39 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors) {
       });
     };
     Motors.connect_motors(satnum, selected_port, selected_motor_type, motor_tracking_callback);
-  }
+  };
 
   $scope.start_motor_tracking = function (satnum) {
     Motors.start_motor_tracking(satnum);
-  }
+  };
 
   $scope.stop_motor_tracking = function (satnum) {
     Motors.stop_motor_tracking(satnum);
-  }
+  };
 
   $scope.close_motors = function (satnum) {
     Motors.close_motors (satnum);
-  }
+  };
+
+  $scope.connect_radio_to_sat = function (satnum, selected_port, selected_radio_type){
+    function radio_tracking_callback(radio_data) {
+      $scope.$apply(function() {
+        $scope.sat_table[satnum]["main_freqency"] = radio_data["main_freqency"];
+        $scope.sat_table[satnum]["sub_freqency"]  = radio_data["sub_freqency"];
+      });
+    };
+    Radios.connect_radio(satnum, selected_port, selected_radio_type, radio_tracking_callback);
+  };
+
+  $scope.start_radio_tracking = function (satnum, main_freqency, sub_freqency) {
+    Radios.start_radio_tracking(satnum, main_freqency, sub_freqency);
+  };
+
+  $scope.stop_radio_tracking = function (satnum) {
+    Radios.stop_radio_tracking(satnum);
+  };
+
+  $scope.close_radio = function (satnum) {
+    Radios.close_radio (satnum);
+  };
 };
-
-

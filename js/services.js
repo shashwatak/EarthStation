@@ -500,3 +500,232 @@ function Motors (WorkerManager){
     stop_motor_tracking : stop_motor_tracking
   };
 };
+
+function Radio (WorkerManager){
+  var sat_table = {};
+
+  var supported_motors = {
+    'ICOM IC821H' : {
+      functions : icom_821h,
+      bitrate : 19200
+    }
+  };
+  var sat_table = {};
+  /* sat_table = {
+      satnum : {
+        connectionId : -1 // -1 means it's not connected
+        COMport : "COM1" // The string ID of the COM port
+        functions   : {
+          // Functions defined in a different script,
+          // so that we can modularly load a motor's
+          // control functions.
+          get_supported_radios : get_supported_radios,
+          connect_radio : connect_radio,
+          close_radio : close_radio,
+          start_doppler_correction : start_doppler_correction,
+          stop_doppler_correction : stop_doppler_correction
+        }
+      }
+   }*/
+
+  WorkerManager.register_command_callback("live_update", live_update_callback);
+  function live_update_callback (data) {
+    // When the WorkerManager service updates the satellite data,
+    // it callbacks the controller to update the model here.
+    var sat_item = data.sat_item;
+    var satnum = sat_item.satnum;
+    if (sat_table[satnum] &&
+        sat_table[satnum]["is_tracking"]) {
+      sat_table[satnum]["functions"].move_az_to(sat_table[satnum].connectionId, sat_item.look_angles[0]);
+      sat_table[satnum]["functions"].move_el_to(sat_table[satnum].connectionId, sat_item.look_angles[1]);
+      sat_table[satnum]["functions"].get_status(sat_table[satnum].connectionId, sat_table[satnum]["callback"]);
+    };
+  };
+
+  function connect_motors (satnum, COMport, motor_type, callback){
+    function on_open (open_info) {
+      if (open_info.connectionId > 0) {
+        console.log("Motors.connect_motors(" + COMport + ", " + motor_type + ", " + satnum + ")");
+        sat_table[satnum] = {
+          connectionId : open_info.connectionId,
+          COMport : COMport,
+          functions : supported_motors[motor_type]["functions"],
+          callback : callback
+        };
+        sat_table[satnum]["functions"].get_status(sat_table[satnum]["connectionId"],
+                                                  sat_table[satnum]["callback"]);
+        chrome.serial.flush (sat_table[satnum]["connectionId"], function(){});
+      }
+      else {
+        console.log ("Couldn't Open: " + COMport);
+      };
+    };
+    if (COMport && supported_motors[motor_type] && supported_motors[motor_type]["bitrate"]){
+      chrome.serial.open (COMport, {bitrate : supported_motors[motor_type]["bitrate"]}, on_open);
+    };
+  };
+
+  function close_motors (satnum) {
+    if (sat_table[satnum] && sat_table[satnum].connectionId > 0) {
+      chrome.serial.close (sat_table[satnum].connectionId, function (close_res) {
+        console.log("close: " + sat_table[satnum].COMport + " " + close_res)
+        if (close_res) {
+          sat_table[satnum].connectionId = -1;
+          sat_table[satnum].port = "";
+        };
+      });
+    };
+  };
+
+  function start_motor_tracking (satnum, callback) {
+    if (sat_table[satnum] && !sat_table[satnum]["is_tracking"]) {
+      sat_table[satnum]["is_tracking"] = true;
+    }
+  };
+
+  function stop_motor_tracking (satnum) {
+    if (sat_table[satnum] && sat_table[satnum]["is_tracking"]) {
+      sat_table[satnum]["functions"].stop_motors(sat_table[satnum].connectionId);
+      sat_table[satnum]["is_tracking"] = false;
+    };
+  };
+
+  function get_supported_motors (){
+    var supported_motors_list = [];
+    for (var motor_type in supported_motors) {
+      if(supported_motors.hasOwnProperty(motor_type)) {
+        supported_motors_list.push(motor_type);
+      };
+    };
+    return supported_motors_list;
+  };
+
+  return {
+    get_supported_motors : get_supported_motors,
+    connect_motors : connect_motors,
+    close_motors : close_motors,
+    start_motor_tracking : start_motor_tracking,
+    stop_motor_tracking : stop_motor_tracking
+  };
+
+};
+
+function Radios (WorkerManager){
+  var sat_table = {};
+  var supported_radios = {
+    'ICOM IC821H' : {
+      functions : icom_821h,
+      bitrate : 19200
+    }
+  };
+
+  WorkerManager.register_command_callback("live_update", live_update_callback);
+  var background_tuning_wait_start = performance.now();
+  function live_update_callback (data) {
+    // When the WorkerManager service updates the satellite data,
+    // it callbacks the controller to update the model here.
+    var sat_item = data.sat_item;
+    var satnum = sat_item.satnum;
+    if (sat_table[satnum] && sat_table[satnum]["is_tracking"]) {
+      if ( !((performance.now() - background_tuning_wait_start) < 3000)) {
+        sat_table[satnum]["functions"].get_main_frequency(sat_table[satnum]["connectionId"], function (frequency){
+          if (sat_table[satnum]["main_frequency"] !== frequency) {
+            // User changed something on the Radio, go into Background Tuning Wait
+            background_tuning_wait_start = performance.now();
+          }
+          else{
+            var new_main_freq = frequency*data.doppler_factor;
+            sat_table[satnum]["functions"].set_main_frequency(sat_table[satnum]["connectionId"], new_main_freq);
+            sat_table[satnum]["main_frequency"] = new_main_freq;
+            sat_table[satnum]["functions"].get_sub_frequency(sat_table[satnum]["connectionId"], function (frequency){
+              if (sat_table[satnum]["sub_frequency"] !== frequency) {
+                // User changed something on the Radio, go into Background Tuning Wait
+                background_tuning_wait_start = performance.now();
+              }
+              else {
+                var new_sub_freq = frequency*data.doppler_factor;
+                sat_table[satnum]["functions"].set_sub_frequency(sat_table[satnum]["connectionId"], new_sub_freq);
+                sat_table[satnum]["sub_frequency"] = new_sub_freq;
+              };
+            });
+          };
+        });
+      };
+    };
+  };
+
+  function connect_radio (satnum, COMport, radio_type, callback){
+    function on_open (open_info) {
+      if (open_info.connectionId > 0) {
+        console.log("radios.connect_radios(" + COMport + ", " + radio_type + ", " + satnum + ")");
+        sat_table[satnum] = {
+          connectionId : open_info.connectionId,
+          COMport : COMport,
+          functions : supported_radios[radio_type]["functions"],
+          callback : callback
+        };
+        var radio_main_freq = 0;
+        var radio_sub_freq = 0;
+        sat_table[satnum]["functions"].get_main_frequency(sat_table[satnum]["connectionId"], function(m_frequency) {
+          radio_main_freq = m_frequency;
+          sat_table[satnum]["functions"].get_sub_frequency(sat_table[satnum]["connectionId"], function(s_frequency) {
+            radio_sub_freq = s_frequency;
+            callback({
+              main_freqency : radio_main_freq,
+              sub_freqency : radio_sub_freq
+            });
+          });
+        });
+        chrome.serial.flush (sat_table[satnum]["connectionId"], function(){});
+      }
+      else {
+        console.log ("Couldn't Open: " + COMport);
+      };
+    };
+    if (COMport && supported_radios[radio_type] && supported_radios[radio_type]["bitrate"]){
+      chrome.serial.open (COMport, {bitrate : supported_radios[radio_type]["bitrate"]}, on_open);
+    };
+  };
+
+  function close_radio (satnum) {
+    if (sat_table[satnum] && sat_table[satnum].connectionId > 0) {
+      chrome.serial.close (sat_table[satnum].connectionId, function (close_res) {
+        console.log("close: " + sat_table[satnum].COMport + " " + close_res)
+        if (close_res) {
+          sat_table[satnum].connectionId = -1;
+          sat_table[satnum].port = "";
+        };
+      });
+    };
+  };
+
+  function start_radio_tracking (satnum, callback) {
+    if (sat_table[satnum] && !sat_table[satnum]["is_tracking"]) {
+      sat_table[satnum]["is_tracking"] = true;
+    }
+  };
+
+  function stop_radio_tracking (satnum) {
+    if (sat_table[satnum] && sat_table[satnum]["is_tracking"]) {
+      sat_table[satnum]["is_tracking"] = false;
+    };
+  };
+
+  function get_supported_radios (){
+    var supported_radios_list = [];
+    for (var radio_type in supported_radios) {
+      if(supported_radios.hasOwnProperty(radio_type)) {
+        supported_radios_list.push(radio_type);
+      };
+    };
+    return supported_radios_list;
+  };
+
+  return {
+    get_supported_radios : get_supported_radios,
+    connect_radio : connect_radio,
+    close_radio : close_radio,
+    start_radio_tracking : start_radio_tracking,
+    stop_radio_tracking : stop_radio_tracking
+  };
+};
