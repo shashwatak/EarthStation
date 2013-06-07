@@ -27,7 +27,9 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios) {
       // I apply these right away because I want these to refresh in the UI.
       $scope.sat_table[satnum]["look_angles"] = sat_item.look_angles;
       $scope.sat_table[satnum]["position_ecf"] = sat_item.position_ecf;
+      $scope.sat_table[satnum]["position_eci"] = sat_item.position_eci;
       $scope.sat_table[satnum]["position_gd"] = sat_item.position_gd;
+      $scope.sat_table[satnum]["doppler_factor"] = sat_item.doppler_factor;
     });
   };
 
@@ -104,8 +106,8 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios) {
 
   $scope.supported_motor_types = Motors.get_supported_motors();
   $scope.supported_radio_types = Radios.get_supported_radios();
-  $scope.selected_motor_type = "";
-  $scope.selected_radio_type = "";
+  $scope.selected_motor_type = $scope.supported_motor_types[0];
+  $scope.selected_radio_type = $scope.supported_radio_types[0];
 
   function refresh_com_ports_list () {
     chrome.serial.getPorts(function(ports) {
@@ -117,7 +119,8 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios) {
           });
         };
         $scope.$apply (function () {
-          $scope.selected_port = ports[0];
+          $scope.selected_motor_port = ports[0];
+          $scope.selected_radio_port = ports[0];
         });
       }
       else {
@@ -159,11 +162,12 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios) {
         $scope.sat_table[satnum]["sub_freqency"]  = radio_data["sub_freqency"];
       });
     };
-    Radios.connect_radio(satnum, selected_port, selected_radio_type, radio_tracking_callback);
+    Radios.connect_radio(satnum, selected_port, selected_radio_type, radio_tracking_callback,
+      $scope.sat_table[satnum]["uplink_frequency"], $scope.sat_table[satnum]["downlink_frequency"]);
   };
 
-  $scope.start_radio_tracking = function (satnum, main_freqency, sub_freqency) {
-    Radios.start_radio_tracking(satnum, main_freqency, sub_freqency);
+  $scope.start_radio_tracking = function (satnum) {
+    Radios.start_radio_tracking(satnum);
   };
 
   $scope.stop_radio_tracking = function (satnum) {

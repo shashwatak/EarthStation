@@ -621,67 +621,69 @@ function Radios (WorkerManager){
 
   WorkerManager.register_command_callback("live_update", live_update_callback);
   var background_tuning_wait_start = performance.now();
+  var background_tuning_flag = false;
   function live_update_callback (data) {
     // When the WorkerManager service updates the satellite data,
     // it callbacks the controller to update the model here.
     var sat_item = data.sat_item;
     var satnum = sat_item.satnum;
-    if (sat_table[satnum] && sat_table[satnum]["is_tracking"]) {
-      if ( !((performance.now() - background_tuning_wait_start) < 3000)) {
-        sat_table[satnum]["functions"].get_main_frequency(sat_table[satnum]["connectionId"], function (frequency){
-          if (sat_table[satnum]["main_frequency"] !== frequency) {
-            // User changed something on the Radio, go into Background Tuning Wait
-            background_tuning_wait_start = performance.now();
-          }
-          else{
-            var new_main_freq = frequency*data.doppler_factor;
-            sat_table[satnum]["functions"].set_main_frequency(sat_table[satnum]["connectionId"], new_main_freq);
-            sat_table[satnum]["main_frequency"] = new_main_freq;
-            sat_table[satnum]["functions"].get_sub_frequency(sat_table[satnum]["connectionId"], function (frequency){
-              if (sat_table[satnum]["sub_frequency"] !== frequency) {
+    if (sat_table[satnum]){
+      sat_table[satnum]["functions"].get_main_frequency(sat_table[satnum]["connectionId"], function (m_frequency) {
+        sat_table[satnum]["functions"].get_sub_frequency(sat_table[satnum]["connectionId"], function (s_frequency) {
+          var new_main_freq = m_frequency;
+          var new_sub_freq = s_frequency;
+          if (sat_table[satnum]["is_tracking"]) {
+            if (!background_tuning_flag || (performance.now() - background_tuning_wait_start) > 3000) {
+              if (sat_table[satnum]["main_frequency"] !== m_frequency ||
+                  sat_table[satnum]["sub_frequency"] !== s_frequency) {
                 // User changed something on the Radio, go into Background Tuning Wait
                 background_tuning_wait_start = performance.now();
+                background_tuning_flag = true;
               }
-              else {
-                var new_sub_freq = frequency*data.doppler_factor;
+              else{
+                background_tuning_flag = false;
+                new_main_freq *= data.doppler_factor;
+                new_sub_freq *= data.doppler_factor;
+                sat_table[satnum]["functions"].set_main_frequency(sat_table[satnum]["connectionId"], new_main_freq);
                 sat_table[satnum]["functions"].set_sub_frequency(sat_table[satnum]["connectionId"], new_sub_freq);
-                sat_table[satnum]["sub_frequency"] = new_sub_freq;
               };
-            });
+            };
           };
+          sat_table[satnum]["main_frequency"] = new_main_freq;
+          sat_table[satnum]["sub_frequency"] = new_sub_freq;
+          sat_table[satnum]["callback"](new_main_freq, new_sub_freq);
         });
-      };
+      });
     };
   };
 
-  function connect_radio (satnum, COMport, radio_type, callback){
+  function connect_radio (satnum, COMport, radio_type, callback, uplink, downlink){
     function on_open (open_info) {
       if (open_info.connectionId > 0) {
-        console.log("radios.connect_radios(" + COMport + ", " + radio_type + ", " + satnum + ")");
         sat_table[satnum] = {
           connectionId : open_info.connectionId,
           COMport : COMport,
           functions : supported_radios[radio_type]["functions"],
           callback : callback
         };
-        var radio_main_freq = 0;
-        var radio_sub_freq = 0;
-        sat_table[satnum]["functions"].get_main_frequency(sat_table[satnum]["connectionId"], function(m_frequency) {
-          radio_main_freq = m_frequency;
-          sat_table[satnum]["functions"].get_sub_frequency(sat_table[satnum]["connectionId"], function(s_frequency) {
-            radio_sub_freq = s_frequency;
-            callback({
-              main_freqency : radio_main_freq,
-              sub_freqency : radio_sub_freq
+        sat_table[satnum]["main_frequency"] = uplink;
+        sat_table[satnum]["sub_frequency"] = downlink;
+        chrome.serial.flush (sat_table[satnum]["connectionId"], function(result){
+          if (result){
+            sat_table[satnum]["functions"].set_main_frequency(sat_table[satnum]["connectionId"], uplink, function(m_frequency) {
+              sat_table[satnum]["functions"].set_sub_frequency(sat_table[satnum]["connectionId"], downlink, function(sub_frequency){});
             });
-          });
+          }
+          else {
+            console.log ("Couldn't Flush: " + COMport);
+          }
         });
-        chrome.serial.flush (sat_table[satnum]["connectionId"], function(){});
       }
       else {
         console.log ("Couldn't Open: " + COMport);
       };
     };
+    console.log("radios.connect_radios(" + COMport + ", " + radio_type + ", " + satnum + ")");
     if (COMport && supported_radios[radio_type] && supported_radios[radio_type]["bitrate"]){
       chrome.serial.open (COMport, {bitrate : supported_radios[radio_type]["bitrate"]}, on_open);
     };
