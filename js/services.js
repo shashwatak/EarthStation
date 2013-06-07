@@ -426,10 +426,11 @@ function Motors (WorkerManager){
     // it callbacks the controller to update the model here.
     var sat_item = data.sat_item;
     var satnum = sat_item.satnum;
-    if (sat_table[satnum] &&
-        sat_table[satnum]["is_tracking"]) {
-      sat_table[satnum]["functions"].move_az_to(sat_table[satnum].connectionId, sat_item.look_angles[0]);
-      sat_table[satnum]["functions"].move_el_to(sat_table[satnum].connectionId, sat_item.look_angles[1]);
+    if (sat_table[satnum]) {
+      if (sat_table[satnum]["is_tracking"]) {
+        sat_table[satnum]["functions"].move_az_to(sat_table[satnum].connectionId, sat_item.look_angles[0]);
+        sat_table[satnum]["functions"].move_el_to(sat_table[satnum].connectionId, sat_item.look_angles[1]);
+      };
       sat_table[satnum]["functions"].get_status(sat_table[satnum].connectionId, sat_table[satnum]["callback"]);
     };
   };
