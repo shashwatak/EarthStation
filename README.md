@@ -100,8 +100,6 @@ Software Architecture
 ----------------------
 Ideally, we make use of WebWorkers to offload the mathematically intense logic to separate threads.
 
-![Proposed Data Flow](http://i.imgur.com/87kd2vP.jpg Proposed Data Flow)
-
 ![Chrome Data Flow](http://i.imgur.com/UdXV7AC.jpg Chrome Data Flow)
 
 AngularJS Architecture
