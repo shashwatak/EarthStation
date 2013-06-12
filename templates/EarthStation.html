@@ -4,7 +4,9 @@
    ng-mousemove="mouse_move($event)"
    msd-wheel="mouse_wheel($event, $delta, $deltaX, $deltaY)">
 </div>
-
+<div id="footer">
+  <button id="fullscreen_button" ng-click="fullscreen()">Fullscreen</button>
+</div>
 <div id="sidebar_panel">
   <div id="sidebar">
     <input id="search_bar"></input>
@@ -16,8 +18,8 @@
         <p class="sidebar_text">{{sat.name}}</p>
       </div>
       <div class="sat_body" ng-class="{selected : sat.selected}">
-        <p class="sidebar_text">Uplink frequency: {{sat.uplink_freq}}</p>
-        <p class="sidebar_text">Downlink frequency: {{sat.downlink_freq}}</p>
+        <p class="sidebar_text">Uplink frequency: {{sat.uplink_frequency}}</p>
+        <p class="sidebar_text">Downlink frequency: {{sat.downlink_frequency}}</p>
         <p class="sidebar_text">Uplink mode: {{sat.uplink_mode}}</p>
         <p class="sidebar_text">Downlink mode: {{sat.downlink_mode}}</p>
         <p class="sidebar_text">Doppler Factor: {{sat.doppler_factor}}</p>
@@ -30,10 +32,6 @@
           {{sat.look_angles[0] | azimuth}}
           {{sat.look_angles[1] | elevation}}
           {{sat.look_angles[2] | distance}}
-        </p>
-        <p class="sidebar_text">
-          {{sat.motor_az | azimuth}}
-          {{sat.motor_el | elevation}}
         </p>
         <p>
           <button ng-click="refresh_com_ports_list()">
@@ -56,10 +54,14 @@
             Close Motor
           </button>
         </p>
+        <p class="sidebar_text">
+          {{sat.motor_az | azimuth}}
+          {{sat.motor_el | elevation}}
+        </p>
         <p>
           <select ng-model="selected_radio_port" ng-options="port for port in COM_list"></select>
           <select ng-model="selected_radio_type" ng-options="radio_type for radio_type in supported_radio_types"></select>
-          <button ng-click="connect_radio_to_sat(satnum, selected_radio_port, selected_radio_type)">
+          <button ng-click="connect_radio_to_sat(satnum, selected_radio_port, selected_radio_type, uplink_frequency, downlink_frequency)">
             Open Radio
           </button>
           <button ng-click="start_radio_tracking(satnum)">
@@ -72,11 +74,13 @@
             Close Radio
           </button>
         </p>
+        <p class="sidebar_text">
+          {{sat.radio_main_frequency}}
+          {{sat.radio_sub_frequency}}
+        </p>
       </div>
     </div>
     <button ng-click="choose_file()">Import 3LE File</button>
   </div>
 </div>
-<div id="footer">
-  <button id="fullscreen_button" ng-click="fullscreen()">Fullscreen</button>
-</div>
+
