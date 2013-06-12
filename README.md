@@ -94,19 +94,21 @@ Hardware Architecture
 -----------------
 The Tracking Software runs on a Computer, and connects to an external Motor Controller. The Computer sends the Motor Controller aiming directions. The Motor Controller then sends Power to the Motors to move the Antenna. The Computer also connects to the Radio and corrects the transmission frequencies for the Doppler effect.
 
-![Hardware Block Diagram](http://i.imgur.com/YdwXmBB.gif Hardware Block Diagram)
+![Hardware Block Diagram](http://i.imgur.com/fclQhJy.jpg Hardware Block Diagram)
 
 Software Architecture
 ----------------------
 Ideally, we make use of WebWorkers to offload the mathematically intense logic to separate threads.
 
-![Proposed Data Flow](http://i.imgur.com/gxiF07h.gif Proposed Data Flow)
+![Proposed Data Flow](http://i.imgur.com/87kd2vP.jpg Proposed Data Flow)
 
-![Chrome Data Flow](http://i.imgur.com/XuIy5L9.gif Chrome Data Flow)
+![Chrome Data Flow](http://i.imgur.com/UdXV7AC.jpg Chrome Data Flow)
 
 AngularJS Architecture
 -----------------------
-AngularJS divides a project into four sections, Controllers, Services, Filters, and Directives. I will go into detail about how I organized teh app here.
+AngularJS divides a project into four sections, Controllers, Services, Filters, and Directives. The Controllers and Services are the most important aspects of this particular project.
+
+![AngularJS Architecture](http://imgur.com/AGGz7A5 AngularJS Organization)
 
 ###Controllers
 The Controllers should all be very small, and should be limited to setting up the Model, instantiating the Services, defining callbacks for UI events, and not much else.
@@ -121,6 +123,12 @@ Services are singletons, often used to encapsulate Web APIs, but here they are u
 `WorkerManager` corresponds exactly to the Worker Manager in the Software Architecture. This Service instantiates Web Workers (threads), sets up their callbacks, and provides the Web Workers with their parameters. Both `UICtrl` and `ThreeJS` rely on `WorkerManager` to provide up-to-date satellite tracking information, for display in HTML and WebGL.
 
 The `Radio` and `Motor` Services encapsulate the hardware control logic. It does not rely on WebWorkers, because the chrome.serial API is only available from the Main Thread. They both rely on `WorkerManager` to provide them with up-to-date tracking information.
+
+###Filters
+Filters provide a modular way to format and present data dynamically in the HTML. We've set up filters to neatly print out coordinates and large numbers.
+
+###Directives
+Directives add functionality to the DOM, allowing us to create new events and capture DOM changes and User actions.
 
 Serial Hardware Interfacing
 ---------------------
