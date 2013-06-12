@@ -100,7 +100,7 @@ Software Architecture
 ----------------------
 Ideally, we make use of WebWorkers to offload the mathematically intense logic to separate threads.
 
-![Chrome Data Flow](http://i.imgur.com/UdXV7AC.jpg Chrome Data Flow)
+![Chrome Data Flow](http://i.imgur.com/yd313ze.jpg Chrome Data Flow)
 
 The Main Thread (which includes Worker Manager) ONLY deals with initial setting up of the JS environment, and responding to various callbacks. This ensures that it's number one priority remains Graphics Refresh, via the requestAnimationFrame() call. Otherwise, the Main Thread will delay Graphics updates for other logic, the graphics will appear choppy, and the UI will seem non-responsive.
 
