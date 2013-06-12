@@ -11,8 +11,8 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios) {
     if (!$scope.sat_table[satnum]){
       $scope.$apply(function(){
         $scope.sat_table[satnum] = sat_item;
-        $scope.sat_table[satnum]["motor_az"] = 0;
-        $scope.sat_table[satnum]["motor_el"] = 0;
+        $scope.sat_table[satnum]["uplink_frequency"] = 450000000;
+        $scope.sat_table[satnum]["downlink_frequency"] = 145000000;
       });
     }
   };
@@ -157,9 +157,11 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios) {
 
   $scope.connect_radio_to_sat = function (satnum, selected_port, selected_radio_type){
     function radio_tracking_callback(radio_data) {
+      //console.log ("main: " + radio_data["main_frequency"]);
+      //console.log ("sub: " + radio_data["sub_frequency"]);
       $scope.$apply(function() {
-        $scope.sat_table[satnum]["main_freqency"] = radio_data["main_freqency"];
-        $scope.sat_table[satnum]["sub_freqency"]  = radio_data["sub_freqency"];
+        $scope.sat_table[satnum]["radio_main_frequency"] = radio_data["main_frequency"];
+        $scope.sat_table[satnum]["radio_sub_frequency"]  = radio_data["sub_frequency"];
       });
     };
     Radios.connect_radio(satnum, selected_port, selected_radio_type, radio_tracking_callback,

@@ -14,33 +14,41 @@ We considered many different approaches to building this app before settling on 
 
 ###ARS Ground Station Team
 
-**Jason Ragland** (AG6RM)
-Team Lead Antenna Design
+**Jason Ragland** *AG6RM*
 
-**Andrew Martino** (KJ6RFK)
+Team Lead, Antenna Design
+
+**Andrew Martino** *KJ6RFK*
+
 Power, Motor, and Mechanical Systems
 
-**Sander Middour** (KK6BSI)
+**Sander Middour** *KK6BSI*
+
 Digital Motor Control
 
-**Shashwat Kandadai** (KK6BSH)
+**Shashwat Kandadai** *KK6BSH*
+
 Tracking Software
 
 ###Mentors
-**Professor Steve Petersen** (AC6P)
+**Professor Steve Petersen** *AC6P*
 
-**Professor John Vesecky** (AE6TL)
+**Professor John Vesecky** *AE6TL*
 
 **Paul Naud**
 
-###Further Acknowledgments
-Steve Petersen
+###Acknowledgments
+[Professor Steve Petersen (AC6P)](http://www.soe.ucsc.edu/people/petersen)
 
-TS Kelso
+[TS Kelso](http://celestrak.com/webmaster.asp)
 
-http://www.aerotwist.com/
+[Paul Lewis](http://www.aerotwist.com/)
 
-stackoverflow.com
+[Jerome Etienne](http://learningthreejs.com/)
+
+[Stemkoski](http://stemkoski.github.io/Three.js/)
+
+[Stack Overflow](stackoverflow.com)
 
 Major TODOs
 ===========
@@ -57,10 +65,6 @@ Major TODOs
 -   Geodetic-Normalized and Actual sat paths display.
 -   Stargazer mode (upwards view of Az/El).
     -   Displays motors heading.
--   Get all of AC6Ps satellite contact information out of his database.
-
-####Pull up from Sandbox
--   Radio control
 
 How To Run
 ----------
