@@ -102,6 +102,16 @@ Ideally, we make use of WebWorkers to offload the mathematically intense logic t
 
 ![Chrome Data Flow](http://i.imgur.com/UdXV7AC.jpg Chrome Data Flow)
 
+The Main Thread (which includes Worker Manager) ONLY deals with initial setting up of the JS environment, and responding to various callbacks. This ensures that it's number one priority remains Graphics Refresh, via the requestAnimationFrame() call. Otherwise, the Main Thread will delay Graphics updates for other logic, the graphics will appear choppy, and the UI will seem non-responsive.
+
+The three.js rendering environment is in WebGL. The Main Thread relays any UI commands that require a change in the WebGL objects (such as zooming, rotating, tracking a satellite).
+
+The Tracking worker is told which satellites to track, and regularly reports those satellites live position. It runs one SGP4 calculation per satellite being tracked, every update cycle, and returns all the live values for each satellite.
+
+The Propagation worker is given a satellite and told to provide several position coordinates in an array, depicting the satellite's path of travel. This thread does many SGP4 calculations for a single satellite over a given span of time. Can also provide this thread with a orbital_resolution value, that increases or decreases the granularity of SGP4 calls.
+
+The localStorage cache is accessed at the start and finish of the app's life-cycle, preserving state across multiple sessions.
+
 AngularJS Architecture
 -----------------------
 AngularJS divides a project into four sections, Controllers, Services, Filters, and Directives. The Controllers and Services are the most important aspects of this particular project.
