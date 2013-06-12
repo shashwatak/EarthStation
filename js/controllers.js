@@ -157,11 +157,9 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios) {
 
   $scope.connect_radio_to_sat = function (satnum, selected_port, selected_radio_type){
     function radio_tracking_callback(radio_data) {
-      //console.log ("main: " + radio_data["main_frequency"]);
-      //console.log ("sub: " + radio_data["sub_frequency"]);
       $scope.$apply(function() {
-        $scope.sat_table[satnum]["radio_main_frequency"] = radio_data["main_frequency"];
-        $scope.sat_table[satnum]["radio_sub_frequency"]  = radio_data["sub_frequency"];
+        $scope.sat_table[satnum]["radio_main_frequency"] = radio_data["radio_main_frequency"];
+        $scope.sat_table[satnum]["radio_sub_frequency"]  = radio_data["radio_sub_frequency"];
       });
     };
     Radios.connect_radio(satnum, selected_port, selected_radio_type, radio_tracking_callback,

@@ -104,78 +104,140 @@ Ideally, we make use of WebWorkers to offload the mathematically intense logic t
 
 ![Chrome Data Flow](http://i.imgur.com/XuIy5L9.gif Chrome Data Flow)
 
+AngularJS Architecture
+-----------------------
+AngularJS divides a project into four sections, Controllers, Services, Filters, and Directives. I will go into detail about how I organized teh app here.
+
+###Controllers
+The Controllers should all be very small, and should be limited to setting up the Model, instantiating the Services, defining callbacks for UI events, and not much else.
+
+This app is a single view, currently run by `UICtrl`, which is quite simple. `UICtrl` takes in user mouse/keyboard actions and relays them to Services like `ThreeJS` and `WorkerManager`.
+
+###Services
+Services are singletons, often used to encapsulate Web APIs, but here they are used to wrap up complex local logic.
+
+`ThreeJS` is used to abstract the WebGL world from the AngularJS/HTML/CSS world. `UICtrl` detects user actions, such as scrolling, and informs `ThreeJS` to appropriately update the 3D objects.
+
+`WorkerManager` corresponds exactly to the Worker Manager in the Software Architecture. This Service instantiates Web Workers (threads), sets up their callbacks, and provides the Web Workers with their parameters. Both `UICtrl` and `ThreeJS` rely on `WorkerManager` to provide up-to-date satellite tracking information, for display in HTML and WebGL.
+
+The `Radio` and `Motor` Services encapsulate the hardware control logic. It does not rely on WebWorkers, because the chrome.serial API is only available from the Main Thread. They both rely on `WorkerManager` to provide them with up-to-date tracking information.
+
 Serial Hardware Interfacing
 ---------------------
 With the goal of keeping the motor control logic as modular as possible, one can add motor control logic to this project with relative ease.
 
-The hardware logic should be a self executing function that returns the following functions in a uniquely named global value:
+The hardware logic should be a self executing function that returns a set of functions with preset names, as follows.
+
+###Motors
+
 ```javascript
-your_global = (function(){
-  /* Motor control logic */
+  your_motor_global = (function(){
+    function stop_motors (connectionId, callback) {
+      // Do your chrome.serial reads and writes here.
+      callback(motor_data); // OPTIONAL CALLBACK
+    }
+    function move_az_to (connectionId, azimuth, callback) {
+      // Do your chrome.serial reads and writes here.
+      callback(motor_data); // OPTIONAL CALLBACK
+    }
+    function move_el_to (connectionId, elevation, callback) {
+      // Do your chrome.serial reads and writes here.
+      callback(motor_data); // OPTIONAL CALLBACK
+    }
+    function get_motor_status (connectionId, callback) {
+      // Do your chrome.serial reads and writes here.
+      callback(motor_data); // REQUIRED CALLBACK
+    }
 
-  function stop_motors (connectionId, callback) {
-    /*
-      Serial reading and writing needed to stop the motors goes here
-    */
-    callback(motor_data); // OPTIONAL CALLBACK
-  }
-  function move_az_to (connectionId, azimuth, callback) {
-    /*
-      Serial reading and writing needed to move az motors to desired azimuth.
-    */
-    callback(motor_data); // OPTIONAL CALLBACK
-  }
-  function move_el_to (connectionId, elevation, callback) {
-    /*
-      Serial reading and writing needed to move el motors to desired elevation
-    */
-    callback(motor_data); // OPTIONAL CALLBACK
-  }
-  function get_motor_status (connectionId, callback) {
-    /*
-      Serial reading and writing needed to poll the motors for their current headings, without changing their course
-    */
-    callback(motor_data); // REQUIRED CALLBACK
-  }
+    /* The motor_data callback parameter is of the format:
+    motor_data = {
+      azimuth : motor_az,
+      elevation : motor_el,
+      status : motor_status
+    }*/
 
-return {
-  stop_motors : stop_motors,
-  move_az_to  : move_az_to,
-  move_el_to  : move_el_to,
-  get_status  : get_motor_status
-};
-})();
+    return {
+      // return these functions, and the app will operate your motors.
+      stop_motors : stop_motors,
+      move_az_to  : move_az_to,
+      move_el_to  : move_el_to,
+      get_status  : get_motor_status
+    };
+  })();
 ```
 
-You must execute the callback at the end of get_motor_status(), its parameter, motor_data, should be a single object of the form:
+###Radios
+
 ```javascript
-callback ({ // callback should be passed an object like this
-azimuth : motor_az,
-elevation : motor_el,
-status : motor_status
-});
+  your_radio_global = (function() {
+    function get_main_frequency (connectionId, callback) {
+      // Do your chrome.serial reads and writes here.
+      callback(radio_main_frequency); // REQUIRED CALLBACK
+    };
+
+    function get_sub_frequency (connectionId, callback) {
+      // Do your chrome.serial reads and writes here.
+      callback(radio_sub_frequency); // REQUIRED CALLBACK
+    };
+
+    function set_main_frequency (connectionId, frequency, callback) {
+      // Do your chrome.serial reads and writes here.
+      callback(); // OPTIONAL CALLBACK
+    };
+
+    function set_sub_frequency (connectionId, frequency, callback) {
+      // Do your chrome.serial reads and writes here.
+      callback(); // OPTIONAL CALLBACK
+    };
+
+    return {
+      get_main_frequency : get_main_frequency,
+      get_sub_frequency : get_sub_frequency,
+      set_main_frequency : set_main_frequency,
+      set_sub_frequency : set_sub_frequency,
+    };
+
+  })();
 ```
 
 This will return the expected data to the rest of the application.
 
-Be sure to update the following part of the Motors Angular service, in services.js:
+Be sure to update the following part of the Motors or Radios Angular service, in services.js:
+
 ```javascript
-var supported_motors = {
-'Slug Motor' : {
-  functions : slug_motor, // This is the global variable that the motor control logic should return
-  bitrate : 57600 // specify the optimal bitrate
-},
-'Your Custom Motors' : {
-  functions : your_global,
-  bitrate : 115200
-}
-};
+  // Supported Motors
+  var supported_motors = {
+    'Slug Motor' : {
+      functions : slug_motor, // This is the global variable that the motor control logic should return
+      bitrate : 57600 // specify the optimal bitrate
+    },
+    'Your Custom Motors' : {
+      functions : your_motor_global,
+      bitrate : 115200
+    }
+  };
+
+  // Supported Radios
+  var supported_radios = {
+    'ICOM IC821H' : {
+      functions : icom_821h,
+      bitrate : 19200
+    },
+    'Your Custom Radio' : {
+      functions : your_radio_global
+      bitrate : 9600
+    }
+  };
 ```
+
 as well as index.html, to include the new motor logic:
+
 ```html
-<!--Loading hardware control libraries !-->
-<script src="lib/motors/slug_motor.js"></script>
-<script src="lib/motors/your_motor.js"></script>
+  <!--Loading hardware control libraries !-->
+  <script src="lib/motors/slug_motor.js"></script>
+  <script src="lib/motors/your_motor.js"></script>
+  <script src="lib/radios/icom_821h.js"></script>
+  <script src="lib/radios/your_radio.js"></script>
 ```
 
 ~~Makefile~~

@@ -539,8 +539,8 @@ function Radios (WorkerManager){
             sat_item["functions"].set_main_frequency(sat_item["connectionId"], sat_item["radio_main_frequency"], function(set_main_result) {
               sat_item["functions"].set_sub_frequency(sat_item["connectionId"], sat_item["radio_sub_frequency"], function(set_sub_result){
                 sat_item["callback"]({
-                  main_frequency : sat_item["radio_main_frequency"],
-                  sub_frequency : sat_item["radio_sub_frequency"]
+                  radio_main_frequency : sat_item["radio_main_frequency"],
+                  radio_sub_frequency : sat_item["radio_sub_frequency"]
                 });
                 radio_comms_async_loop (sat_item);
               });
@@ -551,8 +551,8 @@ function Radios (WorkerManager){
             sat_item["radio_main_frequency"] = radio_main_frequency;
             sat_item["radio_sub_frequency"] = radio_sub_frequency;
             sat_item["callback"]({
-              main_frequency : sat_item["radio_main_frequency"],
-              sub_frequency : sat_item["radio_sub_frequency"]
+              radio_main_frequency : sat_item["radio_main_frequency"],
+              radio_sub_frequency : sat_item["radio_sub_frequency"]
             });
             radio_comms_async_loop (sat_item);
           };
@@ -583,8 +583,8 @@ function Radios (WorkerManager){
                 sat_table[satnum]["radio_main_offset"] = 0;
                 sat_table[satnum]["radio_sub_offset"] = 0;
                 sat_table[satnum]["callback"]({
-                  main_frequency : sat_table[satnum]["radio_main_frequency"],
-                  sub_frequency : sat_table[satnum]["radio_sub_frequency"]
+                  radio_main_frequency : sat_table[satnum]["radio_main_frequency"],
+                  radio_sub_frequency : sat_table[satnum]["radio_sub_frequency"]
                 });
                 radio_comms_async_loop (sat_table[satnum]);
               });
