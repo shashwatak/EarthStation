@@ -106,7 +106,7 @@ AngularJS Architecture
 -----------------------
 AngularJS divides a project into four sections, Controllers, Services, Filters, and Directives. The Controllers and Services are the most important aspects of this particular project.
 
-![AngularJS Architecture](http://imgur.com/AGGz7A5 AngularJS Organization)
+![AngularJS Architecture](http://i.imgur.com/AGGz7A5.png AngularJS Organization)
 
 ###Controllers
 The Controllers should all be very small, and should be limited to setting up the Model, instantiating the Services, defining callbacks for UI events, and not much else.
