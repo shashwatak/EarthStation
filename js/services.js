@@ -104,6 +104,7 @@ function ThreeJS(WorkerManager) {
     if (three_d_running) {
       request_id = requestAnimationFrame( animate );
       renderer.render( scene, camera );
+      TWEEN.update();
       animate_for_time(anim_time);
     };
   };
@@ -126,9 +127,17 @@ function ThreeJS(WorkerManager) {
     //  Left-Right is the X-axis in HTML/CSS.
     //  The "Left-Right" rotation that the user sees corresponds to
     //  rotating the Camera Pivot on its Y axis in WebGL.
+    var camera_rotation_start = { y: camera_pivot.rotation.y };
     var pivot_delta_rot_Y = -mouse_delta_X/WIDTH*Math.PI*2;
     var new_pivot_rot_y = camera_pivot.rotation.y + pivot_delta_rot_Y;
-    camera_pivot.rotation.y = new_pivot_rot_y;
+    var camera_rotation_target = { y: new_pivot_rot_y };
+
+    var tween = new TWEEN.Tween(camera_rotation_start).to(camera_rotation_target, 200);
+    tween.onUpdate(function(){
+      camera_pivot.rotation.y = camera_rotation_start.y;
+    });
+    tween.easing(TWEEN.Easing.Back.Out);
+    tween.start();
   };
 
   function camera_up_down_pivot (mouse_delta_Y){
@@ -140,14 +149,21 @@ function ThreeJS(WorkerManager) {
     //  Up-Down is the Y-axis in HTML/CSS.
     //  The "Up-Down" rotation that the user sees corresponds to
     //  rotating the Camera Pivot on its Z axis in WebGL.
+    var camera_rotation_start = { z: camera_pivot.rotation.z };
     var pivot_delta_rot_Z = mouse_delta_Y/HEIGHT*Math.PI*2;
     var new_pivot_rot_z = camera_pivot.rotation.z + pivot_delta_rot_Z;
-    if (new_pivot_rot_z < Math.PI/3 &&
-        new_pivot_rot_z > -Math.PI/3){
-        // Limit the up down motion
-        // so the globe won't flip upside down.
-      camera_pivot.rotation.z = new_pivot_rot_z;
-    };
+
+    if (new_pivot_rot_z > Math.PI/3) { new_pivot_rot_z = Math.PI/3; }
+    else if (new_pivot_rot_z < -Math.PI/3) { new_pivot_rot_z = -Math.PI/3; };
+
+    var camera_rotation_target = { z: new_pivot_rot_z };
+
+    var tween = new TWEEN.Tween(camera_rotation_start).to(camera_rotation_target, 200);
+    tween.onUpdate(function(){
+      camera_pivot.rotation.z = camera_rotation_start.z;
+    });
+    tween.easing(TWEEN.Easing.Back.Out);
+    tween.start();
   };
 
   function pivot_camera_for_mouse_deltas (mouse_delta_X, mouse_delta_Y) {
