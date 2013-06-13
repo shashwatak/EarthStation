@@ -132,7 +132,7 @@ function ThreeJS(WorkerManager) {
     var new_pivot_rot_y = camera_pivot.rotation.y + pivot_delta_rot_Y;
     var camera_rotation_target = { y: new_pivot_rot_y };
 
-    var tween = new TWEEN.Tween(camera_rotation_start).to(camera_rotation_target, 200);
+    var tween = new TWEEN.Tween(camera_rotation_start).to(camera_rotation_target, 50);
     tween.onUpdate(function(){
       camera_pivot.rotation.y = camera_rotation_start.y;
     });
@@ -158,7 +158,7 @@ function ThreeJS(WorkerManager) {
 
     var camera_rotation_target = { z: new_pivot_rot_z };
 
-    var tween = new TWEEN.Tween(camera_rotation_start).to(camera_rotation_target, 200);
+    var tween = new TWEEN.Tween(camera_rotation_start).to(camera_rotation_target, 50);
     tween.onUpdate(function(){
       camera_pivot.rotation.z = camera_rotation_start.z;
     });
@@ -174,10 +174,23 @@ function ThreeJS(WorkerManager) {
   function zoom_camera_for_scroll_delta (delta){
     // Move camera inwards when user scrolls up
     // Move camera out when user scrolls down.
-    var new_camera_position = delta*1000 + camera.position.x;
-    if (new_camera_position > 10000 && new_camera_position < 100000){
-      camera.position.x = new_camera_position;
+    var new_camera_position = delta*100 + camera.position.x;
+    if (new_camera_position < 10000){
+      new_camera_position = 10000;
+    }
+    else if (new_camera_position > 100000){
+      new_camera_position = 100000;
     };
+
+    var camera_zoom_start = { x: camera_pivot.rotation.x };
+    var camera_zoom_target = { x: new_camera_position };
+
+    var tween = new TWEEN.Tween(camera_zoom_start).to(camera_zoom_target, 50);
+    tween.onUpdate(function(){
+      camera.position.x = camera_zoom_start.x;
+    });
+    tween.easing(TWEEN.Easing.Back.Out);
+    tween.start();
   };
 
   function geometry_from_points (path_points) {
@@ -257,7 +270,17 @@ function ThreeJS(WorkerManager) {
     if (!sat_table[satnum]){
       sat_table[satnum] = {};
       sat_table[satnum]["is_tracking"] = true;
-      if (num_active_satellites === 0) { directional_light.intensity = 0; };
+      if (num_active_satellites === 0) {
+        var light_intesity_start = { intensity : directional_light.intensity };
+        var light_intesity_target = { intensity : 0 };
+
+        var tween = new TWEEN.Tween(light_intesity_start).to(light_intesity_target, 1000);
+        tween.onUpdate(function(){
+          directional_light.intensity = light_intesity_start.intensity;
+        });
+        tween.easing(TWEEN.Easing.Linear.None);
+        tween.start();
+      };
       num_active_satellites++;
       WorkerManager.add_satellite(satrec);
       WorkerManager.propagate_orbit(satrec, current_time, 1);
@@ -268,7 +291,17 @@ function ThreeJS(WorkerManager) {
     if (sat_table[satnum]){
       WorkerManager.remove_satellite(satnum);
       num_active_satellites--;
-      if (num_active_satellites === 0) { directional_light.intensity = 1; };
+      if (num_active_satellites === 0) {
+        var light_intesity_start = { intensity : directional_light.intensity };
+        var light_intesity_target = { intensity : 1 };
+
+        var tween = new TWEEN.Tween(light_intesity_start).to(light_intesity_target, 1000);
+        tween.onUpdate(function(){
+          directional_light.intensity = light_intesity_start.intensity;
+        });
+        tween.easing(TWEEN.Easing.Linear.None);
+        tween.start();
+      };
       remove_path(satnum);
       remove_marker(satnum);
 
