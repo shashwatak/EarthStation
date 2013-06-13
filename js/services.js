@@ -1,7 +1,7 @@
 function ThreeJS(WorkerManager) {
   // This is for the most part a very standard THREEjs setup.
   // Please familiarize yourself with this magnificent library.
-  var camera, scene, renderer, earth, skybox, camera_pivot, ambient_light;
+  var camera, scene, renderer, earth, skybox, camera_pivot, ambient_light, directional_light;
   var sat_table = {};
   /*sat_table = {
       satnum: {
@@ -10,6 +10,7 @@ function ThreeJS(WorkerManager) {
         is_tracking: true
       }
     }*/
+  var num_active_satellites = 0;
   var request_id;
   var $container  = $('#three_d_display');
   var WIDTH       = $container.width(),
@@ -23,7 +24,8 @@ function ThreeJS(WorkerManager) {
     // Initialize the big three
     renderer      = new THREE.WebGLRenderer();
     scene         = new THREE.Scene();
-    ambient_light = new THREE.AmbientLight(0x404040);
+    ambient_light = new THREE.AmbientLight(0x202020);
+    directional_light = new THREE.DirectionalLight(0xFFFFFF, 1);
 
     // Add initialized renderer to the DOM
     renderer.setSize(WIDTH, HEIGHT);
@@ -50,6 +52,7 @@ function ThreeJS(WorkerManager) {
 
     // Initialize the camera.
     camera      = new THREE.PerspectiveCamera(VIEW_ANGLE, ASPECT, NEAR, FAR);
+    camera.add (directional_light);
     camera.position.x = 40000;
     camera.lookAt ( new THREE.Vector3 (0, 0, 0) );
 
@@ -238,6 +241,8 @@ function ThreeJS(WorkerManager) {
     if (!sat_table[satnum]){
       sat_table[satnum] = {};
       sat_table[satnum]["is_tracking"] = true;
+      if (num_active_satellites === 0) { directional_light.intensity = 0; };
+      num_active_satellites++;
       WorkerManager.add_satellite(satrec);
       WorkerManager.propagate_orbit(satrec, current_time, 1);
     };
@@ -246,16 +251,19 @@ function ThreeJS(WorkerManager) {
   function remove_satellite (satnum) {
     if (sat_table[satnum]){
       WorkerManager.remove_satellite(satnum);
+      num_active_satellites--;
+      if (num_active_satellites === 0) { directional_light.intensity = 1; };
       remove_path(satnum);
       remove_marker(satnum);
+
       sat_table[satnum] = undefined;
     };
   }
 
   function add_marker(satnum, position_ecf){
     var marker_radius      = 50,
-        marker_segments    = 5,
-        marker_rings       = 5;
+        marker_segments    = 500,
+        marker_rings       = 100;
     var marker_sphere      = new THREE.SphereGeometry( marker_radius, marker_segments, marker_rings );
     var marker_material    = new THREE.MeshPhongMaterial({ color: 0xffffff, emissive : 0xffffff, wireframe: false});
     // Create marker 3D object
