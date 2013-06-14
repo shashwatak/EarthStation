@@ -94,6 +94,25 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios) {
     };
   };
 
+  $scope.sat_motors_clicked = function (sat){
+    if (!sat.motors_selected) {
+      sat.motors_selected = true;
+    }
+    else {
+      sat.motors_selected = false;
+    }
+  };
+
+  $scope.sat_radios_clicked = function (sat){
+    if (!sat.radios_selected) {
+      sat.radios_selected = true;
+    }
+    else {
+      sat.radios_selected = false;
+    }
+  };
+
+
   $scope.choose_file = function  () {
     chrome.fileSystem.chooseEntry({type: 'openFile'}, function(tle_file) {
       if (!tle_file) {
