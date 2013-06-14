@@ -1,5 +1,16 @@
 function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios) {
-  $scope.sat_table = {};
+  // First, get the satellites we kept in local storage.
+  var storage = chrome.storage.local;
+  storage.get(null,function(result){
+    $scope.$apply(function(){
+      if (result){
+        $scope.sat_table = result;
+      }
+      else{
+        $scope.sat_table = {};
+      };
+    });
+  });
 
   ThreeJS.init();
   ThreeJS.start_animation();
@@ -14,7 +25,8 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios) {
         $scope.sat_table[satnum]["uplink_frequency"] = 450000000;
         $scope.sat_table[satnum]["downlink_frequency"] = 145000000;
       });
-    }
+      storage.set($scope.sat_table);
+    };
   };
 
   WorkerManager.register_command_callback("live_update", live_update_callback);
@@ -23,14 +35,22 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios) {
     // it callbacks the controller to update the model here.
     var sat_item = data.sat_item;
     var satnum = sat_item.satnum;
-    $scope.$apply(function() {
-      // I apply these right away because I want these to refresh in the UI.
-      $scope.sat_table[satnum]["look_angles"] = sat_item.look_angles;
-      $scope.sat_table[satnum]["position_ecf"] = sat_item.position_ecf;
-      $scope.sat_table[satnum]["position_eci"] = sat_item.position_eci;
-      $scope.sat_table[satnum]["position_gd"] = sat_item.position_gd;
-      $scope.sat_table[satnum]["doppler_factor"] = sat_item.doppler_factor;
-    });
+    if (!$scope.sat_table[satnum]){
+      $scope.$apply(function() {
+        // I apply these right away because I want these to refresh in the UI.
+        $scope.sat_table[satnum]["look_angles"] = sat_item.look_angles;
+        $scope.sat_table[satnum]["position_ecf"] = sat_item.position_ecf;
+        $scope.sat_table[satnum]["position_eci"] = sat_item.position_eci;
+        $scope.sat_table[satnum]["position_gd"] = sat_item.position_gd;
+        $scope.sat_table[satnum]["doppler_factor"] = sat_item.doppler_factor;
+      });
+    };
+  };
+
+  $scope.clear_sats = function (){
+    deselect_all_sats();
+    $scope.sat_table = {};
+    storage.clear();
   };
 
   var is_fullscreen = false;
@@ -42,17 +62,35 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios) {
     else {
       is_fullscreen = false;
       document.webkitCancelFullScreen();
-    }
-  }
-
-  $scope.select_sat = function (satnum, sat) {
+    };
+  };
+  var selected_sats = {};
+  $scope.sat_item_clicked = function (satnum, sat) {
     if (!sat.selected) {
-      ThreeJS.add_satellite(satnum, sat.satrec);
-      sat.selected = true;
+      select_sat (satnum, sat);
     }
     else {
-      ThreeJS.remove_satellite(satnum);
-      sat.selected = false;
+      deselect_sat(satnum, sat);
+    };
+  };
+
+  function select_sat (satnum, sat){
+    ThreeJS.add_satellite(satnum, sat.satrec);
+    sat.selected = true;
+    selected_sats[satnum] = sat;
+  };
+
+  function deselect_sat (satnum, sat){
+    ThreeJS.remove_satellite(satnum);
+    sat.selected = false;
+    selected_sats[satnum] = undefined;
+  };
+
+  function deselect_all_sats (){
+    for (var satnum in selected_sats){
+      if (selected_sats.hasOwnProperty(satnum)) {
+        deselect_sat (satnum, selected_sats[satnum])
+      };
     };
   };
 
@@ -88,7 +126,7 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios) {
       var mouse_delta_X = (event.offsetX - mouse_X);
       var mouse_delta_Y = (event.offsetY - mouse_Y);
       ThreeJS.pivot_camera_for_mouse_deltas (mouse_delta_X, mouse_delta_Y);
-    }
+    };
     mouse_X = event.offsetX;
     mouse_Y = event.offsetY;
   };

@@ -14,7 +14,7 @@
          class="sat_panel"
          ng-class="{overhead : sat.look_angles[1] > 0,
                     selected : sat.selected}">
-      <div class="sat_header" ng-click="select_sat(satnum, sat)">
+      <div class="sat_header" ng-click="sat_item_clicked(satnum, sat)">
         <p class="sidebar_text">{{sat.name}}</p>
       </div>
       <div class="sat_body" ng-class="{selected : sat.selected}">
@@ -80,7 +80,8 @@
         </p>
       </div>
     </div>
-    <button ng-click="choose_file()">Import 3LE File</button>
+    <button ng-click="choose_file()">Update TLEs</button>
+    <button ng-click="clear_sats()">Clear Sats</button>
   </div>
 </div>
 
