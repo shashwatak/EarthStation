@@ -128,15 +128,15 @@ function ThreeJS(WorkerManager) {
     //  The "Left-Right" rotation that the user sees corresponds to
     //  rotating the Camera Pivot on its Y axis in WebGL.
     var camera_rotation_start = { y: camera_pivot.rotation.y };
-    var pivot_delta_rot_Y = -mouse_delta_X/WIDTH*Math.PI*2;
+    var pivot_delta_rot_Y = -mouse_delta_X/WIDTH*Math.PI*6;
     var new_pivot_rot_y = camera_pivot.rotation.y + pivot_delta_rot_Y;
     var camera_rotation_target = { y: new_pivot_rot_y };
 
-    var tween = new TWEEN.Tween(camera_rotation_start).to(camera_rotation_target, 50);
+    var tween = new TWEEN.Tween(camera_rotation_start).to(camera_rotation_target, 500);
     tween.onUpdate(function(){
       camera_pivot.rotation.y = camera_rotation_start.y;
     });
-    tween.easing(TWEEN.Easing.Back.Out);
+    tween.easing(TWEEN.Easing.Exponential.Out);
     tween.start();
   };
 
@@ -150,7 +150,7 @@ function ThreeJS(WorkerManager) {
     //  The "Up-Down" rotation that the user sees corresponds to
     //  rotating the Camera Pivot on its Z axis in WebGL.
     var camera_rotation_start = { z: camera_pivot.rotation.z };
-    var pivot_delta_rot_Z = mouse_delta_Y/HEIGHT*Math.PI*2;
+    var pivot_delta_rot_Z = mouse_delta_Y/HEIGHT*Math.PI*6;
     var new_pivot_rot_z = camera_pivot.rotation.z + pivot_delta_rot_Z;
 
     if (new_pivot_rot_z > Math.PI/3) { new_pivot_rot_z = Math.PI/3; }
@@ -158,11 +158,11 @@ function ThreeJS(WorkerManager) {
 
     var camera_rotation_target = { z: new_pivot_rot_z };
 
-    var tween = new TWEEN.Tween(camera_rotation_start).to(camera_rotation_target, 50);
+    var tween = new TWEEN.Tween(camera_rotation_start).to(camera_rotation_target, 500);
     tween.onUpdate(function(){
       camera_pivot.rotation.z = camera_rotation_start.z;
     });
-    tween.easing(TWEEN.Easing.Back.Out);
+    tween.easing(TWEEN.Easing.Exponential.Out);
     tween.start();
   };
 
@@ -174,7 +174,7 @@ function ThreeJS(WorkerManager) {
   function zoom_camera_for_scroll_delta (delta){
     // Move camera inwards when user scrolls up
     // Move camera out when user scrolls down.
-    var new_camera_position = delta*100 + camera.position.x;
+    var new_camera_position = delta*1000 + camera.position.x;
     if (new_camera_position < 10000){
       new_camera_position = 10000;
     }
@@ -185,11 +185,11 @@ function ThreeJS(WorkerManager) {
     var camera_zoom_start = { x: camera.position.x };
     var camera_zoom_target = { x: new_camera_position };
 
-    var tween = new TWEEN.Tween(camera_zoom_start).to(camera_zoom_target, 50);
+    var tween = new TWEEN.Tween(camera_zoom_start).to(camera_zoom_target, 500);
     tween.onUpdate(function(){
       camera.position.x = camera_zoom_start.x;
     });
-    tween.easing(TWEEN.Easing.Back.Out);
+    tween.easing(TWEEN.Easing.Exponential.Out);
     tween.start();
   };
 
