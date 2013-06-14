@@ -82,6 +82,7 @@ EarthStation.filter('elevation', function() {
         return degrees;
     };
 });
+
 EarthStation.filter('distance', function() {
     return function (input) {
         if (typeof input !== 'number') { return input; }
@@ -90,3 +91,5 @@ EarthStation.filter('distance', function() {
         return alt;
     };
 });
+
+
