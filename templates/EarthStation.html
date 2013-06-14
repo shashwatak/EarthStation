@@ -18,8 +18,8 @@
         <p class="sidebar_text">{{sat.name}}</p>
       </div>
       <div class="sat_body" ng-class="{selected : sat.selected}">
-        <p class="sidebar_text">Uplink frequency: {{sat.uplink_frequency}}</p>
-        <p class="sidebar_text">Downlink frequency: {{sat.downlink_frequency}}</p>
+        <p class="sidebar_text">Uplink frequency: <input ng-model="sat.uplink_frequency"></input></p>
+        <p class="sidebar_text">Downlink frequency: <input ng-model="sat.downlink_frequency"></input></p>
         <p class="sidebar_text">Uplink mode: {{sat.uplink_mode}}</p>
         <p class="sidebar_text">Downlink mode: {{sat.downlink_mode}}</p>
         <p class="sidebar_text">Doppler Factor: {{sat.doppler_factor}}</p>
