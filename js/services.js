@@ -11,6 +11,7 @@ function ThreeJS(WorkerManager) {
       }
     }*/
   var num_active_satellites = 0;
+  var time_offset = 0;
   var request_id;
   var $container  = $('#three_d_display');
   var WIDTH       = $container.width(),
@@ -112,8 +113,8 @@ function ThreeJS(WorkerManager) {
   var update_wait_time = 0;
   function animate_for_time (anim_time){
     if ((anim_time - update_wait_time) > 200){ // update every .2s, 5 Hz
-      current_time = increment_time.by_milliseconds(start_time, anim_time);
-      WorkerManager.update_sats(current_time);
+      var time_for_this_update = increment_time.by_milliseconds(start_time, anim_time+time_offset);
+      WorkerManager.update_sats(time_for_this_update);
       update_wait_time = anim_time;
     };
   };
@@ -307,7 +308,18 @@ function ThreeJS(WorkerManager) {
 
       sat_table[satnum] = undefined;
     };
-  }
+  };
+
+  function add_to_time_offset () {
+    time_offset += 60*1000;
+  };
+  function subtract_from_time_offset () {
+    time_offset -= 60*1000;
+  };
+
+  function reset_time_offset () {
+    time_offset = 0;
+  };
 
   function add_marker(satnum, position_ecf){
     var marker_radius      = 50,
@@ -335,8 +347,14 @@ function ThreeJS(WorkerManager) {
   };
 
   function update_marker(satnum, position_ecf){
-    var position = ecf_array_to_webgl_pos(position_ecf);
-    sat_table[satnum]["marker_ecf"].position = position;
+    var start_position = sat_table[satnum]["marker_ecf"].position;
+    var target_position = ecf_array_to_webgl_pos(position_ecf);
+    var tween = new TWEEN.Tween(start_position).to(target_position, 1000);
+    tween.onUpdate(function(){
+      sat_table[satnum]["marker_ecf"].position = start_position;
+    });
+    tween.easing(TWEEN.Easing.Linear.None);
+    tween.start();
   };
 
   function update_path (satnum, ecf_coords_list) {
@@ -364,7 +382,10 @@ function ThreeJS(WorkerManager) {
     add_satellite                 : add_satellite,
     remove_satellite              : remove_satellite,
     pivot_camera_for_mouse_deltas : pivot_camera_for_mouse_deltas,
-    zoom_camera_for_scroll_delta  : zoom_camera_for_scroll_delta
+    zoom_camera_for_scroll_delta  : zoom_camera_for_scroll_delta,
+    add_to_time_offset            : add_to_time_offset,
+    subtract_from_time_offset     : subtract_from_time_offset,
+    reset_time_offset             : reset_time_offset
   };
 };
 

@@ -112,6 +112,16 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios) {
     }
   };
 
+  $scope.reverse_time = function() {
+    ThreeJS.subtract_from_time_offset();
+  };
+  $scope.set_time_live = function() {
+    ThreeJS.reset_time_offset();
+  };
+  $scope.forward_time = function() {
+    ThreeJS.add_to_time_offset();
+  };
+
 
   $scope.choose_file = function  () {
     chrome.fileSystem.chooseEntry({type: 'openFile'}, function(tle_file) {

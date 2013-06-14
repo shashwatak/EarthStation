@@ -55,6 +55,24 @@ body, html {
     width: 100%;
 }
 
+#time_control {
+    text-align: center;
+}
+
+.time_button {
+    height: auto;
+    padding-left: 5;
+    padding-right: 5;
+    max-width: 25px;
+}
+
+.time_button:hover {
+    background-color: #222222;
+}
+
+.time_button:active {
+    background-color: #444444;
+}
 
 #fullscreen_button {
     position: absolute;
