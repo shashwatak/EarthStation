@@ -58,12 +58,8 @@ body, html {
 
 #fullscreen_button {
     position: absolute;
-    right: 0%;
+    right: 1%;
     float: right;
-}
-
-button {
-    font-size: 1em;
 }
 
 .sat_panel {

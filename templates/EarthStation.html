@@ -5,11 +5,11 @@
    msd-wheel="mouse_wheel($event, $delta, $deltaX, $deltaY)">
 </div>
 <div id="footer">
-  <button id="fullscreen_button" ng-click="fullscreen()">Fullscreen</button>
+  <button class="button_input" id="fullscreen_button" ng-click="fullscreen()">FS</button>
 </div>
 <div id="sidebar_panel">
   <div id="sidebar">
-    <input id="search_bar"></input>
+    <!--<input id="search_bar" ng-model="query"></input>-->
     <div ng-repeat="(satnum, sat) in sat_table"
          class="sat_panel"
          ng-class="{selected : sat.selected}">
@@ -104,8 +104,8 @@
         </div>
       </div>
     </div>
-    <button ng-click="choose_file()">Update TLEs</button>
-    <button ng-click="clear_sats()">Clear Sats</button>
+    <button class="button_input" ng-click="choose_file()">Update TLEs</button>
+    <button class="button_input" ng-click="clear_sats()">Clear Sats</button>
   </div>
 </div>
 
