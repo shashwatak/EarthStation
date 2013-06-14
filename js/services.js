@@ -562,6 +562,10 @@ function Radios (WorkerManager){
     'ICOM IC821H' : {
       functions : icom_821h,
       bitrate : 19200
+    },
+    'ICOM IC910H' : {
+      functions : icom_910h,
+      bitrate : 19200
     }
   };
 
