@@ -319,21 +319,12 @@ function ThreeJS(WorkerManager) {
     var marker_ecf = new THREE.Mesh(marker_sphere, marker_material);
     var position = ecf_array_to_webgl_pos(position_ecf);
     marker_ecf.position = position;
-    var point_light = new THREE.PointLight( 0xffffff, 0, 0 );
+    var point_light = new THREE.PointLight( 0xffffff, 2, 0 );
     point_light.position = position;
     marker_ecf.add(point_light);
     scene.add(marker_ecf);
     sat_table[satnum]["marker_ecf"] = marker_ecf;
     earth.material.needsUpdate = true;
-    var light_intesity_start = { intensity : directional_light.intensity };
-    var light_intesity_target = { intensity : 2 };
-
-    var tween = new TWEEN.Tween(light_intesity_start).to(light_intesity_target, 1000);
-    tween.onUpdate(function(){
-      point_light.intensity = light_intesity_start.intensity;
-    });
-    tween.easing(TWEEN.Easing.Linear.None);
-    tween.start();
   };
 
   function add_path(satnum, ecf_coords_list){
