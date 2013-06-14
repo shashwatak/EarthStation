@@ -46,6 +46,21 @@ body, html {
 }
 
 
+#header {
+    font-size: 1.3em;
+    position: absolute;
+    top: 2%;
+    clear: both;
+    height: 5%;
+    width: 100%;
+}
+
+#time_display {
+    font-size: 1.3em;
+    color : white;
+    text-align: center;
+}
+
 #footer {
     font-size: 1.3em;
     position: absolute;
