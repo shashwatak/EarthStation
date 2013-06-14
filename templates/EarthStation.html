@@ -4,10 +4,15 @@
    ng-mousemove="mouse_move($event)"
    msd-wheel="mouse_wheel($event, $delta, $deltaX, $deltaY)">
 </div>
+<div id="header">
+  <div id="time_display" ng-show="num_active_sats > 0">
+    {{current_time.year}} {{current_time.month}} {{current_time.day_of_month}} {{current_time.hour}} {{current_time.minute}} {{current_time.second}}
+  </div>
+</div>
 <div id="footer">
   <img src="../img/fullscreen.png" id="fullscreen_button" ng-click="fullscreen()"></img>
   <!--<button class="button_input" id="fullscreen_button" ng-click="fullscreen()">FS</button>-->
-  <div id="time_control" ng-show="">
+  <div id="time_control" ng-show="num_active_sats > 0">
     <img class="time_button" src="../img/prev_track.png" ng-click="reverse_time()"></img>
     <img class="time_button" src="../img/play.png" ng-click="set_time_live()"></img>
     <img class="time_button" src="../img/next_track.png" ng-click="forward_time()"></img>

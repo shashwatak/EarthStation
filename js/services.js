@@ -109,12 +109,12 @@ function ThreeJS(WorkerManager) {
       animate_for_time(anim_time);
     };
   };
-  current_time = start_time;
+  var current_time = start_time;
   var update_wait_time = 0;
   function animate_for_time (anim_time){
     if ((anim_time - update_wait_time) > 200){ // update every .2s, 5 Hz
-      var time_for_this_update = increment_time.by_milliseconds(start_time, anim_time+time_offset);
-      WorkerManager.update_sats(time_for_this_update);
+      current_time = increment_time.by_milliseconds(start_time, anim_time+time_offset);
+      WorkerManager.update_sats(current_time);
       update_wait_time = anim_time;
     };
   };
@@ -349,7 +349,7 @@ function ThreeJS(WorkerManager) {
   function update_marker(satnum, position_ecf){
     var start_position = sat_table[satnum]["marker_ecf"].position;
     var target_position = ecf_array_to_webgl_pos(position_ecf);
-    var tween = new TWEEN.Tween(start_position).to(target_position, 1000);
+    var tween = new TWEEN.Tween(start_position).to(target_position, 500);
     tween.onUpdate(function(){
       sat_table[satnum]["marker_ecf"].position = start_position;
     });
@@ -372,6 +372,10 @@ function ThreeJS(WorkerManager) {
     sat_table[satnum]["path_ecf"] = undefined;
   };
 
+  function get_current_time(){
+    return current_time;
+  }
+
   return {
     // All the exposed functions of the ThreeJS Service.
     // Should be enough to allow users of this service to
@@ -385,7 +389,8 @@ function ThreeJS(WorkerManager) {
     zoom_camera_for_scroll_delta  : zoom_camera_for_scroll_delta,
     add_to_time_offset            : add_to_time_offset,
     subtract_from_time_offset     : subtract_from_time_offset,
-    reset_time_offset             : reset_time_offset
+    reset_time_offset             : reset_time_offset,
+    get_current_time              : get_current_time
   };
 };
 

@@ -43,6 +43,7 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios) {
         $scope.sat_table[satnum]["position_eci"] = sat_item.position_eci;
         $scope.sat_table[satnum]["position_gd"] = sat_item.position_gd;
         $scope.sat_table[satnum]["doppler_factor"] = sat_item.doppler_factor;
+        $scope.current_time = sat_item.time;
       });
     };
   };
@@ -65,6 +66,7 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios) {
     };
   };
   var selected_sats = {};
+  $scope.num_active_sats = 0;
   $scope.sat_item_clicked = function (satnum, sat) {
     if (!sat.selected) {
       select_sat (satnum, sat);
@@ -78,12 +80,14 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios) {
     ThreeJS.add_satellite(satnum, sat.satrec);
     sat.selected = true;
     selected_sats[satnum] = sat;
+    $scope.num_active_sats++;
   };
 
   function deselect_sat (satnum, sat){
     ThreeJS.remove_satellite(satnum);
     sat.selected = false;
     selected_sats[satnum] = undefined;
+    $scope.num_active_sats--;
   };
 
   function deselect_all_sats (){
