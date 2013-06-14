@@ -35,7 +35,7 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios) {
     // it callbacks the controller to update the model here.
     var sat_item = data.sat_item;
     var satnum = sat_item.satnum;
-    if (!$scope.sat_table[satnum]){
+    if ($scope.sat_table[satnum]){
       $scope.$apply(function() {
         // I apply these right away because I want these to refresh in the UI.
         $scope.sat_table[satnum]["look_angles"] = sat_item.look_angles;
@@ -88,7 +88,7 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios) {
 
   function deselect_all_sats (){
     for (var satnum in selected_sats){
-      if (selected_sats.hasOwnProperty(satnum)) {
+      if (selected_sats.hasOwnProperty(satnum) && selected_sats[satnum]) {
         deselect_sat (satnum, selected_sats[satnum])
       };
     };

@@ -64,6 +64,14 @@ body, html {
     opacity: .8
 }
 
+.frequency_input {
+    color: white;
+    overflow:hidden;
+    font-size: 18pt;
+    border: none;
+    border-radius: 12px;
+    background-color: black;
+}
 
 .sat_body {
     height: 0px;
