@@ -351,7 +351,9 @@ function ThreeJS(WorkerManager) {
     var target_position = ecf_array_to_webgl_pos(position_ecf);
     var tween = new TWEEN.Tween(start_position).to(target_position, 500);
     tween.onUpdate(function(){
-      sat_table[satnum]["marker_ecf"].position = start_position;
+      if (sat_table[satnum]) {
+        sat_table[satnum]["marker_ecf"].position = start_position;
+      };
     });
     tween.easing(TWEEN.Easing.Linear.None);
     tween.start();
