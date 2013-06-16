@@ -52,17 +52,14 @@ Tracking Software
 
 Major TODOs
 ===========
-####Architecture
--   Utilize localStorage to preserve environment between sessions.
-
 ####Logic
--   AOS, TCA, LOS calculations.
+-   AOS, TCA, LOS calculations, via the Propagation Worker
 
 ####UI
 -   Sorted, filterable, collapsible, hide-able, list of sats.
 -   Tooltips with opentip.
 -   ThreeJS mousehover detection.
--   Geodetic-Normalized and Actual sat paths display.
+-   Geodetic-Normalized and ECI sat paths display.
 -   Stargazer mode (upwards view of Az/El).
     -   Displays motors heading.
 
