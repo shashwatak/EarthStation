@@ -6,18 +6,24 @@
 </div>
 <div id="header">
   <div id="time_display" ng-show="num_active_sats > 0">
-    {{current_time.year}} {{current_time.month}} {{current_time.day_of_month}} {{current_time.hour}} {{current_time.minute}} {{current_time.second}}
+    {{current_time.year}} {{current_time.month}} {{current_time.date_of_month}} {{current_time.hour}} {{current_time.minute}} {{current_time.second}}
+  </div>
+  <div id="time_control" ng-show="num_active_sats > 0">
+    <img class="time_button" src="../img/prev_track.png" ng-click="reverse_time(3600)"></img>
+    <img class="time_button" src="../img/prev_track.png" ng-click="reverse_time(60)"></img>
+    <img class="time_button" src="../img/play.png" ng-click="set_time_live()"></img>
+    <img class="time_button" src="../img/next_track.png" ng-click="forward_time(60)"></img>
+    <img class="time_button" src="../img/next_track.png" ng-click="forward_time(3600)"></img>
   </div>
 </div>
 <div id="footer">
   <img src="../img/fullscreen.png" id="fullscreen_button" ng-click="fullscreen()"></img>
   <!--<button class="button_input" id="fullscreen_button" ng-click="fullscreen()">FS</button>-->
-  <div id="time_control" ng-show="num_active_sats > 0">
-    <img class="time_button" src="../img/prev_track.png" ng-click="reverse_time()"></img>
-    <img class="time_button" src="../img/play.png" ng-click="set_time_live()"></img>
-    <img class="time_button" src="../img/next_track.png" ng-click="forward_time()"></img>
-  </div>
+  <button class="button_input" ng-click="switch_to_ground_camera()">Ground</button>
+  <button class="button_input" ng-click="switch_to_space_camera()">Space</button>
 </div>
+
+
 <div id="sidebar_panel">
   <div id="sidebar">
     <!--<input id="search_bar" ng-model="query"></input>-->
@@ -119,4 +125,3 @@
     <button class="button_input" ng-click="clear_sats()">Clear Sats</button>
   </div>
 </div>
-

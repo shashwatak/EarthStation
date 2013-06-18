@@ -116,14 +116,14 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios) {
     }
   };
 
-  $scope.reverse_time = function() {
-    ThreeJS.subtract_from_time_offset();
+  $scope.reverse_time = function(time_delta) {
+    ThreeJS.subtract_from_time_offset(time_delta);
   };
   $scope.set_time_live = function() {
     ThreeJS.reset_time_offset();
   };
-  $scope.forward_time = function() {
-    ThreeJS.add_to_time_offset();
+  $scope.forward_time = function(time_delta) {
+    ThreeJS.add_to_time_offset(time_delta);
   };
 
 
@@ -169,6 +169,13 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios) {
     ThreeJS.zoom_camera_for_scroll_delta(delta);
   };
 
+  $scope.switch_to_ground_camera = function (satnum) {
+    ThreeJS.switch_to_ground_camera();
+  };
+
+  $scope.switch_to_space_camera = function (satnum) {
+    ThreeJS.switch_to_space_camera();
+  };
 
   /* Prepare Motor/Radio Controller. */
   $scope.COM_list = [];

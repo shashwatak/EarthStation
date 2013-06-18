@@ -2,6 +2,7 @@ function ThreeJS(WorkerManager) {
   // This is for the most part a very standard THREEjs setup.
   // Please familiarize yourself with this magnificent library.
   var camera, scene, renderer, earth, skybox, camera_pivot, ambient_light, directional_light;
+  var space_camera, ground_camera, ground_camera_flag = false;
   var sat_table = {};
   /*sat_table = {
       satnum: {
@@ -51,16 +52,21 @@ function ThreeJS(WorkerManager) {
     // Create map 3D object
     earth = new THREE.Mesh(earth_sphere, earth_material);
 
-    // Initialize the camera.
-    camera      = new THREE.PerspectiveCamera(VIEW_ANGLE, ASPECT, NEAR, FAR);
-    camera.add (directional_light);
-    camera.position.x = 40000;
-    camera.lookAt ( new THREE.Vector3 (0, 0, 0) );
+    // Initialize the space camera.
+    space_camera      = new THREE.PerspectiveCamera(VIEW_ANGLE, ASPECT, NEAR, FAR);
+    space_camera.add (directional_light);
+    space_camera.position.x = 40000;
+    space_camera.lookAt ( new THREE.Vector3 (0, 0, 0) );
+
+    // Initialize the ground camera.
+    ground_camera      = new THREE.PerspectiveCamera(VIEW_ANGLE, ASPECT, NEAR, FAR);
 
     // Rotating this pivot allows camera manipulations.
-    camera_pivot = new THREE.Object3D();
-    camera_pivot.add(camera);
-    earth.add(camera_pivot);
+    space_camera_pivot = new THREE.Object3D();
+    space_camera_pivot.add(space_camera);
+    earth.add(space_camera_pivot);
+
+    camera = space_camera;
 
     // Add the Earth and Sky to the scene
     scene.add(skybox);
@@ -128,14 +134,14 @@ function ThreeJS(WorkerManager) {
     //  Left-Right is the X-axis in HTML/CSS.
     //  The "Left-Right" rotation that the user sees corresponds to
     //  rotating the Camera Pivot on its Y axis in WebGL.
-    var camera_rotation_start = { y: camera_pivot.rotation.y };
+    var camera_rotation_start = { y: space_camera_pivot.rotation.y };
     var pivot_delta_rot_Y = -mouse_delta_X/WIDTH*Math.PI*6;
-    var new_pivot_rot_y = camera_pivot.rotation.y + pivot_delta_rot_Y;
+    var new_pivot_rot_y = space_camera_pivot.rotation.y + pivot_delta_rot_Y;
     var camera_rotation_target = { y: new_pivot_rot_y };
 
     var tween = new TWEEN.Tween(camera_rotation_start).to(camera_rotation_target, 500);
     tween.onUpdate(function(){
-      camera_pivot.rotation.y = camera_rotation_start.y;
+      space_camera_pivot.rotation.y = camera_rotation_start.y;
     });
     tween.easing(TWEEN.Easing.Exponential.Out);
     tween.start();
@@ -150,9 +156,9 @@ function ThreeJS(WorkerManager) {
     //  Up-Down is the Y-axis in HTML/CSS.
     //  The "Up-Down" rotation that the user sees corresponds to
     //  rotating the Camera Pivot on its Z axis in WebGL.
-    var camera_rotation_start = { z: camera_pivot.rotation.z };
+    var camera_rotation_start = { z: space_camera_pivot.rotation.z };
     var pivot_delta_rot_Z = mouse_delta_Y/HEIGHT*Math.PI*6;
-    var new_pivot_rot_z = camera_pivot.rotation.z + pivot_delta_rot_Z;
+    var new_pivot_rot_z = space_camera_pivot.rotation.z + pivot_delta_rot_Z;
 
     if (new_pivot_rot_z > Math.PI/3) { new_pivot_rot_z = Math.PI/3; }
     else if (new_pivot_rot_z < -Math.PI/3) { new_pivot_rot_z = -Math.PI/3; };
@@ -161,37 +167,53 @@ function ThreeJS(WorkerManager) {
 
     var tween = new TWEEN.Tween(camera_rotation_start).to(camera_rotation_target, 500);
     tween.onUpdate(function(){
-      camera_pivot.rotation.z = camera_rotation_start.z;
+      space_camera_pivot.rotation.z = camera_rotation_start.z;
     });
     tween.easing(TWEEN.Easing.Exponential.Out);
     tween.start();
   };
 
   function pivot_camera_for_mouse_deltas (mouse_delta_X, mouse_delta_Y) {
-    camera_left_right_pivot (mouse_delta_X);
-    camera_up_down_pivot (mouse_delta_Y);
+    if (!ground_camera_flag){
+      // Don't move the space camera is we are using the ground camera
+      camera_left_right_pivot (mouse_delta_X);
+      camera_up_down_pivot (mouse_delta_Y);
+    };
   };
 
   function zoom_camera_for_scroll_delta (delta){
     // Move camera inwards when user scrolls up
     // Move camera out when user scrolls down.
-    var new_camera_position = delta*1000 + camera.position.x;
-    if (new_camera_position < 10000){
-      new_camera_position = 10000;
-    }
-    else if (new_camera_position > 100000){
-      new_camera_position = 100000;
+    if (!ground_camera_flag){
+      // Don't move the space camera is we are using the ground camera
+      var new_camera_position = delta*1000 + space_camera.position.x;
+      if (new_camera_position < 10000){
+        new_camera_position = 10000;
+      }
+      else if (new_camera_position > 100000){
+        new_camera_position = 100000;
+      };
+
+      var camera_zoom_start = { x: space_camera.position.x };
+      var camera_zoom_target = { x: new_camera_position };
+
+      var tween = new TWEEN.Tween(camera_zoom_start).to(camera_zoom_target, 500);
+      tween.onUpdate(function(){
+        space_camera.position.x = camera_zoom_start.x;
+      });
+      tween.easing(TWEEN.Easing.Exponential.Out);
+      tween.start();
     };
+  };
 
-    var camera_zoom_start = { x: camera.position.x };
-    var camera_zoom_target = { x: new_camera_position };
+  function switch_to_ground_camera (){
+    ground_camera_flag = true;
+    camera = ground_camera;
+  };
 
-    var tween = new TWEEN.Tween(camera_zoom_start).to(camera_zoom_target, 500);
-    tween.onUpdate(function(){
-      camera.position.x = camera_zoom_start.x;
-    });
-    tween.easing(TWEEN.Easing.Exponential.Out);
-    tween.start();
+  function switch_to_space_camera (){
+    ground_camera_flag = false;
+    camera = space_camera;
   };
 
   function geometry_from_points (path_points) {
@@ -264,7 +286,7 @@ function ThreeJS(WorkerManager) {
       else {
         add_path(satnum, sat_item["ecf_coords_list"]);
       };
-    }
+    };
   };
 
   function add_satellite (satnum, satrec){
@@ -312,11 +334,11 @@ function ThreeJS(WorkerManager) {
     };
   };
 
-  function add_to_time_offset () {
-    time_offset += 60*1000;
+  function add_to_time_offset (time_delta) {
+    time_offset += time_delta*1000;
   };
-  function subtract_from_time_offset () {
-    time_offset -= 60*1000;
+  function subtract_from_time_offset (time_delta) {
+    time_offset -= time_delta*1000;
   };
 
   function reset_time_offset () {
@@ -394,7 +416,9 @@ function ThreeJS(WorkerManager) {
     add_to_time_offset            : add_to_time_offset,
     subtract_from_time_offset     : subtract_from_time_offset,
     reset_time_offset             : reset_time_offset,
-    get_current_time              : get_current_time
+    get_current_time              : get_current_time,
+    switch_to_ground_camera       : switch_to_ground_camera,
+    switch_to_space_camera        : switch_to_space_camera
   };
 };
 
