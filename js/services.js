@@ -88,12 +88,12 @@ function ThreeJS(WorkerManager) {
   function get_start_time (){
     var d_now = new Date();
     var time = {
-      year   : d_now.getUTCFullYear(),
-      month  : d_now.getUTCMonth()+1,
-      date_of_month    : d_now.getUTCDate(),
-      hour   : d_now.getUTCHours(),
-      minute : d_now.getUTCMinutes(),
-      second : d_now.getUTCSeconds()
+      year              : d_now.getUTCFullYear(),
+      month             : d_now.getUTCMonth()+1,
+      date_of_month     : d_now.getUTCDate(),
+      hour              : d_now.getUTCHours(),
+      minute            : d_now.getUTCMinutes(),
+      second            : d_now.getUTCSeconds()
     };
     var p_now = performance.now();
     var start_time = increment_time.by_milliseconds(time, -p_now);
@@ -271,7 +271,8 @@ function ThreeJS(WorkerManager) {
     if (!sat_table[satnum]){
       sat_table[satnum] = {};
       sat_table[satnum]["is_tracking"] = true;
-      if (num_active_satellites === 0) {
+      if (num_active_satellites <= 0) {
+        num_active_satellites = 0;
         var light_intesity_start = { intensity : directional_light.intensity };
         var light_intesity_target = { intensity : 0 };
 
@@ -292,7 +293,8 @@ function ThreeJS(WorkerManager) {
     if (sat_table[satnum]){
       WorkerManager.remove_satellite(satnum);
       num_active_satellites--;
-      if (num_active_satellites === 0) {
+      if (num_active_satellites <= 0) {
+        num_active_satellites = 0;
         var light_intesity_start = { intensity : directional_light.intensity };
         var light_intesity_target = { intensity : 1 };
 
@@ -351,7 +353,7 @@ function ThreeJS(WorkerManager) {
     var target_position = ecf_array_to_webgl_pos(position_ecf);
     var tween = new TWEEN.Tween(start_position).to(target_position, 500);
     tween.onUpdate(function(){
-      if (sat_table[satnum]) {
+      if (sat_table[satnum] && sat_table["marker_ecf"]) {
         sat_table[satnum]["marker_ecf"].position = start_position;
       };
     });
