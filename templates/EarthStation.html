@@ -6,11 +6,12 @@
 </div>
 <div id="header">
   <div id="time_display" ng-show="num_active_sats > 0">
-    {{current_time.year}} {{current_time.month}} {{current_time.date_of_month}} {{current_time.hour}} {{current_time.minute}} {{current_time.second}}
+      {{current_time.year}}-{{current_time.month}}-{{current_time.date_of_month}}</br>
+      {{current_time.hour}}:{{current_time.minute}}:{{current_time.second | seconds}} UTC
   </div>
   <div id="time_control" ng-show="num_active_sats > 0">
-    <img class="time_button" src="../img/prev_track.png" ng-click="reverse_time(300)"></img>
-    <img class="time_button" src="../img/prev_track.png" ng-click="reverse_time(60)"></img>
+    <img class="time_button" src="../img/prev_track.png" ng-click="forward_time(-300)"></img>
+    <img class="time_button" src="../img/prev_track.png" ng-click="forward_time(-60)"></img>
     <img class="time_button" src="../img/play.png" ng-click="set_time_live()"></img>
     <img class="time_button" src="../img/next_track.png" ng-click="forward_time(60)"></img>
     <img class="time_button" src="../img/next_track.png" ng-click="forward_time(300)"></img>
@@ -18,27 +19,24 @@
 </div>
 <div id="footer">
   <img src="../img/fullscreen.png" id="fullscreen_button" ng-click="fullscreen()"></img>
-  <!--<button class="button_input" id="fullscreen_button" ng-click="fullscreen()">FS</button>-->
-  <button class="button_input" ng-click="switch_to_ground_camera()">Ground</button>
-  <button class="button_input" ng-click="switch_to_space_camera()">Space</button>
+  <button class="input" ng-click="switch_to_ground_camera()">Ground</button>
+  <button class="input" ng-click="switch_to_space_camera()">Space</button>
 </div>
-
-
-<div id="sidebar_panel">
+<div id="sidebar_panel" ng-class="{ sidebar_visible : sidebar_selected }">
+  <div id="sidebar_leaflet" ng-click="sidebar_clicked()"></div>
   <div id="sidebar">
-    <!--<input id="search_bar" ng-model="query"></input>-->
     <div ng-repeat="(satnum, sat) in sat_table"
-         class="sat_panel"
+         class="panel"
          ng-class="{selected : sat.selected}">
-      <div class="sat_header" ng-click="sat_item_clicked(satnum, sat)">
+      <div class="panel_head" ng-click="sat_item_clicked(satnum, sat)">
         <p class="sidebar_text">{{sat.name}}</p>
       </div>
-      <div class="sat_body" ng-class="{selected : sat.selected}">
+      <div class="panel_body" ng-class="{selected : sat.selected}">
         <p class="sidebar_text">Uplink frequency:
-          <input class="frequency_input" ng-model="sat.uplink_frequency"></input>
+          <input class="input" ng-model="sat.uplink_frequency"></input>
         </p>
         <p class="sidebar_text">Downlink frequency:
-          <input class="frequency_input" ng-model="sat.downlink_frequency"></input>
+          <input class="input" ng-model="sat.downlink_frequency"></input>
         </p>
         <p class="sidebar_text">Doppler Factor: {{sat.doppler_factor}}</p>
         <p class="sidebar_text">Position:
@@ -51,66 +49,36 @@
           {{sat.look_angles[1] | elevation}}
           {{sat.look_angles[2] | distance}}
         </p>
-        <div class="motors_panel">
-          <div class="motors_panel_head sidebar_text" ng-click="sat_motors_clicked(sat)">
-            Motors
+        <div class="panel">
+          <div class="panel_head sidebar_text" ng-click="sat_radios_clicked(sat)">
+            Radio
           </div>
-          <div class="motors_panel_body" ng-class="{motors_selected : sat.motors_selected}">
+          <div class="panel_body" ng-class="{selected : sat.radios_selected}">
             <p>
-              COM: <select class="frequency_input" ng-model="selected_motor_port" ng-options="port for port in COM_list"></select>
-              Motors: <select class="frequency_input"  ng-model="selected_motor_type" ng-options="motor_type for motor_type in supported_motor_types"></select>
+              COM: <select class="input" ng-model="selected_radio_port" ng-options="port for port in COM_list"></select>
             </p>
             <p>
-              <button class="button_input" ng-click="refresh_com_ports_list()">
+              <button class="input" ng-click="refresh_com_ports_list()">
                 Refresh COM List
               </button>
             </p>
             <p>
-              <button class="button_input" ng-click="connect_motors_to_sat(satnum, selected_motor_port, selected_motor_type)">
-                Open Motor
-              </button>
-              <button class="button_input" ng-click="start_motor_tracking(satnum)">
-                Start Motor
-              </button>
-              <button class="button_input" ng-click="stop_motor_tracking(satnum)">
-                Stop Motor
-              </button>
-              <button class="button_input" ng-click="close_motors(satnum)">
-                Close Motor
-              </button>
-            </p>
-            <p class="sidebar_text">
-              {{sat.motor_az | azimuth}}
-              {{sat.motor_el | elevation}}
-            </p>
-          </div>
-        </div>
-        <div class="radios_panel">
-          <div class="radios_panel_head" ng-click="sat_radios_clicked(sat)">
-            Radios
-          </div>
-          <div class="radios_panel_body" ng-class="{radios_selected : sat.radios_selected}">
-            <p>
-              COM: <select class="frequency_input" ng-model="selected_radio_port" ng-options="port for port in COM_list"></select>
-              Radio: <select class="frequency_input" ng-model="selected_radio_type" ng-options="radio_type for radio_type in supported_radio_types"></select>
+              Radio: <select class="input" ng-model="selected_radio_type" ng-options="radio_type for radio_type in supported_radio_types"></select>
             </p>
             <p>
-              <button class="button_input" ng-click="refresh_com_ports_list()">
-                Refresh COM List
-              </button>
-            </p>
-            <p>
-              <button class="button_input" ng-click="connect_radio_to_sat(satnum, selected_radio_port, selected_radio_type, uplink_frequency, downlink_frequency)">
+              <button class="input" ng-click="connect_radio_to_sat(satnum, selected_radio_port, selected_radio_type, uplink_frequency, downlink_frequency)">
                 Open Radio
               </button>
-              <button class="button_input" ng-click="start_radio_tracking(satnum)">
+              <button class="input" ng-click="close_radio(satnum)">
+                Close Radio
+              </button>
+            </p>
+            <p>
+              <button class="input" ng-click="start_radio_tracking(satnum)">
                 Start Doppler
               </button>
-              <button class="button_input" ng-click="stop_radio_tracking(satnum)">
+              <button class="input" ng-click="stop_radio_tracking(satnum)">
                 Stop Doppler
-              </button>
-              <button class="button_input" ng-click="close_radio(satnum)">
-                Close Radio
               </button>
             </p>
             <p class="sidebar_text">
@@ -119,22 +87,59 @@
             </p>
           </div>
         </div>
+        <div class="panel">
+          <div class="panel_head sidebar_text" ng-click="sat_motors_clicked(sat)">
+            Motors
+          </div>
+          <div class="panel_body" ng-class="{selected : sat.motors_selected}">
+            <p>
+              COM: <select class="input" ng-model="selected_motor_port" ng-options="port for port in COM_list"></select>
+            </p>
+            <p>
+              <button class="input" ng-click="refresh_com_ports_list()">
+                Refresh COM List
+              </button>
+            </p>
+            <p>
+              Motors: <select class="input"  ng-model="selected_motor_type" ng-options="motor_type for motor_type in supported_motor_types"></select>
+            </p>
+            <p>
+              <button class="input" ng-click="connect_motors_to_sat(satnum, selected_motor_port, selected_motor_type)">
+                Open Motor
+              </button>
+              <button class="input" ng-click="close_motors(satnum)">
+                Close Motor
+              </button>
+            </p>
+            <p>
+              <button class="input" ng-click="start_motor_tracking(satnum)">
+                Start Motor
+              </button>
+              <button class="input" ng-click="stop_motor_tracking(satnum)">
+                Stop Motor
+              </button>
+            </p>
+            <p class="sidebar_text">
+              {{sat.motor_az | azimuth}}
+              {{sat.motor_el | elevation}}
+            </p>
+          </div>
+        </div>
       </div>
     </div>
-    <div class="sat_panel">
+    <div class="panel">
       <p class="sidebar_text">Longitude:
-        <input class="frequency_input" ng-model="observer_longitude"></input>
+        <input class="input" ng-model="observer_longitude"></input>
       </p>
       <p class="sidebar_text">Latitude:
-        <input class="frequency_input" ng-model="observer_latitude"></input>
+        <input class="input" ng-model="observer_latitude"></input>
       </p>
       <p class="sidebar_text">Altitude:
-        <input class="frequency_input" ng-model="observer_altitude"></input>
+        <input class="input" ng-model="observer_altitude"></input>
       </p>
-      <button class="button_input" ng-click="set_observer_location()">Set Location</button>
-
-      <button class="button_input" ng-click="choose_file()">Update TLEs</button>
-      <button class="button_input" ng-click="clear_sats()">Clear Sats</button>
+      <button class="input" ng-click="set_observer_location()">Set Location</button>
+      <button class="input" ng-click="choose_file()">Update TLEs</button>
+      <button class="input" ng-click="clear_sats()">Clear Sats</button>
     </div>
   </div>
 </div>

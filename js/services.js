@@ -39,7 +39,7 @@ function ThreeJS (WorkerManager) {
         skybox_segments    = 500,
         skybox_rings       = 100;
     var skybox_sphere      = new THREE.SphereGeometry( skybox_radius, skybox_segments, skybox_rings );
-    var skybox_material    = new THREE.MeshBasicMaterial({ color: 0x111111, wireframe: false, side: THREE.BackSide});
+    var skybox_material    = new THREE.MeshBasicMaterial({ color: 0x020202, wireframe: false, side: THREE.BackSide});
     // Create map 3D object
     skybox = new THREE.Mesh(skybox_sphere, skybox_material);
 
@@ -339,9 +339,6 @@ function ThreeJS (WorkerManager) {
 
   function add_to_time_offset (time_delta) {
     time_offset += time_delta*1000;
-  };
-  function subtract_from_time_offset (time_delta) {
-    time_offset -= time_delta*1000;
   };
 
   function reset_time_offset () {

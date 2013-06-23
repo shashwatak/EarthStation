@@ -12,6 +12,12 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios) {
     });
   });
 
+  $scope.sidebar_selected = false;
+  $scope.sidebar_clicked = function(){
+    console.log("clickety: " + $scope.sidebar_selected);
+    $scope.sidebar_selected = !$scope.sidebar_selected;
+  };
+
   ThreeJS.init();
   ThreeJS.start_animation();
 
@@ -123,12 +129,10 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios) {
     };
   };
 
-  $scope.reverse_time = function(time_delta) {
-    ThreeJS.subtract_from_time_offset(time_delta);
-  };
   $scope.set_time_live = function() {
     ThreeJS.reset_time_offset();
   };
+
   $scope.forward_time = function(time_delta) {
     ThreeJS.add_to_time_offset(time_delta);
   };
