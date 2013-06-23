@@ -426,7 +426,6 @@ function ThreeJS (WorkerManager) {
     pivot_camera_for_mouse_deltas : pivot_camera_for_mouse_deltas,
     zoom_camera_for_scroll_delta  : zoom_camera_for_scroll_delta,
     add_to_time_offset            : add_to_time_offset,
-    subtract_from_time_offset     : subtract_from_time_offset,
     reset_time_offset             : reset_time_offset,
     get_current_time              : get_current_time,
     switch_to_ground_camera       : switch_to_ground_camera,
