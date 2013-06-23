@@ -67,7 +67,6 @@ How To Run
 ----------
 ###Build The Project
 1. Clone this Git repo.
-2. Run `make` in the 'EarthStation' directory.
 
 ###Run The App
 Eventually, the app will be available on the Google Chrome Web Store. For now:

@@ -2,31 +2,55 @@
 <html ng-app="EarthStation" ng-csp>
 <head>
   <title>EarthStation</title>
+
+  <!-- Loading stylesheets !-->
   <link rel="stylesheet" type="text/css" href="css/app.css">
+
   <!-- Loading Three.js and related libraries !-->
   <script src="lib/graphics/tween.js"></script>
   <script src="lib/graphics/three.js"></script>
   <script src="lib/graphics/THREEx.WindowResize.js"></script>
   <script src="lib/graphics/jquery.js"></script>
   <script src="lib/graphics/hamster.js"></script>
+
   <!-- Loading hardware control libraries !-->
   <script src="lib/motors/slug_motor.js"></script>
   <script src="lib/radios/icom_821h.js"></script>
   <script src="lib/radios/icom_910h.js"></script>
+
   <!-- Loading utilities !-->
   <script src="lib/workers/console4Worker-page.js"></script>
   <script src="lib/utils/google-file-utils.js"></script>
   <script src="lib/utils/increment-time.js"></script>
+
   <!-- SGP4 Library !-->
   <script src="lib/sgp4/satellite.js"></script>
+
   <!-- Loading AngularJS files !-->
   <script src="lib/angular/angular.js"></script>
+
   <!-- Loading Controllers !-->
   <script src="controllers/ui.js"></script>
-  <script src="js/services.js"></script>
-  <script src="js/directives.js"></script>
-  <script src="js/app.js"></script>
-  <script src="js/filters.js"></script>
+
+  <!-- Loading Services !-->
+  <script src="services/threejs.js"></script>
+  <script src="services/worker-manager.js"></script>
+  <script src="services/motors.js"></script>
+  <script src="services/radios.js"></script>
+
+  <!-- Loading Directives !-->
+  <script src="directives/angular-mousewheel.js"></script>
+
+  <!-- Loading Filters !-->
+  <script src="filters/latitude.js"></script>
+  <script src="filters/longitude.js"></script>
+  <script src="filters/azimuth.js"></script>
+  <script src="filters/elevation.js"></script>
+  <script src="filters/distance.js"></script>
+  <script src="filters/seconds.js"></script>
+
+  <!-- Loading App, which is the AngularJS Main File !-->
+  <script src="app.js"></script>
 </head>
 <body>
   <div id="chrome_app" ng-view></div>
