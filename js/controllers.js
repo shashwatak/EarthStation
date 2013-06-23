@@ -48,6 +48,13 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios) {
     };
   };
 
+  $scope.observer_longitude = -118.44833;
+  $scope.observer_latitude = 34.307;
+  $scope.observer_altitude = 0.37;
+
+  ThreeJS.set_observer_location($scope.observer_longitude, $scope.observer_latitude, $scope.observer_altitude);
+  WorkerManager.set_observer_location($scope.observer_longitude, $scope.observer_latitude, $scope.observer_altitude);
+
   $scope.clear_sats = function (){
     deselect_all_sats();
     $scope.sat_table = {};
@@ -113,17 +120,17 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios) {
     }
     else {
       sat.radios_selected = false;
-    }
+    };
   };
 
-  $scope.reverse_time = function() {
-    ThreeJS.subtract_from_time_offset();
+  $scope.reverse_time = function(time_delta) {
+    ThreeJS.subtract_from_time_offset(time_delta);
   };
   $scope.set_time_live = function() {
     ThreeJS.reset_time_offset();
   };
-  $scope.forward_time = function() {
-    ThreeJS.add_to_time_offset();
+  $scope.forward_time = function(time_delta) {
+    ThreeJS.add_to_time_offset(time_delta);
   };
 
 
@@ -169,6 +176,18 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios) {
     ThreeJS.zoom_camera_for_scroll_delta(delta);
   };
 
+  $scope.switch_to_ground_camera = function (satnum) {
+    ThreeJS.switch_to_ground_camera();
+  };
+
+  $scope.switch_to_space_camera = function (satnum) {
+    ThreeJS.switch_to_space_camera();
+  };
+
+  $scope.set_observer_location = function (satnum) {
+    ThreeJS.set_observer_location($scope.observer_longitude, $scope.observer_latitude, $scope.observer_altitude);
+    WorkerManager.set_observer_location($scope.observer_longitude, $scope.observer_latitude, $scope.observer_altitude);
+  };
 
   /* Prepare Motor/Radio Controller. */
   $scope.COM_list = [];

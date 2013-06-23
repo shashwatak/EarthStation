@@ -95,6 +95,14 @@ body, html {
     float: right;
 }
 
+#fullscreen_button:hover {
+    background-color: #222222;
+}
+
+#fullscreen_button:active {
+    background-color: #444444;
+}
+
 .sat_panel {
     color: white;
     overflow:hidden;
@@ -170,7 +178,7 @@ body, html {
     font-size: 1em;
     border-radius: 12px;
     background-color: black;
-    opacity: .8
+    opacity: .8;
 }
 
 .button_input:hover {
