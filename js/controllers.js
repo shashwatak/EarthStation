@@ -48,6 +48,13 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios) {
     };
   };
 
+  $scope.observer_longitude = -118.44833;
+  $scope.observer_latitude = 34.307;
+  $scope.observer_altitude = 0.37;
+
+  ThreeJS.set_observer_location($scope.observer_longitude, $scope.observer_latitude, $scope.observer_altitude);
+  WorkerManager.set_observer_location($scope.observer_longitude, $scope.observer_latitude, $scope.observer_altitude);
+
   $scope.clear_sats = function (){
     deselect_all_sats();
     $scope.sat_table = {};
@@ -113,7 +120,7 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios) {
     }
     else {
       sat.radios_selected = false;
-    }
+    };
   };
 
   $scope.reverse_time = function(time_delta) {
@@ -175,6 +182,11 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios) {
 
   $scope.switch_to_space_camera = function (satnum) {
     ThreeJS.switch_to_space_camera();
+  };
+
+  $scope.set_observer_location = function (satnum) {
+    ThreeJS.set_observer_location($scope.observer_longitude, $scope.observer_latitude, $scope.observer_altitude);
+    WorkerManager.set_observer_location($scope.observer_longitude, $scope.observer_latitude, $scope.observer_altitude);
   };
 
   /* Prepare Motor/Radio Controller. */

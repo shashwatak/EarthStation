@@ -9,11 +9,11 @@
     {{current_time.year}} {{current_time.month}} {{current_time.date_of_month}} {{current_time.hour}} {{current_time.minute}} {{current_time.second}}
   </div>
   <div id="time_control" ng-show="num_active_sats > 0">
-    <img class="time_button" src="../img/prev_track.png" ng-click="reverse_time(3600)"></img>
+    <img class="time_button" src="../img/prev_track.png" ng-click="reverse_time(300)"></img>
     <img class="time_button" src="../img/prev_track.png" ng-click="reverse_time(60)"></img>
     <img class="time_button" src="../img/play.png" ng-click="set_time_live()"></img>
     <img class="time_button" src="../img/next_track.png" ng-click="forward_time(60)"></img>
-    <img class="time_button" src="../img/next_track.png" ng-click="forward_time(3600)"></img>
+    <img class="time_button" src="../img/next_track.png" ng-click="forward_time(300)"></img>
   </div>
 </div>
 <div id="footer">
@@ -121,7 +121,20 @@
         </div>
       </div>
     </div>
-    <button class="button_input" ng-click="choose_file()">Update TLEs</button>
-    <button class="button_input" ng-click="clear_sats()">Clear Sats</button>
+    <div class="sat_panel">
+      <p class="sidebar_text">Longitude:
+        <input class="frequency_input" ng-model="observer_longitude"></input>
+      </p>
+      <p class="sidebar_text">Latitude:
+        <input class="frequency_input" ng-model="observer_latitude"></input>
+      </p>
+      <p class="sidebar_text">Altitude:
+        <input class="frequency_input" ng-model="observer_altitude"></input>
+      </p>
+      <button class="button_input" ng-click="set_observer_location()">Set Location</button>
+
+      <button class="button_input" ng-click="choose_file()">Update TLEs</button>
+      <button class="button_input" ng-click="clear_sats()">Clear Sats</button>
+    </div>
   </div>
 </div>

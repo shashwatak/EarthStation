@@ -1,8 +1,8 @@
-function ThreeJS(WorkerManager) {
+function ThreeJS (WorkerManager) {
   // This is for the most part a very standard THREEjs setup.
   // Please familiarize yourself with this magnificent library.
-  var camera, scene, renderer, earth, skybox, camera_pivot, ambient_light, directional_light;
-  var space_camera, ground_camera, ground_camera_flag = false;
+  var current_camera, scene, renderer, earth, skybox, ambient_light, directional_light;
+  var space_camera, space_camera_pivot, ground_camera, ground_camera_pivot, ground_camera_flag = false;
   var sat_table = {};
   /*sat_table = {
       satnum: {
@@ -21,6 +21,7 @@ function ThreeJS(WorkerManager) {
       ASPECT      = WIDTH / HEIGHT,
       NEAR        = 100,
       FAR         = 500000;
+  var EARTH_RADIUS = 6378;
 
   function init (){
     // Initialize the big three
@@ -43,7 +44,7 @@ function ThreeJS(WorkerManager) {
     skybox = new THREE.Mesh(skybox_sphere, skybox_material);
 
     // Set the globes properties.
-    var earth_radius      = 6378,
+    var earth_radius      = EARTH_RADIUS,
         earth_segments    = 500,
         earth_rings       = 100;
     var earth_sphere      = new THREE.SphereGeometry( earth_radius, earth_segments, earth_rings );
@@ -58,34 +59,36 @@ function ThreeJS(WorkerManager) {
     space_camera.position.x = 40000;
     space_camera.lookAt ( new THREE.Vector3 (0, 0, 0) );
 
-    // Initialize the ground camera.
-    ground_camera      = new THREE.PerspectiveCamera(VIEW_ANGLE, ASPECT, NEAR, FAR);
-
     // Rotating this pivot allows camera manipulations.
     space_camera_pivot = new THREE.Object3D();
     space_camera_pivot.add(space_camera);
     earth.add(space_camera_pivot);
 
-    camera = space_camera;
+    // Initialize the ground camera.
+    ground_camera      = new THREE.PerspectiveCamera(VIEW_ANGLE, ASPECT, NEAR, FAR);
+    earth.add(ground_camera);
+
+    // Set the camera to be used for rendering.
+    current_camera = space_camera;
 
     // Add the Earth and Sky to the scene
     scene.add(skybox);
     scene.add(earth);
     scene.add(ambient_light);
     // when window is ready, render
-    renderer.render(scene, camera);
-    THREEx.WindowResize(renderer, camera);
+    renderer.render(scene, current_camera);
+    THREEx.WindowResize(renderer, current_camera);
   };
 
   var three_d_running = false;
-  function start_animation() {
+  function start_animation () {
     if(!three_d_running){
       three_d_running = true;
       animate();
     };
   };
 
-  function stop_animation() {
+  function stop_animation () {
     if(three_d_running){
       three_d_running = false; // This will put a stop to the 'rAF() calls in animate()'
     };
@@ -107,10 +110,10 @@ function ThreeJS(WorkerManager) {
   };
 
   var start_time = get_start_time();
-  function animate(anim_time) {
+  function animate (anim_time) {
     if (three_d_running) {
       request_id = requestAnimationFrame( animate );
-      renderer.render( scene, camera );
+      renderer.render( scene, current_camera );
       TWEEN.update();
       animate_for_time(anim_time);
     };
@@ -175,7 +178,7 @@ function ThreeJS(WorkerManager) {
 
   function pivot_camera_for_mouse_deltas (mouse_delta_X, mouse_delta_Y) {
     if (!ground_camera_flag){
-      // Don't move the space camera is we are using the ground camera
+      // Don't move the space camera if we are using the ground camera
       camera_left_right_pivot (mouse_delta_X);
       camera_up_down_pivot (mouse_delta_Y);
     };
@@ -208,12 +211,12 @@ function ThreeJS(WorkerManager) {
 
   function switch_to_ground_camera (){
     ground_camera_flag = true;
-    camera = ground_camera;
+    current_camera = ground_camera;
   };
 
   function switch_to_space_camera (){
     ground_camera_flag = false;
-    camera = space_camera;
+    current_camera = space_camera;
   };
 
   function geometry_from_points (path_points) {
@@ -345,7 +348,7 @@ function ThreeJS(WorkerManager) {
     time_offset = 0;
   };
 
-  function add_marker(satnum, position_ecf){
+  function add_marker (satnum, position_ecf){
     var marker_radius      = 50,
         marker_segments    = 500,
         marker_rings       = 100;
@@ -363,14 +366,14 @@ function ThreeJS(WorkerManager) {
     earth.material.needsUpdate = true;
   };
 
-  function add_path(satnum, ecf_coords_list){
+  function add_path (satnum, ecf_coords_list){
     var path_material_ecf = new THREE.LineBasicMaterial( { color: 0x708090, opacity: 1, linewidth: 3, vertexColors: THREE.VertexColors } );
     var path_ecf = new THREE.Line ( geometry_from_points(ecf_coords_list),  path_material_ecf );
     scene.add(path_ecf);
     sat_table[satnum]["path_ecf"] = path_ecf;
   };
 
-  function update_marker(satnum, position_ecf){
+  function update_marker (satnum, position_ecf){
     var start_position = sat_table[satnum]["marker_ecf"].position;
     var target_position = ecf_array_to_webgl_pos(position_ecf);
     var tween = new TWEEN.Tween(start_position).to(target_position, 500);
@@ -398,9 +401,21 @@ function ThreeJS(WorkerManager) {
     sat_table[satnum]["path_ecf"] = undefined;
   };
 
-  function get_current_time(){
+  function get_current_time (){
     return current_time;
-  }
+  };
+
+  function set_observer_location (observer_longitude, observer_latitude, observer_altitude) {
+    var deg2rad = Math.PI / 180;
+    var observer_coords_gd = [observer_longitude*deg2rad,
+                              observer_latitude*deg2rad,
+                              observer_altitude];
+    var observer_coords_ecf = satellite.geodetic_to_ecf (observer_coords_gd);
+    var observer_coords_webgl = ecf_array_to_webgl_pos (observer_coords_ecf);
+    ground_camera.position = new THREE.Vector3( 0, 0, 0 );
+    ground_camera.lookAt(observer_coords_webgl);
+    ground_camera.translateZ(EARTH_RADIUS);
+  };
 
   return {
     // All the exposed functions of the ThreeJS Service.
@@ -418,7 +433,8 @@ function ThreeJS(WorkerManager) {
     reset_time_offset             : reset_time_offset,
     get_current_time              : get_current_time,
     switch_to_ground_camera       : switch_to_ground_camera,
-    switch_to_space_camera        : switch_to_space_camera
+    switch_to_space_camera        : switch_to_space_camera,
+    set_observer_location         : set_observer_location
   };
 };
 
@@ -427,12 +443,15 @@ function WorkerManager (){
   // the ability to use the Web Workers.
   var track_sat_worker = new Worker('../lib/workers/track_sat.js');
   track_sat_worker.addEventListener('message', worker_update);
+    // This worker is responsible for live tracking satellites.
 
   var propagate_path_worker = new Worker('lib/workers/propagate_path.js');
   propagate_path_worker.addEventListener('message', worker_update);
+    // This worker is responsible for propagating a satellite path over a time span
 
   var import_tles = new Worker('lib/workers/import_tles.js');
   import_tles.addEventListener('message', worker_update);
+    //
 
   // The users of this service register callbacks with an id 'cmd'
   // they are kept in here. When a message is received, this service
@@ -440,6 +459,8 @@ function WorkerManager (){
   var callbacks_table = {};
   function worker_update (e){
     if( console4Worker.filterEvent(e) ) { console.log(e.data.data.data[0]);   }
+      //  this catches the console.log statements from the Worker threads,
+      //  which don't have access to console.log.
     else {
       if (callbacks_table[e.data.cmd]){
         var callbacks = callbacks_table[e.data.cmd];
@@ -476,6 +497,14 @@ function WorkerManager (){
     track_sat_worker.postMessage({cmd : 'remove_satellite', satnum : satnum});
   };
 
+  function set_observer_location (observer_longitude, observer_latitude, observer_altitude) {
+    var deg2rad = Math.PI / 180;
+    var observer_coords_gd = [observer_longitude*deg2rad,
+                              observer_latitude*deg2rad,
+                              observer_altitude];
+    track_sat_worker.postMessage({cmd : 'observer_location', observer_coords_gd : observer_coords_gd});
+  };
+
   function propagate_orbit (satrec, time, orbit_fraction) {
     propagate_path_worker.postMessage({
       cmd : 'propagate_orbit',
@@ -495,7 +524,8 @@ function WorkerManager (){
     propagate_orbit : propagate_orbit,
     update_sats : update_sats,
     update_tles : update_tles,
-    remove_satellite : remove_satellite
+    remove_satellite : remove_satellite,
+    set_observer_location : set_observer_location
   };
 };
 
@@ -760,6 +790,6 @@ function Radios (WorkerManager){
     connect_radio : connect_radio,
     close_radio : close_radio,
     start_radio_tracking : start_radio_tracking,
-    stop_radio_tracking : stop_radio_tracking
+    stop_radio_tracking : stop_radio_tracking,
   };
 };
