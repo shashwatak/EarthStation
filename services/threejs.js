@@ -1,3 +1,10 @@
+/*
+ * EarthStation v0.3
+ * (c) 2013 Shashwat Kandadai and UCSC
+ * https://github.com/shashwatak/EarthStation
+ * License: MIT
+ */
+
 function ThreeJS (WorkerManager) {
   // This is for the most part a very standard THREEjs setup.
   // Please familiarize yourself with this magnificent library.

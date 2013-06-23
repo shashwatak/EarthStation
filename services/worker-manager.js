@@ -1,3 +1,10 @@
+/*
+ * EarthStation v0.3
+ * (c) 2013 Shashwat Kandadai and UCSC
+ * https://github.com/shashwatak/EarthStation
+ * License: MIT
+ */
+
 function WorkerManager (){
   // AngularJS Service, provides those that depend on it with
   // the ability to use the Web Workers.

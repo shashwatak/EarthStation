@@ -1,3 +1,10 @@
+/*
+ * EarthStation v0.3
+ * (c) 2013 Shashwat Kandadai and UCSC
+ * https://github.com/shashwatak/EarthStation
+ * License: MIT
+ */
+
 {
   "name": "Earth Station",
   "description" : "The goals of this software are to: point an antenna at an orbiting satellite; add Doppler correction to radio communications; provide the user with a display of what's going on.",

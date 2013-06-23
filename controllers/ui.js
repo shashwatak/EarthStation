@@ -1,3 +1,10 @@
+/*
+ * EarthStation v0.3
+ * (c) 2013 Shashwat Kandadai and UCSC
+ * https://github.com/shashwatak/EarthStation
+ * License: MIT
+ */
+
 function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios) {
   // First, get the satellites we kept in local storage.
   var storage = chrome.storage.local;

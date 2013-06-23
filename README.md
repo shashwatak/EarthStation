@@ -1,4 +1,4 @@
-EarthStation (v0.2)
+EarthStation (v0.3)
 ===================
 This software is part of a larger project, to build a working
 Ground Station for Satellite Communication as part of the Amateur Radio Service at UCSC.
@@ -251,10 +251,6 @@ as well as index.html, to include the new motor logic:
   <script src="lib/radios/icom_821h.js"></script>
   <script src="lib/radios/your_radio.js"></script>
 ```
-
-~~Makefile~~
--------------
-The Makefile has been removed. Instead, we will just organize our controllers so they are small, offloading work to services and directives. This has a number of benefits over using a Makefile. The Debugger now provides us with accurate line numbers.
 
 Images
 ------

@@ -1,3 +1,10 @@
+/*
+ * EarthStation v0.3
+ * (c) 2013 Shashwat Kandadai and UCSC
+ * https://github.com/shashwatak/EarthStation
+ * License: MIT
+ */
+
 function Radios (WorkerManager){
   var sat_table = {};
   var supported_radios = {
