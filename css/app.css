@@ -90,6 +90,7 @@ body, html {
     clear: both;
     height: 5%;
     width: 100%;
+	Padding-bottom: 15px;
 }
 
 #time_control {

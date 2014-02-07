@@ -59,6 +59,7 @@ function ThreeJS (WorkerManager) {
     var earth_material    = new THREE.MeshPhongMaterial({ map : earth_texture, wireframe: false, shininess: 1 });
     // Create map 3D object
     earth = new THREE.Mesh(earth_sphere, earth_material);
+	
 
     // Initialize the space camera.
     space_camera      = new THREE.PerspectiveCamera(VIEW_ANGLE, ASPECT, NEAR, FAR);
@@ -93,6 +94,18 @@ function ThreeJS (WorkerManager) {
       three_d_running = true;
       animate();
     };
+  };
+  
+   //Added function that hides the earth
+   var earth_hidden = false;
+  function hide_earth(){
+  if(!earth_hidden){
+   earth.visible = false;
+   earth_hidden = true;
+   }else{
+   earth.visible = true;
+   earth_hidden = false;
+   };
   };
 
   function stop_animation () {
@@ -408,6 +421,8 @@ function ThreeJS (WorkerManager) {
   function get_current_time (){
     return current_time;
   };
+  
+ 
 
   function set_observer_location (observer_longitude, observer_latitude, observer_altitude) {
     var deg2rad = Math.PI / 180;
@@ -437,6 +452,7 @@ function ThreeJS (WorkerManager) {
     get_current_time              : get_current_time,
     switch_to_ground_camera       : switch_to_ground_camera,
     switch_to_space_camera        : switch_to_space_camera,
+	hide_earth                    : hide_earth,
     set_observer_location         : set_observer_location
   };
 };

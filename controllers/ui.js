@@ -5,6 +5,10 @@
  * License: MIT
  */
 
+ 
+ 
+ //Will add in functions for the use of FreqCtrl and 2D view mode
+
 function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios) {
   // First, get the satellites we kept in local storage.
   var storage = chrome.storage.local;
@@ -117,6 +121,8 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios) {
       };
     };
   };
+  
+ 
 
   $scope.sat_motors_clicked = function (sat){
     if (!sat.motors_selected) {
@@ -190,6 +196,13 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios) {
   $scope.switch_to_ground_camera = function (satnum) {
     ThreeJS.switch_to_ground_camera();
   };
+  
+   //Added this myself to hide the world
+  $scope.hide_the_world = function(satnum){
+     ThreeJS.hide_earth();
+  };
+  
+  
 
   $scope.switch_to_space_camera = function (satnum) {
     ThreeJS.switch_to_space_camera();
