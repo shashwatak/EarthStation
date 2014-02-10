@@ -42,11 +42,13 @@ function ThreeJS (WorkerManager) {
     $container.append(renderer.domElement);
 
     // Set the skybox properties.
-    var skybox_radius      = 100000,
+    var skybox_radius      = 18000,
         skybox_segments    = 500,
         skybox_rings       = 100;
+    var neheTexture = new THREE.ImageUtils.loadTexture("../img/stars.jpg");
     var skybox_sphere      = new THREE.SphereGeometry( skybox_radius, skybox_segments, skybox_rings );
-    var skybox_material    = new THREE.MeshBasicMaterial({ color: 0x020202, wireframe: false, side: THREE.BackSide});
+    var skybox_material    = new THREE.MeshBasicMaterial({ map:neheTexture, wireframe: false, side: THREE.BackSide});
+	
     // Create map 3D object
     skybox = new THREE.Mesh(skybox_sphere, skybox_material);
 
@@ -59,6 +61,28 @@ function ThreeJS (WorkerManager) {
     var earth_material    = new THREE.MeshPhongMaterial({ map : earth_texture, wireframe: false, shininess: 1 });
     // Create map 3D object
     earth = new THREE.Mesh(earth_sphere, earth_material);
+	
+// create custom material from the shader code above
+	//   that is within specially labeled script tags
+	var customMaterial = new THREE.ShaderMaterial( 
+	{
+	    uniforms: {  },
+		vertexShader:   document.getElementById('vertexShader').textContent,
+		fragmentShader: document.getElementById('fragmentShader').textContent,
+		side: THREE.BackSide,
+		blending: THREE.AdditiveBlending,
+		transparent: true
+	}   );
+
+	var ballGeometry = new THREE.SphereGeometry( EARTH_RADIUS + 20, 500, 100 );
+	var ball = new THREE.Mesh( ballGeometry, customMaterial );
+	scene.add( ball );
+
+
+
+
+		
+
 	
 
     // Initialize the space camera.
@@ -85,7 +109,12 @@ function ThreeJS (WorkerManager) {
     scene.add(ambient_light);
     // when window is ready, render
     renderer.render(scene, current_camera);
+	
+
+	
     THREEx.WindowResize(renderer, current_camera);
+	
+	 
   };
 
   var three_d_running = false;
