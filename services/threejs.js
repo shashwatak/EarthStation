@@ -74,7 +74,7 @@ function ThreeJS (WorkerManager) {
 		transparent: true
 	}   );
 
-	var ballGeometry = new THREE.SphereGeometry( EARTH_RADIUS + 20, 500, 100 );
+	var ballGeometry = new THREE.SphereGeometry( EARTH_RADIUS + 750, 500, 100 );
 	var ball = new THREE.Mesh( ballGeometry, customMaterial );
 	scene.add( ball );
 

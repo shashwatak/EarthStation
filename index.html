@@ -57,6 +57,29 @@
   <script src="filters/elevation.js"></script>
   <script src="filters/distance.js"></script>
   <script src="filters/seconds.js"></script>
+  
+  <!-- ---------------- Custom Shader Code ------------------------ -->
+<script id="vertexShader" type="x-shader/x-vertex">
+varying vec3 vNormal;
+void main() 
+{
+    vNormal = normalize( normalMatrix * normal );
+    gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+}
+</script>
+
+<!-- fragment shader a.k.a. pixel shader -->
+<script id="fragmentShader" type="x-shader/x-vertex"> 
+varying vec3 vNormal;
+void main() 
+{
+
+	float intensity = pow( 0.7 - dot( vNormal, vec3( 0.0, 0.0, 1.0 ) ), 4.0 ); 
+    gl_FragColor = vec4( 0.2, 0.2, 1.1, 0.2 ) * intensity;
+}
+</script>
+
+
 
   <!-- Loading App, which is the AngularJS Main File !-->
   <script src="app.js"></script>
