@@ -8,7 +8,7 @@
 function ThreeJS (WorkerManager) {
   // This is for the most part a very standard THREEjs setup.
   // Please familiarize yourself with this magnificent library.
-  var current_camera, scene, renderer, earth, skybox, ambient_light, directional_light;
+  var current_camera, scene, renderer, earth, skybox, ambient_light, directional_light, ball;
   var space_camera, space_camera_pivot, ground_camera, ground_camera_pivot, ground_camera_flag = false;
   var sat_table = {};
   /*sat_table = {
@@ -74,8 +74,8 @@ function ThreeJS (WorkerManager) {
 		transparent: true
 	}   );
 
-	var ballGeometry = new THREE.SphereGeometry( EARTH_RADIUS + 750, 500, 100 );
-	var ball = new THREE.Mesh( ballGeometry, customMaterial );
+	var ballGeometry = new THREE.SphereGeometry( EARTH_RADIUS + 1400, 500, 100 );
+	ball = new THREE.Mesh( ballGeometry, customMaterial );
 	scene.add( ball );
 
 
@@ -126,13 +126,15 @@ function ThreeJS (WorkerManager) {
   };
   
    //Added function that hides the earth
-   var earth_hidden = false;
+  var earth_hidden = false;
   function hide_earth(){
   if(!earth_hidden){
    earth.visible = false;
+   ball.visible = false;
    earth_hidden = true;
    }else{
    earth.visible = true;
+   ball.visible = true; 
    earth_hidden = false;
    };
   };

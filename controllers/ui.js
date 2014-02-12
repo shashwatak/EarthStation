@@ -224,6 +224,7 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios) {
   $scope.selected_radio_type = $scope.supported_radio_types[0];
 
   function refresh_com_ports_list () {
+    $scope.COM_list.length = 0;
     chrome.serial.getPorts(function(ports) {
       if (ports.length > 0) {
         var i = 0;
@@ -276,6 +277,8 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios) {
         $scope.sat_table[satnum]["radio_sub_frequency"]  = radio_data["radio_sub_frequency"];
       });
     };
+
+
     Radios.connect_radio(satnum, selected_port, selected_radio_type, radio_tracking_callback,
       $scope.sat_table[satnum]["uplink_frequency"], $scope.sat_table[satnum]["downlink_frequency"]);
   };

@@ -27,10 +27,10 @@ body, html {
 
 #sidebar_panel {
     position: absolute;
-    left: -48%;
+    left: -27%;
     float: left;
     height: 100%;
-    width:  50%;
+    width:  30%;
     overflow-y:auto;
     transition: all 0.2s ease-in-out;
     background-color: black;
