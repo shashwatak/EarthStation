@@ -32,7 +32,7 @@ function Radios (WorkerManager){
   //Where the data is being read. Fix this(?)
   //Probably. 
   function radio_comms_async_loop (sat_item) {
-    if (sat_item && sat_item["connectionId"] > 0){
+    if (sat_item && sat_item["connectionId"] > 0){ //this checks if it's connected 
       sat_item["functions"].get_main_frequency(sat_item["connectionId"], function(radio_main_frequency) {
         sat_item["functions"].get_sub_frequency(sat_item["connectionId"], function(radio_sub_frequency){
           if (sat_item["radio_main_frequency"] !== radio_main_frequency ||
@@ -43,6 +43,7 @@ function Radios (WorkerManager){
             sat_item["radio_main_offset"] += (radio_main_frequency - sat_item["uplink_frequency"]);
             sat_item["radio_sub_offset"] += (radio_sub_frequency - sat_item["downlink_frequency"]);
           }
+		  //console.log("Calculated time: " + (performance.now() - sat_item["background_tuning_wait_start"]);
           if (sat_item["is_tracking"] &&
               (performance.now() - sat_item["background_tuning_wait_start"] > 3000)){
             sat_item["radio_main_frequency"] = Math.floor(sat_item["doppler_factor"] * sat_item["uplink_frequency"]) + sat_item["radio_main_offset"];
@@ -115,7 +116,7 @@ function Radios (WorkerManager){
     };
     console.log("radios.connect_radios(" + COMport + ", " + radio_type + ", " + satnum + ")");
     if (COMport && supported_radios[radio_type] && supported_radios[radio_type]["bitrate"]){
-      chrome.serial.open (COMport, {bitrate : supported_radios[radio_type]["bitrate"]}, on_open);
+      chrome.serial.connect (COMport, {bitrate : supported_radios[radio_type]["bitrate"]}, on_open);
     }else{
 	console.log("tough luck kid");
 	};
@@ -123,7 +124,7 @@ function Radios (WorkerManager){
 
   function close_radio (satnum) {
     if (sat_table[satnum] && sat_table[satnum].connectionId > 0) {
-      chrome.serial.close (sat_table[satnum].connectionId, function (close_res) {
+      chrome.serial.disconnect (sat_table[satnum].connectionId, function (close_res) {
         console.log("close: " + sat_table[satnum].COMport + " " + close_res)
         if (close_res) {
           sat_table[satnum]["is_tracking"] = false;

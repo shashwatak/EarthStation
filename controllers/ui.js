@@ -225,12 +225,13 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios) {
 
   function refresh_com_ports_list () {
     $scope.COM_list.length = 0;
-    chrome.serial.getPorts(function(ports) {
+    chrome.serial.getDevices(function(ports) {
       if (ports.length > 0) {
         var i = 0;
         for (i = 0; i < ports.length; i++) {
+		  console.log(ports[i].path);
           $scope.$apply (function () {
-            $scope.COM_list.push(ports[i]);
+            $scope.COM_list.push(ports[i].path);
           });
         };
         $scope.$apply (function () {
