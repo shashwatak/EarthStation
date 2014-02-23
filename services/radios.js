@@ -43,7 +43,7 @@ function Radios (WorkerManager){
             sat_item["radio_main_offset"] += (radio_main_frequency - sat_item["uplink_frequency"]);
             sat_item["radio_sub_offset"] += (radio_sub_frequency - sat_item["downlink_frequency"]);
           }
-		  //console.log("Calculated time: " + (performance.now() - sat_item["background_tuning_wait_start"]);
+		  console.log("Calculated time: " + (performance.now() - sat_item["background_tuning_wait_start"]));
           if (sat_item["is_tracking"] &&
               (performance.now() - sat_item["background_tuning_wait_start"] > 3000)){
             sat_item["radio_main_frequency"] = Math.floor(sat_item["doppler_factor"] * sat_item["uplink_frequency"]) + sat_item["radio_main_offset"];
