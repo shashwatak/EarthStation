@@ -211,17 +211,17 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios) {
   $scope.selected_radio_type = $scope.supported_radio_types[0];
 
   function refresh_com_ports_list () {
-    chrome.serial.getPorts(function(ports) {
+    chrome.serial.getDevices(function(ports) {
       if (ports.length > 0) {
         var i = 0;
         for (i = 0; i < ports.length; i++) {
           $scope.$apply (function () {
-            $scope.COM_list.push(ports[i]);
+            $scope.COM_list.push(ports[i].path);
           });
         };
         $scope.$apply (function () {
-          $scope.selected_motor_port = ports[0];
-          $scope.selected_radio_port = ports[0];
+          $scope.selected_motor_port = ports[0].path;
+          $scope.selected_radio_port = ports[0].path;
         });
       }
       else {
