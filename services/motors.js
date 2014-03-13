@@ -5,16 +5,43 @@
  * License: MIT
  */
 
-function Motors (WorkerManager){
-  var sat_table = {};
 
-  var supported_motors = {
-    'Slug Motor' : {
-      functions : slug_motor,
-      bitrate : 57600
-    }
-  };
-  var sat_table = {};
+function Motors (WorkerManager) {
+
+	/*--- VARIABLES ---------------------------------------------------------*/
+	var sat_table = {};				// holds data for different satellites
+	var keeper = -1;				// Keeper of the Satnum
+	var motorConnectionId = -1;		// Keeper of the Connection ID
+	
+	var supported_motors = {		// List of supported motors
+		// UBW with Yaesu G5500
+		'Slug Motor' : {
+			functions : slug_motor,	// connects to slug_motor.js yes
+			bitrate : 57600
+		}
+	};
+	
+	// UBW packet data: [A][,][ADC val 1][,]...[,][CR][LF]
+	var UBW_PREAM 	= 0x41;	// Not really a preamble, just 'A' in ASCII
+	var UBW_COMMA	= 0x2C;	// Comma used as delimiter
+	var ASCII_0		= 0x30;
+	var ASCII_1		= 0x31;
+	var ASCII_2		= 0x32;
+	var ASCII_3		= 0x33;
+	var ASCII_4		= 0x34;
+	var ASCII_5		= 0x35;
+	var ASCII_6		= 0x36;
+	var ASCII_7		= 0x37;
+	var ASCII_8		= 0x38;
+	var ASCII_9		= 0x39;
+	var EXCLM		= 0x21;	// ! denotes start of error message
+	var CR			= 0x0D;	// Carriage return
+	var LF			= 0x0A;	// Linefeed
+	
+	// This will allow us to use the functions in slug_motor.js
+	// To be implemented later.
+	//WorkerManager.register_command_callback("live_update", live_update_callback);
+
   /* sat_table = {
       satnum : {
         connectionId : -1 // -1 means it's not connected
@@ -34,84 +61,355 @@ function Motors (WorkerManager){
       }
    }*/
 
-  WorkerManager.register_command_callback("live_update", live_update_callback);
-  function live_update_callback (data) {
-    // When the WorkerManager service updates the satellite data,
-    // it callbacks the controller to update the model here.
-    var sat_item = data.sat_item;
-    var satnum = sat_item.satnum;
-    if (sat_table[satnum] && sat_table[satnum]["connectionId"] > 0) {
-      if (sat_table[satnum]["is_tracking"]) {
-        sat_table[satnum]["functions"].move_az_to(sat_table[satnum].connectionId, sat_item.look_angles[0]);
-        sat_table[satnum]["functions"].move_el_to(sat_table[satnum].connectionId, sat_item.look_angles[1]);
-      };
-      sat_table[satnum]["functions"].get_status(sat_table[satnum].connectionId, sat_table[satnum]["callback"]);
-    };
-  };
+	/*--- PRIVATE FUNCTIONS -------------------------------------------------*/
+   
+	/**
+	 * save_satnum();
+	 * Saves the satnum to the global variable: keeper
+	 */
+	function save_satnum(satnum){
+		keeper = satnum;
+	};
 
-  function connect_motors (satnum, COMport, motor_type, callback){
-    function on_open (open_info) {
-      if (open_info.connectionId > 0) {
-        console.log("Motors.connect_motors(" + COMport + ", " + motor_type + ", " + satnum + ")");
-        sat_table[satnum] = {
-          connectionId : open_info.connectionId,
-          COMport : COMport,
-          functions : supported_motors[motor_type]["functions"],
-          callback : callback
-        };
-        sat_table[satnum]["functions"].get_status(sat_table[satnum]["connectionId"],
-                                                  sat_table[satnum]["callback"]);
-        chrome.serial.flush (sat_table[satnum]["connectionId"], function(){});
-      }
-      else {
-        console.log ("Couldn't Open: " + COMport);
-      };
-    };
-    if (COMport && supported_motors[motor_type] && supported_motors[motor_type]["bitrate"]){
-      chrome.serial.open (COMport, {bitrate : supported_motors[motor_type]["bitrate"]}, on_open);
-    };
-  };
+	/**
+	 * live_update_callback()
+	 * Does nothing at the moment. To be implemented with the WorkerManger service later
+	 */
+	function live_update_callback (data) {
+		// When the WorkerManager service updates the satellite data,
+		// it callbacks the controller to update the model here.
+		var sat_item = data.sat_item;
+		var satnum = sat_item.satnum;
+		if (sat_table[satnum] && sat_table[satnum]["connectionId"] > 0) {
+			if (sat_table[satnum]["is_tracking"]) {
+				//sat_table[satnum]["functions"].move_az_to(sat_table[satnum].connectionId, sat_item.look_angles[0]);
+				//sat_table[satnum]["functions"].move_el_to(sat_table[satnum].connectionId, sat_item.look_angles[1]);
+			};
+			//sat_table[satnum]["functions"].get_status(sat_table[satnum].connectionId, sat_table[satnum]["callback"]);
+		};
+	};
 
-  function close_motors (satnum) {
-    if (sat_table[satnum] && sat_table[satnum].connectionId > 0) {
-      chrome.serial.close (sat_table[satnum].connectionId, function (close_res) {
-        console.log("close: " + sat_table[satnum].COMport + " " + close_res)
-        if (close_res) {
-          sat_table[satnum].connectionId = -1;
-          sat_table[satnum].port = "";
-        };
-      });
-    };
-  };
+	/**
+	 * onReceiveCallback()
+	 * Callback function, triggered when a packet is received through the
+	 * motors COM port.
+	 */
+	var onReceiveCallback = function(info) {
+		if ( info.connectionId==motorConnectionId ) {
+			//console.log("Motor packet detected: "+info.data); // prints as [object ArrayBuffer]
+			var incoming_bytes = [];
+			var serial_in_view = new Uint8Array(info.data);
+			//for(var i=0; i<info.data.bytelength; i++) {	// WOW I DIDN'T CAPITALIZE THE L
+			//	console.log("MOTOR: serial_in_view["+i+"]: "+serial_in_view[i].toString(16));
+			//	incoming_bytes.push(serial_in_view[i]);
+			//}
+			for(var i=0; i<info.data.byteLength; i++) {
+				console.log("MOTOR: data["+i+"]: "+serial_in_view[i].toString(16)
+					+", dec: "+ascii2dec(serial_in_view[i]));
+				incoming_bytes.push(serial_in_view[i]);
+			}
+			parse_results = parse_motor_response(incoming_bytes);
+			if (sat_table[keeper]["is_tracking"]) { 
+				if(parse_results[0]>=0 && parse_results[1]>=0) {
+					//update values
+					sat_table[keeper]["motor_azimuth"] = parse_results[0];
+					sat_table[keeper]["motor_elevation"] = parse_results[1];
+				}
+			} else {
+				sat_table[keeper]["motor_azimuth"] = -1;
+				sat_table[keeper]["motor_elevation"] = -1;
+			}
+			sat_table[keeper]["callback"]({ //data structure for callback for HTML
+				motor_azimuth: sat_table[keeper]["motor_azimuth"],
+				motor_elevation: sat_table[keeper]["motor_elevation"]
+			});
+		}
+	};
+ 
+	/**
+	 * parse_motor_response()
+	 * Parses the motor response. Returns an array of numnums
+	 */
+	var parse_motor_response = function(incoming_bytes) {
+		var i = 0;	// counter for incoming_bytes[i]
+		var j = -1;	// counter for adcval[j]
+		var k = 0;	// counter for decimal place
+		var adcval = [];
+		adcval[0] = -1;
+		adcval[1] = -1;
+		
+		//console.log("Parsing incoming_bytes: "+incoming_bytes);
 
-  function start_motor_tracking (satnum, callback) {
-    if (sat_table[satnum] && !sat_table[satnum]["is_tracking"]) {
-      sat_table[satnum]["is_tracking"] = true;
-    }
-  };
+		if(incoming_bytes[0] !== UBW_PREAM) {
+			console.log("Sketch preamble: "+incoming_bytes[i]);
+			return false;
+		} else {
+			//console.log("Carry on...");
+			while(i < incoming_bytes.length) {
+				if(incoming_bytes[i] === (CR || LF)) {
+					// do nothing for now
+					//console.log("End packet");
+				} else if(incoming_bytes[i] === UBW_COMMA) {
+					//console.log("Comma");
+					k = 3;	// reset to the 1000ths place
+					j++;
+					adcval[j] = 0;
+				} else {
+					if(k >= 0) {
+						// convert data to decimal value
+						//var im = ascii2dec(incoming_bytes[i]);
+						//console.log("im "+im);
+						//var so = exp(10,k--);
+						//console.log("so "+so);
+						//var confused = (im * so);
+						//console.log("confused "+confused);
+						
+						adcval[j] += (ascii2dec(incoming_bytes[i]) * exp(10, k--));
+						//adcval[j] = adcval[j] + confused;			// does not work...
+						//console.log("adcval["+j+"] = "+adcval[j]);
+						//console.log("im: "+im+" so: "+so+" confused: "+confused+
+						//	"??? ans="+adcval[j]);
+					}
+				}
+				i++;
+			}
+		
+		}
+		
+		console.log("adcval: "+adcval);
+		return adcval;
+	};
+	
+	/*
+	 * exp()
+	 * Helper function, computes exponents: num^pow. This works too!
+	 */
+	var exp = function(num, pow) {
+		var i = num;
+		var j = pow;
+		var result = 1;
+		
+		while (j>0) {
+			result *= i;
+			j--;
+		}
+		//console.log("exp() result "+result);
+		return result;
+	};
+	
+	/*
+	 * ascii2dec()
+	 * Helper function, converts ASCII to decimal. This definitely works.
+	 */
+	 var ascii2dec = function(num) {
+		switch(num) {
+			case ASCII_0:
+				return 0;
+				break;
+			case ASCII_1:
+				return 1;
+				break;
+			case ASCII_2:
+				return 2;
+				break;
+			case ASCII_3:
+				return 3;
+				break;
+			case ASCII_4:
+				return 4;
+				break;
+			case ASCII_5:
+				return 5;
+				break;
+			case ASCII_6:
+				return 6;
+				break;
+			case ASCII_7:
+				return 7;
+				break;
+			case ASCII_8:
+				return 8;
+				break;
+			case ASCII_9:
+				return 9;
+				break;
+			default:
+				//console.log("ascii2dec error");
+				break;
+		}
+	};
+	
+	/*
+	 * str2ab()
+	 * Helper function, converts string to array buffer for UBW
+	 */
+	var str2ab=function(str) {
+		var buf=new ArrayBuffer(str.length);
+		var bufView=new Uint8Array(buf);
+		for (var i=0; i<str.length; i++) {
+			bufView[i]=str.charCodeAt(i);
+		}
+		console.log("str2ab(): str=\""+str+"\", buf="+buf);
+		return buf;
+	}
+	
+	// Listener for data packets
+	// Apparently, it needs to be placed here specifically?
+	chrome.serial.onReceive.addListener(onReceiveCallback);
+  
+	/*--- PUBLIC FUNCTIONS --------------------------------------------------*/
 
-  function stop_motor_tracking (satnum) {
-    if (sat_table[satnum] && sat_table[satnum]["is_tracking"]) {
-      sat_table[satnum]["functions"].stop_motors(sat_table[satnum].connectionId);
-      sat_table[satnum]["is_tracking"] = false;
-    };
-  };
+	/**
+	 * get_supported_motors()
+	 * Get a list of supported motors.
+	 */
+	function get_supported_motors (){
+		var supported_motors_list = [];
+		for (var motor_type in supported_motors) {
+			if(supported_motors.hasOwnProperty(motor_type)) {
+				supported_motors_list.push(motor_type);
+			};
+		};
+		return supported_motors_list;
+	}; //end get_supported_motors()
 
-  function get_supported_motors (){
-    var supported_motors_list = [];
-    for (var motor_type in supported_motors) {
-      if(supported_motors.hasOwnProperty(motor_type)) {
-        supported_motors_list.push(motor_type);
-      };
-    };
-    return supported_motors_list;
-  };
+	/**
+	 * connect_motors()
+	 * Connects to the COM port controlling the motor, saves connection info
+	 */
+	function connect_motors (satnum, COMport, motor_type, callback){
+		function on_open (open_info) {
+			if (open_info.connectionId > 0) {
+				sat_table[satnum] = {
+					connectionId	: open_info.connectionId,
+					COMport			: COMport,
+					functions		: supported_motors[motor_type]["functions"],
+					callback		: callback
+				};
+				
+				save_satnum(satnum);
+				motorConnectionId = sat_table[satnum]["connectionId"];
+				console.log("MOTOR CONNECTED: motorConnectionId="+motorConnectionId);
+				chrome.serial.flush (sat_table[satnum]["connectionId"], function(result){
+				});
+			} else {
+				console.log ("Couldn't Open: "+COMport);
+			};
+		};
+		console.log("Motors.connect_motors("+COMport+", "+motor_type+", "+satnum+")");
+		if (COMport && supported_motors[motor_type] && supported_motors[motor_type]["bitrate"]){
+			chrome.serial.connect(COMport, {
+				bitrate : supported_motors[motor_type]["bitrate"]
+				}, on_open);
+		} else {
+			console.log("tough luck kid");
+		};
+	}; //end connect_motors()
 
-  return {
-    get_supported_motors : get_supported_motors,
-    connect_motors : connect_motors,
-    close_motors : close_motors,
-    start_motor_tracking : start_motor_tracking,
-    stop_motor_tracking : stop_motor_tracking
-  };
+	/**
+	 * close_motors()
+	 * Disconnects the motors.
+	 */
+	function close_motors (satnum) {
+		if (sat_table[satnum].connectionId == motorConnectionId) {
+			chrome.serial.disconnect(sat_table[satnum].connectionId,
+				function (close_res) { // callback
+					console.log("close: "+sat_table[satnum].COMport+" "+close_res)
+					if (close_res) {
+						sat_table[satnum].connectionId = -1;
+						sat_table[satnum].port = "";
+					};
+				});
+		};
+	}; //end close_motors()
+
+	/*
+	 * start_motors()
+	 */
+	function start_motors(satnum) {
+		// Initializes motors and starts tracking
+		console.log("start_motors(), motorConnectionId="+sat_table[satnum].connectionId);
+		chrome.serial.send(sat_table[satnum].connectionId,
+			str2ab("c,255,0,0,2\n\rt,500,1\n\ro,0,255,0\n\r"),	// should be 34 bytes
+			function(info) {console.log("info.bytesSent="+info.bytesSent);} );
+		if (sat_table[satnum] && !sat_table[satnum]["is_tracking"]) {
+			sat_table[satnum]["is_tracking"] = true;
+		}
+	};//end start_motors(satnum)
+	
+	/*
+	 * stop_motors()
+	 */
+	function stop_motors(satnum) {
+		// stops tracking
+		console.log("start_motors(), motorConnectionId="+motorConnectionId);
+		chrome.serial.send(motorConnectionId,
+			str2ab("az,0\n\rel,0\n\rt,0,1\n\r"),
+			function(info) {console.log("info.bytesSent="+info.bytesSent);} );
+		if (sat_table[satnum] && sat_table[satnum]["is_tracking"]) {
+			sat_table[satnum]["is_tracking"] = false;
+		}
+	};//end start_motors(satnum)
+	
+	/*
+	 * move_motors_up()
+	 */
+	function move_motors_up(satnum) {
+		if (!sat_table[satnum]["is_tracking"]) {
+			console.log("move_motors_up(), motorConnectionId="+motorConnectionId);
+			chrome.serial.send(motorConnectionId,
+				str2ab("el,1\n\r"),
+				function(){});
+		} else console.log("Motor is tracking");
+	};//end move_motors_up()
+	
+	/*
+	 * move_motors_down()
+	 */
+	function move_motors_down(satnum) {
+		if (!sat_table[satnum]["is_tracking"]) {
+			console.log("move_motors_down(), motorConnectionId="+motorConnectionId);
+			chrome.serial.send(motorConnectionId,
+				str2ab("el,2\n\r"),
+				function(){});
+		} else console.log("Motor is tracking");
+	};
+	
+	/*
+	 * move_motors_left()
+	 */
+	function move_motors_left(satnum) {
+		if (!sat_table[satnum]["is_tracking"]) {
+			console.log("move_motors_left(), motorConnectionId="+motorConnectionId);
+			chrome.serial.send(motorConnectionId,
+				str2ab("az,1\n\r"),
+				function(){});
+		} else console.log("Motor is tracking");
+	};//end move_motors_left()
+	
+	/*
+	 * move_motors_right()
+	 */
+	function move_motors_right(satnum) {
+		if (!sat_table[satnum]["is_tracking"]) {
+			console.log("move_motors_right(), motorConnectionId="+motorConnectionId);
+			chrome.serial.send(motorConnectionId,
+				str2ab("az,2\n\r"),
+				function(){});
+		} else console.log("Motor is tracking");
+	};//end move_motors_right()
+	
+	// returns functions to UI
+	return {
+		get_supported_motors	: get_supported_motors,
+		connect_motors			: connect_motors,
+		close_motors			: close_motors,
+		start_motors			: start_motors,
+		stop_motors				: stop_motors,
+		move_motors_up			: move_motors_up,		// for demo, we will allow buttons
+		move_motors_down		: move_motors_down,		// to manually control the motor (LEDs)
+		move_motors_left		: move_motors_left,
+		move_motors_right		: move_motors_right,
+		motorConnectionId		: motorConnectionId
+	};
 };

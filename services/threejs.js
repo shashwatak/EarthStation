@@ -347,8 +347,10 @@ function ThreeJS (WorkerManager) {
     if (!sat_table[satnum]){
       sat_table[satnum] = {};
       sat_table[satnum]["is_tracking"] = true;
+	  
       if (num_active_satellites <= 0) {
         num_active_satellites = 0;
+		
         var light_intesity_start = { intensity : directional_light.intensity };
         var light_intesity_target = { intensity : 0 };
 
@@ -358,17 +360,22 @@ function ThreeJS (WorkerManager) {
         });
         tween.easing(TWEEN.Easing.Linear.None);
         tween.start();
+		
       };
+	  
       num_active_satellites++;
+	  
       WorkerManager.add_satellite(satrec);
       WorkerManager.propagate_orbit(satrec, current_time, 1);
     };
+	
   };
 
   function remove_satellite (satnum) {
     if (sat_table[satnum]){
       WorkerManager.remove_satellite(satnum);
       num_active_satellites--;
+	  
       if (num_active_satellites <= 0) {
         num_active_satellites = 0;
         var light_intesity_start = { intensity : directional_light.intensity };
@@ -381,6 +388,7 @@ function ThreeJS (WorkerManager) {
         tween.easing(TWEEN.Easing.Linear.None);
         tween.start();
       };
+	  
       remove_path(satnum);
       remove_marker(satnum);
 
@@ -403,15 +411,17 @@ function ThreeJS (WorkerManager) {
     var marker_sphere      = new THREE.SphereGeometry( marker_radius, marker_segments, marker_rings );
     var marker_material    = new THREE.MeshPhongMaterial({ color: 0xffffff, emissive : 0xffffff, wireframe: false});
     // Create marker 3D object
+	
     var marker_ecf = new THREE.Mesh(marker_sphere, marker_material);
     var position = ecf_array_to_webgl_pos(position_ecf);
-    marker_ecf.position = position;
+	marker_ecf.position = position;
     var point_light = new THREE.PointLight( 0xffffff, 2, 0 );
-    point_light.position = position;
+	point_light.position = position;
     marker_ecf.add(point_light);
-    scene.add(marker_ecf);
-    sat_table[satnum]["marker_ecf"] = marker_ecf;
+	scene.add(marker_ecf);
+	sat_table[satnum]["marker_ecf"] = marker_ecf;
     earth.material.needsUpdate = true;
+	earth.material.needsUpdate = false;
   };
 
   function add_path (satnum, ecf_coords_list){

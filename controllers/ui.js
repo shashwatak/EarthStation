@@ -121,8 +121,6 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios) {
       };
     };
   };
-  
- 
 
   $scope.sat_motors_clicked = function (sat){
     if (!sat.motors_selected) {
@@ -201,8 +199,6 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios) {
   $scope.hide_the_world = function(satnum){
      ThreeJS.hide_earth();
   };
-  
-  
 
   $scope.switch_to_space_camera = function (satnum) {
     ThreeJS.switch_to_space_camera();
@@ -251,21 +247,57 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios) {
   $scope.connect_motors_to_sat = function (satnum, selected_port, selected_motor_type){
     function motor_tracking_callback(motor_data) {
       $scope.$apply(function() {
-        $scope.sat_table[satnum]["motor_az"] = motor_data["azimuth"];
-        $scope.sat_table[satnum]["motor_el"] = motor_data["elevation"];
-        $scope.sat_table[satnum]["motor_status"] = motor_data["motor_status"];
+        $scope.sat_table[satnum]["motor_azimuth"] = motor_data["motor_azimuth"];
+		$scope.sat_table[satnum]["motor_elevation"] = motor_data["motor_elevation"];
+		$scope.sat_table[satnum]["motor_status"] = motor_data["motor_status"];
       });
     };
-    Motors.connect_motors(satnum, selected_port, selected_motor_type, motor_tracking_callback);
-  };
+    
+	Motors.connect_motors(
+		satnum,
+		selected_port,
+		selected_motor_type,
+		motor_tracking_callback
+		);
+ 
+ };
 
-  $scope.start_motor_tracking = function (satnum) {
-    Motors.start_motor_tracking(satnum);
-  };
+  /*--- temp functions (for demo purposes) ---*/
 
-  $scope.stop_motor_tracking = function (satnum) {
-    Motors.stop_motor_tracking(satnum);
+  $scope.start_motors = function (satnum) {
+	Motors.start_motors(satnum);
   };
+  
+  $scope.stop_motors = function (satnum) {
+	Motors.stop_motors(satnum);
+  };
+  
+  $scope.up_motors = function (satnum) {
+	Motors.move_motors_up(satnum);
+  };
+  
+  $scope.down_motors = function (satnum) {
+	Motors.move_motors_down(satnum);
+  };
+  
+  $scope.left_motors = function (satnum) {
+	Motors.move_motors_left(satnum);
+  };
+  
+  $scope.right_motors = function (satnum) {
+	Motors.move_motors_right(satnum);
+  };
+  
+  /*--- end temp functions---*/
+
+ 
+  //$scope.start_motor_tracking = function (satnum) {
+  //  Motors.start_motor_tracking(satnum);
+  //};
+
+  //$scope.stop_motor_tracking = function (satnum) {
+  //  Motors.stop_motor_tracking(satnum);
+  //};
 
   $scope.close_motors = function (satnum) {
     Motors.close_motors (satnum);
@@ -276,14 +308,25 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios) {
       $scope.$apply(function() {
         $scope.sat_table[satnum]["radio_main_frequency"] = radio_data["radio_main_frequency"];
         $scope.sat_table[satnum]["radio_sub_frequency"]  = radio_data["radio_sub_frequency"];
-      });
+		$scope.sat_table[satnum]["offset"]  = radio_data["offset"];
+      });	// html > this > radios.js
     };
 
-
-    Radios.connect_radio(satnum, selected_port, selected_radio_type, radio_tracking_callback,
-      $scope.sat_table[satnum]["uplink_frequency"], $scope.sat_table[satnum]["downlink_frequency"]);
+    Radios.connect_radio(
+		satnum,
+		selected_port,
+		selected_radio_type,
+		radio_tracking_callback,
+		$scope.sat_table[satnum]["uplink_frequency"],
+		$scope.sat_table[satnum]["downlink_frequency"]
+		);
   };
-
+  
+  $scope.calc_offset = function(){
+	Radios.calc_link_offset();
+	console.log("button");
+	};
+  
   $scope.start_radio_tracking = function (satnum) {
     Radios.start_radio_tracking(satnum);
   };
