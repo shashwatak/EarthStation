@@ -108,7 +108,7 @@
             </p>
 			
             <p class="sidebar_text">
-               USB: {{sat.radio_main_frequency}}
+              USB: {{sat.radio_main_frequency}}
             </p>
 			<p class="sidebar_text">
               LSB: {{sat.radio_sub_frequency}}
@@ -153,6 +153,8 @@
               <button class="input" ng-click="stop_motors(satnum)">
                 Stop Motor
               </button>
+			  
+			  <!--
 			  </br>
 			  <button class="input" ng-click="up_motors(satnum)">
                 Up
@@ -166,6 +168,7 @@
 			  <button class="input" ng-click="right_motors(satnum)">
                 Right
               </button>
+			  -->
             </p>
 			
 			
@@ -179,10 +182,17 @@
             </p>-->
             
 			<p class="sidebar_text">
-				Azimuth ADC: {{sat.motor_azimuth}}
+				Satellite Azimuth: {{sat.look_angles[0] | azimuth}}
             </p>
 			<p class="sidebar_text">
-				Elevation ADC: {{sat.motor_elevation}}
+				Satellite Elevation: {{sat.look_angles[1] | elevation}}
+            </p>
+			
+			<p class="sidebar_text">
+				Motor Azimuth: {{sat.motor_azimuth}}
+            </p>
+			<p class="sidebar_text">
+				Motor Elevation: {{sat.motor_elevation}}
             </p>
 			
           </div>
