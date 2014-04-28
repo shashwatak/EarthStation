@@ -239,16 +239,14 @@ function Motors (WorkerManager) {
 		
 		//console.log("azadc="+azadc+", eladc="+eladc);
 		
-		if(azadc >= 3276) {	// 4096*(4/5) = 3276
-			//console.log("90/820="+(90/820));
-			//console.log("(azadc-3276)="+(azadc-3276));
+		if(azadc >= 1048) {
 		
-			angles[0] = (azadc-3276) * (90/820);
+			angles[0] = (azadc-1048) * (90/262);
 		} else {
-			angles[0] = azadc * (359/3256);
+			angles[0] = azadc * (359/1048);
 		}
 		
-		angles[1] = eladc * (180/4096);
+		angles[1] = eladc * (180/1392);		// experimentally determined
 		
 		//console.log("angles: "+angles);
 		return angles;
@@ -418,7 +416,7 @@ function Motors (WorkerManager) {
 		// Initializes motors and starts tracking
 		console.log("start_motors(), motorConnectionId="+sat_table[satnum].connectionId);
 		chrome.serial.send(sat_table[satnum].connectionId,
-			str2ab("c,255,0,0,2\n\rt,500,1\n\ro,0,255,0\n\r"),	// should be 34 bytes
+			str2ab("c,255,0,0,2\n\rt,250,1\n\ro,0,255,0\n\r"),	// should be 34 bytes
 			function(info) {console.log("info.bytesSent="+info.bytesSent);} );
 		if (sat_table[satnum] && !sat_table[satnum]["is_tracking"]) {
 			sat_table[satnum]["is_tracking"] = true;
@@ -432,7 +430,7 @@ function Motors (WorkerManager) {
 		// stops tracking
 		console.log("start_motors(), motorConnectionId="+motorConnectionId);
 		chrome.serial.send(motorConnectionId,
-			str2ab("az,0\n\rel,0\n\rt,0,1\n\r"),
+			str2ab("az,0\n\rel,0\n\r"),
 			function(info) {console.log("info.bytesSent="+info.bytesSent);} );
 		if (sat_table[satnum] && sat_table[satnum]["is_tracking"]) {
 			sat_table[satnum]["is_tracking"] = false;
@@ -459,6 +457,13 @@ function Motors (WorkerManager) {
 			function(){});
 	};
 	
+	function stop_el(satnum) {
+		console.log("stop_el(), motorConnectionId="+motorConnectionId);
+		chrome.serial.send(motorConnectionId,
+			str2ab("el,0\n\r"),
+			function(){});
+	}
+	
 	/*
 	 * move_motors_left()
 	 */
@@ -479,7 +484,12 @@ function Motors (WorkerManager) {
 			function(){});
 	};//end move_motors_right()
 	
-	
+	function stop_az(satnum) {
+		console.log("stop_az(), motorConnectionId="+motorConnectionId);
+		chrome.serial.send(motorConnectionId,
+			str2ab("az,0\n\r"),
+			function(){});
+	}
 	
 	/*
 	 * move_motors()
