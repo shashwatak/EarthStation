@@ -5,7 +5,6 @@
  * License: MIT
  */
 
-//Will add in functions for the use of FreqCtrl and 2D view mode
 
 function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios) {
   // First, get the satellites we kept in local storage.
@@ -165,8 +164,12 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios) {
   var mouse_is_down = false;
   var mouse_X = 0;
   var mouse_Y = 0;
-
+  var rflag = 0; //access radio once by clicking
   $scope.mouse_down = function (event) {
+  console.log("down");
+  if(ThreeJS.onDocumentMouseDown(event) > 0){
+		Radios.start_radio_tracking(ThreeJS.onDocumentMouseDown(event));
+	  }
 	mouse_is_down = true;
   };
 
@@ -178,7 +181,8 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios) {
 	if (mouse_is_down) {
 	  var mouse_delta_X = (event.offsetX - mouse_X);
 	  var mouse_delta_Y = (event.offsetY - mouse_Y);
-	  ThreeJS.pivot_camera_for_mouse_deltas (mouse_delta_X, mouse_delta_Y);
+	 // console.log(ThreeJS.onDocumentMouseDown(event));
+	 
 	};
 	mouse_X = event.offsetX;
 	mouse_Y = event.offsetY;
@@ -186,7 +190,7 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios) {
 
   $scope.mouse_wheel = function (event, delta, deltaX, deltaY){
 	event.preventDefault();
-	ThreeJS.zoom_camera_for_scroll_delta(delta);
+	//ThreeJS.zoom_camera_for_scroll_delta(delta);
   };
 
   $scope.switch_to_ground_camera = function (satnum) {

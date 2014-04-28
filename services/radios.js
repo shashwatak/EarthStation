@@ -44,7 +44,7 @@ function Radios(WorkerManager) {
 	var initAutoFlag = false; //check for first instance background tuning after 
 	var autoFlag = false;  //check if autoset was ever turned on
     var bgStop = false; //checks if stop_radio_tracking2 was called
-	
+	var oldSatnum = 0; //tracks old satellite you were tracking
 	
 	function save_satnum(satnum) {
 		keeper = satnum;
@@ -233,8 +233,14 @@ function Radios(WorkerManager) {
 	};
 
 	function start_radio_tracking(satnum, callback) {
+	    console.log(satnum);
+		if(oldSatnum != 0){
+			stop_radio_tracking(oldSatnum);
+			stop_radio_tracking2(oldSatnum);
+		}
 		if(sat_table[satnum] && !sat_table[satnum]["is_tracking"]) {
 			sat_table[satnum]["is_tracking"] = true;
+			oldSatnum = satnum;
 		}
 	};
 

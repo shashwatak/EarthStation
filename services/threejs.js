@@ -5,11 +5,15 @@
  * License: MIT
  */
 
+ 
+ 
 function ThreeJS (WorkerManager) {
   // This is for the most part a very standard THREEjs setup.
   // Please familiarize yourself with this magnificent library.
   var current_camera, scene, renderer, earth, skybox, ambient_light, directional_light, ball;
   var space_camera, space_camera_pivot, ground_camera, ground_camera_pivot, ground_camera_flag = false;
+  var domEvents;
+  var mouse = { x: 0, y: 0 };
   var sat_table = {};
   /*sat_table = {
       satnum: {
@@ -29,6 +33,10 @@ function ThreeJS (WorkerManager) {
       NEAR        = 100,
       FAR         = 500000;
   var EARTH_RADIUS = 6378;
+  
+  //Added in object list to store all objects
+	
+	var objects = [];
 
   function init (){
     // Initialize the big three
@@ -40,6 +48,7 @@ function ThreeJS (WorkerManager) {
     // Add initialized renderer to the DOM
     renderer.setSize(WIDTH, HEIGHT);
     $container.append(renderer.domElement);
+	container = renderer.domElement;
 
     // Set the skybox properties.
     var skybox_radius      = 18000,
@@ -61,6 +70,10 @@ function ThreeJS (WorkerManager) {
     var earth_material    = new THREE.MeshPhongMaterial({ map : earth_texture, wireframe: false, shininess: 1 });
     // Create map 3D object
     earth = new THREE.Mesh(earth_sphere, earth_material);
+	//objects.push(earth);
+
+	
+	
 	
 // create custom material from the shader code above
 	//   that is within specially labeled script tags
@@ -74,9 +87,14 @@ function ThreeJS (WorkerManager) {
 		transparent: true
 	}   );
 
+	
+	//Created Custom glow in the background
 	var ballGeometry = new THREE.SphereGeometry( EARTH_RADIUS + 1400, 500, 100 );
 	ball = new THREE.Mesh( ballGeometry, customMaterial );
 	scene.add( ball );
+	
+	
+
 
 
 
@@ -95,7 +113,7 @@ function ThreeJS (WorkerManager) {
     space_camera_pivot = new THREE.Object3D();
     space_camera_pivot.add(space_camera);
     earth.add(space_camera_pivot);
-
+    controls = new THREE.OrbitControls( space_camera, renderer.domElement );
     // Initialize the ground camera.
     ground_camera      = new THREE.PerspectiveCamera(VIEW_ANGLE, ASPECT, NEAR, FAR);
     earth.add(ground_camera);
@@ -114,8 +132,11 @@ function ThreeJS (WorkerManager) {
 	
     THREEx.WindowResize(renderer, current_camera);
 	
+
+	
 	 
   };
+  
 
   var three_d_running = false;
   function start_animation () {
@@ -167,6 +188,7 @@ function ThreeJS (WorkerManager) {
       renderer.render( scene, current_camera );
       TWEEN.update();
       animate_for_time(anim_time);
+	  controls.update();
     };
   };
   var current_time = start_time;
@@ -178,7 +200,7 @@ function ThreeJS (WorkerManager) {
       update_wait_time = anim_time;
     };
   };
-
+/*
   function camera_left_right_pivot (mouse_delta_X) {
     //  IMPORTANT NOTE:
     //  The WebGL world is 3D, and uses a different coordinate system.
@@ -235,6 +257,7 @@ function ThreeJS (WorkerManager) {
     };
   };
 
+  
   function zoom_camera_for_scroll_delta (delta){
     // Move camera inwards when user scrolls up
     // Move camera out when user scrolls down.
@@ -259,6 +282,7 @@ function ThreeJS (WorkerManager) {
       tween.start();
     };
   };
+*/
 
   function switch_to_ground_camera (){
     ground_camera_flag = true;
@@ -280,6 +304,8 @@ function ThreeJS (WorkerManager) {
     var geometry = new THREE.Geometry();
     var colors = [];
     var n_sub = 5;
+	
+	//made length smaller
     for ( var i = 0; i < path_points.length * n_sub; i++ ) {
       var index = i / ( path_points.length * n_sub );
       var position = spline.getPoint(index);
@@ -405,28 +431,31 @@ function ThreeJS (WorkerManager) {
   };
 
   function add_marker (satnum, position_ecf){
-    var marker_radius      = 50,
-        marker_segments    = 500,
+    var marker_radius      = 300,
+        marker_segments    = 1000,
         marker_rings       = 100;
     var marker_sphere      = new THREE.SphereGeometry( marker_radius, marker_segments, marker_rings );
     var marker_material    = new THREE.MeshPhongMaterial({ color: 0xffffff, emissive : 0xffffff, wireframe: false});
     // Create marker 3D object
 	
     var marker_ecf = new THREE.Mesh(marker_sphere, marker_material);
+	marker_ecf.name = satnum;
     var position = ecf_array_to_webgl_pos(position_ecf);
 	marker_ecf.position = position;
     var point_light = new THREE.PointLight( 0xffffff, 2, 0 );
 	point_light.position = position;
-    marker_ecf.add(point_light);
+    //marker_ecf.add(point_light);
 	scene.add(marker_ecf);
+    objects.push(marker_ecf);
 	sat_table[satnum]["marker_ecf"] = marker_ecf;
     earth.material.needsUpdate = true;
-	earth.material.needsUpdate = false;
   };
 
   function add_path (satnum, ecf_coords_list){
     var path_material_ecf = new THREE.LineBasicMaterial( { color: 0x708090, opacity: 1, linewidth: 3, vertexColors: THREE.VertexColors } );
     var path_ecf = new THREE.Line ( geometry_from_points(ecf_coords_list),  path_material_ecf );
+		objects.push(path_ecf);
+	     path_ecf.callback = function(){console.log("This is " + satnum);}
     scene.add(path_ecf);
     sat_table[satnum]["path_ecf"] = path_ecf;
   };
@@ -463,6 +492,53 @@ function ThreeJS (WorkerManager) {
     return current_time;
   };
   
+  //Interaction added in. 
+  
+//document.addEventListener( 'mousedown', onDocumentMouseDown, false );
+
+var projector = new THREE.Projector();
+
+function onDocumentMouseDown( event ) {
+
+
+
+    event.preventDefault();
+
+ 
+ 
+   mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+	mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+	
+	// find intersections
+
+	// create a Ray with origin at the mouse position
+	//   and direction into the scene (camera direction)
+	var vector = new THREE.Vector3( mouse.x, mouse.y, 1 );
+	projector.unprojectVector( vector, space_camera );
+	var ray = new THREE.Raycaster( space_camera.position, vector.sub( space_camera.position ).normalize() );
+
+	// create an array containing all objects in the scene with which the ray intersects
+	var intersects = ray.intersectObjects( objects );
+	
+	// if there is one (or more) intersections
+	if ( intersects.length > 0 )
+	{
+		console.log("Hit @ " + toString(intersects[0].point)  );
+		console.log(intersects[ 0 ].object.name);
+		//Radios.start_radio_tracking(intersects[ 0 ].object.name);
+		return intersects[0].object.name;
+	}
+}
+
+  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ //interaction ended
  
 
   function set_observer_location (observer_longitude, observer_latitude, observer_altitude) {
@@ -486,8 +562,7 @@ function ThreeJS (WorkerManager) {
     stop_animation                : stop_animation,
     add_satellite                 : add_satellite,
     remove_satellite              : remove_satellite,
-    pivot_camera_for_mouse_deltas : pivot_camera_for_mouse_deltas,
-    zoom_camera_for_scroll_delta  : zoom_camera_for_scroll_delta,
+    onDocumentMouseDown           : onDocumentMouseDown,
     add_to_time_offset            : add_to_time_offset,
     reset_time_offset             : reset_time_offset,
     get_current_time              : get_current_time,
@@ -497,3 +572,8 @@ function ThreeJS (WorkerManager) {
     set_observer_location         : set_observer_location
   };
 };
+
+/*
+pivot_camera_for_mouse_deltas : pivot_camera_for_mouse_deltas,
+    zoom_camera_for_scroll_delta  : zoom_camera_for_scroll_delta,
+	*/
