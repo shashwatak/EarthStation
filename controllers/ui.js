@@ -304,6 +304,11 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios) {
   $scope.close_motors = function (satnum) {
 	Motors.close_motors (satnum);
   };
+  
+  
+  //Radio Functions! 
+  //
+  //Yep, just a placeholder 
 
   $scope.connect_radio_to_sat = function (satnum, selected_port, selected_radio_type){
 	function radio_tracking_callback(radio_data) {
