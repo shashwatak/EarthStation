@@ -6,7 +6,7 @@
  */
 
 
-function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios) {
+function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios, Taffy) {
   // First, get the satellites we kept in local storage.
   var storage = chrome.storage.local;
   storage.get(null,function(result){

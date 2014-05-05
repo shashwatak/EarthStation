@@ -17,6 +17,7 @@ EarthStation.service('ThreeJS', ThreeJS);
 EarthStation.service('WorkerManager', WorkerManager);
 EarthStation.service('Motors', Motors);
 EarthStation.service('Radios', Radios);
+EarthStation.service('Taffy', Taffy);
 
 EarthStation.filter('latitude', latitude_filter);
 EarthStation.filter('longitude', longitude_filter);

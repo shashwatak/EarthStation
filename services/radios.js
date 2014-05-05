@@ -136,7 +136,17 @@ function Radios(WorkerManager) {
 		} else sat_table[keeper]["offsetFlag"] = false
 	};
 
+	
+	
+	
+	//New function to connect radio
+	/*
+	function connect_radio(COMport){
+	
+	};
 
+	*/
+	
 	function connect_radio(satnum, COMport, radio_type, callback, uplink, downlink) {
 		save_satnum(satnum);
 
