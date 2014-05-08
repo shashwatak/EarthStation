@@ -306,9 +306,8 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios, Taffy) {
   };
   
   
-  //Radio Functions! 
-  //
-  //Yep, just a placeholder 
+  //Radio Functions begin here! 
+  
 
   $scope.connect_radio_to_sat = function (satnum, selected_port, selected_radio_type){
 	function radio_tracking_callback(radio_data) {

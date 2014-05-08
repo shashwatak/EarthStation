@@ -550,7 +550,7 @@ function onDocumentMouseDown( event ) {
     var observer_coords_webgl = ecf_array_to_webgl_pos (observer_coords_ecf);
     ground_camera.position = new THREE.Vector3( 0, 0, 0 );
     ground_camera.lookAt(observer_coords_webgl);
-    ground_camera.translateZ(EARTH_RADIUS);
+    ground_camera .translateZ(EARTH_RADIUS);
   };
 
   return {
