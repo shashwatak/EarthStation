@@ -540,7 +540,7 @@ function ThreeJS(WorkerManager) {
 		}
 	}
 
-<<<<<<< HEAD
+
   
  
  
@@ -582,7 +582,7 @@ function ThreeJS(WorkerManager) {
 	hide_earth                    : hide_earth,
     set_observer_location         : set_observer_location
   };
-=======
+
 	//interaction ended
 
 	function add_observer(position_ecf) {
@@ -643,7 +643,7 @@ function ThreeJS(WorkerManager) {
 		hide_earth: hide_earth,
 		set_observer_location: set_observer_location
 	};
->>>>>>> cd670bcc3f5657e54c2c7907d142a9e80c2917c5
+
 };
 
 /*
