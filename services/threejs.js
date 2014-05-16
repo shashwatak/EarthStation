@@ -543,8 +543,7 @@ function ThreeJS(WorkerManager) {
 
 	//interaction ended
 
-	/*
-		set_observer_location()
+	/*	set_observer_location()
 		Translates longitude, latitude, and altitude to webGL coordinates
 	 */
 	function set_observer_location(observer_longitude, observer_latitude, observer_altitude) {
@@ -572,62 +571,41 @@ function ThreeJS(WorkerManager) {
 
 		scene.add(marker_ecf);
 		
-		
 		// Position ground camera
 		ground_camera.position = new THREE.Vector3(0, 0, 0);
 		ground_camera.lookAt(observer_coords_webgl);
 		//ground_camera.translateZ(EARTH_RADIUS);
+	};
+	
+	/*	hide_threejs()
+		Hides errythang
+	 */
+	function hide_threejs() {
+		// set visibility of everything to false (?) by traversing from a parent node
+		// to all the children of the scene
+		// wow so poetic
+		
 	};
 
 	return {
 		// All the exposed functions of the ThreeJS Service.
 		// Should be enough to allow users of this service to
 		// initialize, and add satellites, and move camera
-		init: init,
-		start_animation: start_animation,
-		stop_animation: stop_animation,
-		add_satellite: add_satellite,
-		remove_satellite: remove_satellite,
-		onDocumentMouseDown: onDocumentMouseDown,
-		add_to_time_offset: add_to_time_offset,
-		reset_time_offset: reset_time_offset,
-		get_current_time: get_current_time,
-		switch_to_ground_camera: switch_to_ground_camera,
-		switch_to_space_camera: switch_to_space_camera,
-		hide_earth: hide_earth,
-		set_observer_location: set_observer_location
+		init: 						init,
+		start_animation:			start_animation,
+		stop_animation:				stop_animation,
+		add_satellite:				add_satellite,
+		remove_satellite:			remove_satellite,
+		onDocumentMouseDown:		onDocumentMouseDown,
+		add_to_time_offset:			add_to_time_offset,
+		reset_time_offset:			reset_time_offset,
+		get_current_time:			get_current_time,
+		switch_to_ground_camera:	switch_to_ground_camera,
+		switch_to_space_camera:		switch_to_space_camera,
+		hide_earth:					hide_earth,
+		set_observer_location:		set_observer_location,
+		hide_threejs:				hide_threejs		// hide yo wife hide yo world
 	};
-
-	//interaction ended
-
-	function add_observer(position_ecf) {
-		var marker_radius = 100,
-			marker_segments = 1000,
-			marker_rings = 100;
-		var marker_sphere = new THREE.SphereGeometry(marker_radius, marker_segments, marker_rings);
-		var marker_material = new THREE.MeshPhongMaterial({
-			color: 0xff0000,
-			emissive: 0xffffff,
-			wireframe: false
-		});
-		// Create marker 3D object
-
-		var marker_ecf = new THREE.Mesh(marker_sphere, marker_material);
-		//marker_ecf.name = satnum;
-
-		var position = ecf_array_to_webgl_pos(position_ecf);
-		marker_ecf.position = position;
-
-		//var point_light = new THREE.PointLight(0xffffff, 2, 0);
-		//point_light.position = position;
-		//marker_ecf.add(point_light);
-
-		scene.add(marker_ecf);
-		//objects.push(marker_ecf);
-		//sat_table[satnum]["marker_ecf"] = marker_ecf;
-		earth.material.needsUpdate = true;
-	};
-
 };
 
 /*

@@ -26,10 +26,10 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios, Taffy) {
 	$scope.sidebar_selected = !$scope.sidebar_selected;
   };
 
-  // --- Initialize graphics libraries
+  // --- Initialize graphics libraries ----------------------------------------
   // Init pixi.js here as well?
-  ThreeJS.init();
-  ThreeJS.start_animation();
+  //ThreeJS.init();
+  //ThreeJS.start_animation();
 
   WorkerManager.register_command_callback("tles_update", import_callback);
   function import_callback (data) {
@@ -70,7 +70,7 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios, Taffy) {
   $scope.observer_latitude = 36.9720;
   $scope.observer_altitude = 0.37;
 
-  ThreeJS.set_observer_location($scope.observer_longitude, $scope.observer_latitude, $scope.observer_altitude);
+  //ThreeJS.set_observer_location($scope.observer_longitude, $scope.observer_latitude, $scope.observer_altitude);
   WorkerManager.set_observer_location($scope.observer_longitude, $scope.observer_latitude, $scope.observer_altitude);
 
   $scope.clear_sats = function (){
