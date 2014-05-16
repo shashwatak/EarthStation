@@ -4,6 +4,9 @@
  * https://github.com/shashwatak/EarthStation
  * License: MIT
  */
+ 
+ // Testing github settings *~*
+ 
 function ThreeJS(WorkerManager) {
 	// This is for the most part a very standard THREEjs setup.
 	// Please familiarize yourself with this magnificent library.
