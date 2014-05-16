@@ -38,13 +38,15 @@ function ThreeJS(WorkerManager) {
 
 	var objects = [];
 
-	// begin init()
+	/*	init()
+		Initializes scene, camera, renderer, etc
+	 */
 	function init() {
+	
 		// Initialize the big three
 		renderer = new THREE.WebGLRenderer();
 		scene = new THREE.Scene();
 		ambient_light = new THREE.AmbientLight(0xF0F0F0);
-		directional_light = new THREE.DirectionalLight(0xFFFFFF, 0);
 
 		// Add initialized renderer to the DOM
 		renderer.setSize(WIDTH, HEIGHT);
@@ -77,12 +79,10 @@ function ThreeJS(WorkerManager) {
 			wireframe: false,
 			shininess: 1
 		});
-		// Create map 3D object
 		earth = new THREE.Mesh(earth_sphere, earth_material);
-		//objects.push(earth);
 
-		// create custom material from the shader code above
-		//   that is within specially labeled script tags
+		// Create custom material from the shader code above
+		// that is within specially labelled script tags
 		var customMaterial = new THREE.ShaderMaterial({
 			uniforms: {},
 			vertexShader: document.getElementById('vertexShader').textContent,
@@ -92,15 +92,13 @@ function ThreeJS(WorkerManager) {
 			transparent: true
 		});
 
-
-		//Created Custom glow in the background
+		// Created custom glow in the background for better visibility
 		var ballGeometry = new THREE.SphereGeometry(EARTH_RADIUS + 1400, 500, 100);
 		ball = new THREE.Mesh(ballGeometry, customMaterial);
 		scene.add(ball);
 
 		// Initialize the space camera.
 		space_camera = new THREE.PerspectiveCamera(VIEW_ANGLE, ASPECT, NEAR, FAR);
-		//space_camera.add (directional_light);
 		space_camera.position.x = 40000;
 		space_camera.lookAt(new THREE.Vector3(0, 0, 0));
 
@@ -109,26 +107,32 @@ function ThreeJS(WorkerManager) {
 		space_camera_pivot.add(space_camera);
 		earth.add(space_camera_pivot);
 		controls = new THREE.OrbitControls(space_camera, renderer.domElement);
+		
 		// Initialize the ground camera.
 		ground_camera = new THREE.PerspectiveCamera(VIEW_ANGLE, ASPECT, NEAR, FAR);
 		earth.add(ground_camera);
 
-		// Set the camera to be used for rendering.
+		// Set the camera to be used for initial rendering.
 		current_camera = space_camera;
 
 		// Add the Earth and Sky to the scene
 		scene.add(skybox);
 		scene.add(earth);
 		scene.add(ambient_light);
-		// when window is ready, render
+		
+		// Last but not least, render!
 		renderer.render(scene, current_camera);
 
 		THREEx.WindowResize(renderer, current_camera);
-	}; // end init()
+	};
+	// end init()
 
 
 	var three_d_running = false;
 
+	/*	start_animation()
+		idk what this does
+	 */
 	function start_animation() {
 		if(!three_d_running) {
 			three_d_running = true;

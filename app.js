@@ -8,8 +8,8 @@
 var EarthStation = angular.module('EarthStation', ['monospaced.mousewheel']);
 EarthStation.config(['$routeProvider', function($routeProvider) {
   $routeProvider.
-  when('/',                {templateUrl: 'templates/EarthStation.html',
-                            controller: UICtrl}).
+  when('/', {templateUrl: 'templates/EarthStation.html',
+              controller: UICtrl}).
    otherwise({redirectTo: '/'});
 }]);
 
@@ -18,6 +18,7 @@ EarthStation.service('WorkerManager', WorkerManager);
 EarthStation.service('Motors', Motors);
 EarthStation.service('Radios', Radios);
 EarthStation.service('Taffy', Taffy);
+EarthStation.service('PixiJS', PixiJS);
 
 EarthStation.filter('latitude', latitude_filter);
 EarthStation.filter('longitude', longitude_filter);

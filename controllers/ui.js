@@ -6,7 +6,7 @@
  */
 
 
-function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios, Taffy) {
+function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios, Taffy, PixiJS) {
   // First, get the satellites we kept in local storage.
   var storage = chrome.storage.local;
   storage.get(null,function(result){
@@ -28,9 +28,16 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios, Taffy) {
 
   // --- Initialize graphics libraries ----------------------------------------
   // Init pixi.js here as well?
-  //ThreeJS.init();
-  //ThreeJS.start_animation();
+  // I believe we can leave the threejs animations running in the bg
+  // while we "turn off" the renderer and display the 2D view
+  ThreeJS.init();
+  ThreeJS.start_animation();
+  
+  //PixiJS.init();
+  //PixiJS.start_animation();
 
+  
+  
   WorkerManager.register_command_callback("tles_update", import_callback);
   function import_callback (data) {
 	var sat_item = data.sat_item;
