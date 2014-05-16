@@ -4,9 +4,6 @@
  * https://github.com/shashwatak/EarthStation
  * License: MIT
  */
- 
- // Testing github settings *~*
- 
 function ThreeJS(WorkerManager) {
 	// This is for the most part a very standard THREEjs setup.
 	// Please familiarize yourself with this magnificent library.
@@ -55,11 +52,11 @@ function ThreeJS(WorkerManager) {
 		container = renderer.domElement;
 
 		// Set the skybox properties.
-		var skybox_radius 	= 18000,
-			skybox_segments	= 500,
-			skybox_rings 	= 100;
-		var neheTexture 	= new THREE.ImageUtils.loadTexture("../img/stars.jpg");
-		var skybox_sphere 	= new THREE.SphereGeometry(skybox_radius, skybox_segments, skybox_rings);
+		var skybox_radius = 18000,
+			skybox_segments = 500,
+			skybox_rings = 100;
+		var neheTexture = new THREE.ImageUtils.loadTexture("../img/stars.jpg");
+		var skybox_sphere = new THREE.SphereGeometry(skybox_radius, skybox_segments, skybox_rings);
 		var skybox_material = new THREE.MeshBasicMaterial({
 			map: neheTexture,
 			wireframe: false,
@@ -70,12 +67,12 @@ function ThreeJS(WorkerManager) {
 		skybox = new THREE.Mesh(skybox_sphere, skybox_material);
 
 		// Set the globes properties.
-		var earth_radius 	= EARTH_RADIUS,
-			earth_segments 	= 500,
-			earth_rings 	= 100;
-		var earth_sphere 	= new THREE.SphereGeometry(earth_radius, earth_segments, earth_rings);
-		var earth_texture 	= new THREE.ImageUtils.loadTexture("../img/world.jpg");
-		var earth_material 	= new THREE.MeshPhongMaterial({
+		var earth_radius = EARTH_RADIUS,
+			earth_segments = 500,
+			earth_rings = 100;
+		var earth_sphere = new THREE.SphereGeometry(earth_radius, earth_segments, earth_rings);
+		var earth_texture = new THREE.ImageUtils.loadTexture("../img/world.jpg");
+		var earth_material = new THREE.MeshPhongMaterial({
 			map: earth_texture,
 			wireframe: false,
 			shininess: 1
@@ -127,10 +124,11 @@ function ThreeJS(WorkerManager) {
 		renderer.render(scene, current_camera);
 
 		THREEx.WindowResize(renderer, current_camera);
-	};	// end init()
+	}; // end init()
 
 
 	var three_d_running = false;
+
 	function start_animation() {
 		if(!three_d_running) {
 			three_d_running = true;
@@ -144,12 +142,12 @@ function ThreeJS(WorkerManager) {
 	function hide_earth() {
 		if(!earth_hidden) {
 			earth.visible = false;
-			ball.visible  = false;
-			earth_hidden  = true;
+			ball.visible = false;
+			earth_hidden = true;
 		} else {
 			earth.visible = true;
-			ball.visible  = true;
-			earth_hidden  = false;
+			ball.visible = true;
+			earth_hidden = false;
 		};
 	}; // end hide_earth()
 
@@ -543,48 +541,62 @@ function ThreeJS(WorkerManager) {
 		}
 	}
 
+	//interaction ended
 
-  
- 
- 
- 
- 
- 
- 
- 
- //interaction ended
- 
-
-  function set_observer_location (observer_longitude, observer_latitude, observer_altitude) {
-    var deg2rad = Math.PI / 180;
-    var observer_coords_gd = [observer_longitude*deg2rad,
-                              observer_latitude*deg2rad,
+	/*
+		set_observer_location()
+		Translates longitude, latitude, and altitude to webGL coordinates
+	 */
+	function set_observer_location(observer_longitude, observer_latitude, observer_altitude) {
+		
+		// Get all coordinates information
+		var deg2rad = Math.PI / 180;
+		var observer_coords_gd = [observer_longitude * deg2rad,
+                              observer_latitude * deg2rad,
                               observer_altitude];
-    var observer_coords_ecf = satellite.geodetic_to_ecf (observer_coords_gd);
-    var observer_coords_webgl = ecf_array_to_webgl_pos (observer_coords_ecf);
-    ground_camera.position = new THREE.Vector3( 0, 0, 0 );
-    ground_camera.lookAt(observer_coords_webgl);
-    ground_camera .translateZ(EARTH_RADIUS);
-  };
+		var observer_coords_ecf = satellite.geodetic_to_ecf(observer_coords_gd);
+		var observer_coords_webgl = ecf_array_to_webgl_pos(observer_coords_ecf);
+		
+		// Add marker to indicate user location
+		// SphereGeometry( radius, segments, rings )
+		var marker_sphere = new THREE.SphereGeometry( 100, 100, 100 );
+		var marker_material = new THREE.MeshPhongMaterial({
+			color: 0xff0000,
+			emissive: 0xffffff,
+			wireframe: false
+		});
 
-  return {
-    // All the exposed functions of the ThreeJS Service.
-    // Should be enough to allow users of this service to
-    // initialize, and add satellites, and move camera
-    init                          : init,
-    start_animation               : start_animation,
-    stop_animation                : stop_animation,
-    add_satellite                 : add_satellite,
-    remove_satellite              : remove_satellite,
-    onDocumentMouseDown           : onDocumentMouseDown,
-    add_to_time_offset            : add_to_time_offset,
-    reset_time_offset             : reset_time_offset,
-    get_current_time              : get_current_time,
-    switch_to_ground_camera       : switch_to_ground_camera,
-    switch_to_space_camera        : switch_to_space_camera,
-	hide_earth                    : hide_earth,
-    set_observer_location         : set_observer_location
-  };
+		var marker_ecf = new THREE.Mesh(marker_sphere, marker_material);
+		marker_ecf.name = "observer";
+		marker_ecf.position = observer_coords_webgl;
+
+		scene.add(marker_ecf);
+		
+		
+		// Position ground camera
+		ground_camera.position = new THREE.Vector3(0, 0, 0);
+		ground_camera.lookAt(observer_coords_webgl);
+		//ground_camera.translateZ(EARTH_RADIUS);
+	};
+
+	return {
+		// All the exposed functions of the ThreeJS Service.
+		// Should be enough to allow users of this service to
+		// initialize, and add satellites, and move camera
+		init: init,
+		start_animation: start_animation,
+		stop_animation: stop_animation,
+		add_satellite: add_satellite,
+		remove_satellite: remove_satellite,
+		onDocumentMouseDown: onDocumentMouseDown,
+		add_to_time_offset: add_to_time_offset,
+		reset_time_offset: reset_time_offset,
+		get_current_time: get_current_time,
+		switch_to_ground_camera: switch_to_ground_camera,
+		switch_to_space_camera: switch_to_space_camera,
+		hide_earth: hide_earth,
+		set_observer_location: set_observer_location
+	};
 
 	//interaction ended
 
@@ -606,45 +618,14 @@ function ThreeJS(WorkerManager) {
 		var position = ecf_array_to_webgl_pos(position_ecf);
 		marker_ecf.position = position;
 
-		var point_light = new THREE.PointLight(0xffffff, 2, 0);
-		point_light.position = position;
+		//var point_light = new THREE.PointLight(0xffffff, 2, 0);
+		//point_light.position = position;
 		//marker_ecf.add(point_light);
 
 		scene.add(marker_ecf);
 		//objects.push(marker_ecf);
 		//sat_table[satnum]["marker_ecf"] = marker_ecf;
 		earth.material.needsUpdate = true;
-	};
-
-	function set_observer_location(observer_longitude, observer_latitude, observer_altitude) {
-		var deg2rad = Math.PI / 180;
-		var observer_coords_gd = [observer_longitude * deg2rad,
-							  observer_latitude * deg2rad,
-							  observer_altitude];
-		var observer_coords_ecf = satellite.geodetic_to_ecf(observer_coords_gd);
-		var observer_coords_webgl = ecf_array_to_webgl_pos(observer_coords_ecf);
-		ground_camera.position = new THREE.Vector3(0, 0, 0);
-		ground_camera.lookAt(observer_coords_webgl);
-		ground_camera.translateZ(EARTH_RADIUS);
-	};
-
-	return {
-		// All the exposed functions of the ThreeJS Service.
-		// Should be enough to allow users of this service to
-		// initialize, and add satellites, and move camera
-		init: init,
-		start_animation: start_animation,
-		stop_animation: stop_animation,
-		add_satellite: add_satellite,
-		remove_satellite: remove_satellite,
-		onDocumentMouseDown: onDocumentMouseDown,
-		add_to_time_offset: add_to_time_offset,
-		reset_time_offset: reset_time_offset,
-		get_current_time: get_current_time,
-		switch_to_ground_camera: switch_to_ground_camera,
-		switch_to_space_camera: switch_to_space_camera,
-		hide_earth: hide_earth,
-		set_observer_location: set_observer_location
 	};
 
 };

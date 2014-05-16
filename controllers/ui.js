@@ -26,6 +26,8 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios, Taffy) {
 	$scope.sidebar_selected = !$scope.sidebar_selected;
   };
 
+  // --- Initialize graphics libraries
+  // Init pixi.js here as well?
   ThreeJS.init();
   ThreeJS.start_animation();
 
@@ -62,8 +64,10 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios, Taffy) {
 	};
   };
 
-  $scope.observer_longitude = -118.44833;
-  $scope.observer_latitude = 34.307;
+  // Location to be loaded on default
+  // Currently set at Santa Cruz, CA
+  $scope.observer_longitude = -122.0263;
+  $scope.observer_latitude = 36.9720;
   $scope.observer_altitude = 0.37;
 
   ThreeJS.set_observer_location($scope.observer_longitude, $scope.observer_latitude, $scope.observer_altitude);
