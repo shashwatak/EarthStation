@@ -10,10 +10,7 @@ function ThreeJS(WorkerManager) {
 	var current_camera, scene, renderer, earth, skybox, ambient_light, directional_light, ball;
 	var space_camera, space_camera_pivot, ground_camera, ground_camera_pivot, ground_camera_flag = false;
 	var domEvents;
-	var mouse = {
-		x: 0,
-		y: 0
-	};
+	var mouse = { x: 0, y: 0 };
 	var sat_table = {};
 	/*sat_table = {
 	  satnum: {

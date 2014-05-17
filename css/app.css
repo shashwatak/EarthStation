@@ -18,11 +18,20 @@ body, html {
     width: 100%;
 }
 
+#two_d_display {
+	/* 2d mapping display here */
+	/*position absolute;*/
+	position: absolute;
+	height: 100%;
+	width: 100%;
+	margin: auto;
+}
+
 #three_d_display {
     /* web gl context in here */
     position: absolute;
     height: 100%;
-    width:  100%%;
+    width:  100%;
     margin: auto;
 }
 

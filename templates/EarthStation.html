@@ -51,7 +51,7 @@
 <div id="sidebar_panel" ng-class="{ sidebar_visible : sidebar_selected }">
   <div id="sidebar_leaflet" ng-click="sidebar_clicked()"></div>
   <div id="sidebar">
-		
+
     <div ng-repeat="(satnum, sat) in sat_table"
          class="panel"
          ng-class="{selected : sat.selected}">
@@ -76,7 +76,7 @@
           {{sat.look_angles[1] | elevation}}
           {{sat.look_angles[2] | distance}}
         </p>
-		
+
 		<!-- Start Radios Panel -->
         <div class="panel">
           <div class="panel_head sidebar_text" ng-click="sat_radios_clicked(sat)">
@@ -102,7 +102,7 @@
 			 <p>
                 <input type="checkbox" ng-click="calc_offset()" > LinkOffset<br>
             </p>
-			
+
             <p class="sidebar_text">
               USB: {{sat.radio_main_frequency}}
             </p>
@@ -115,7 +115,7 @@
           </div>
         </div>
 		<!-- Begin Radios Panel -->
-		
+
 		<!-- Start Motors Panel -->
         <div class="panel">
           <div class="panel_head sidebar_text" ng-click="sat_motors_clicked(sat)">
@@ -141,7 +141,7 @@
                 Close Motor
               </button>
             </p>
-			
+
 			<p>
               <button class="input" ng-click="start_motors(satnum)">
                 Start Motor
@@ -149,7 +149,7 @@
               <button class="input" ng-click="stop_motors(satnum)">
                 Stop Motor
               </button>
-			  
+
 			  <!--
 			  </br>
 			  <button class="input" ng-click="up_motors(satnum)">
@@ -166,8 +166,8 @@
               </button>
 			  -->
             </p>
-			
-			
+
+
             <!--<p>
               <button class="input" ng-click="start_motor_tracking(satnum)">
                 Start Motor
@@ -183,22 +183,22 @@
 			<p class="sidebar_text">
 				Satellite Elevation: {{sat.look_angles[1] | elevation}}
             </p>
-			
+
 			<p class="sidebar_text">
 				Motor Azimuth: {{sat.motor_azimuth}}
             </p>
 			<p class="sidebar_text">
 				Motor Elevation: {{sat.motor_elevation}}
             </p>
-			
+
           </div>
         </div>
 		<!-- End Motors Panel -->
-		
+
       </div>
     </div>
-	
-	
+
+
     <div class="panel">
 	<p>
 	User Information
@@ -238,7 +238,7 @@
         </p>
     </div>
 	<!-- End Panel -->
-	
+
   </div>
 </div>
 <!-- End Sidebar Panel -->

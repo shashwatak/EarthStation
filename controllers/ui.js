@@ -27,16 +27,15 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios, Taffy, PixiJS) {
   };
 
   // --- Initialize graphics libraries ----------------------------------------
-  // Init pixi.js here as well?
+
   // I believe we can leave the threejs animations running in the bg
   // while we "turn off" the renderer and display the 2D view
-  ThreeJS.init();
-  ThreeJS.start_animation();
+  // Or maybe we can hide divs in html?
+  //ThreeJS.init();
+  //ThreeJS.start_animation();
   
-  //PixiJS.init();
+  PixiJS.init();
   //PixiJS.start_animation();
-
-  
   
   WorkerManager.register_command_callback("tles_update", import_callback);
   function import_callback (data) {
