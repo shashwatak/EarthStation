@@ -14,11 +14,11 @@ EarthStation.config(['$routeProvider', function($routeProvider) {
 }]);
 
 EarthStation.service('ThreeJS', ThreeJS);
+EarthStation.service('PixiJS', PixiJS);
 EarthStation.service('WorkerManager', WorkerManager);
 EarthStation.service('Motors', Motors);
 EarthStation.service('Radios', Radios);
 EarthStation.service('Taffy', Taffy);
-EarthStation.service('PixiJS', PixiJS);
 
 EarthStation.filter('latitude', latitude_filter);
 EarthStation.filter('longitude', longitude_filter);

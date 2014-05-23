@@ -31,10 +31,26 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios, Taffy, PixiJS) {
   // I believe we can leave the threejs animations running in the bg
   // while we "turn off" the renderer and display the 2D view
   // Or maybe we can hide divs in html?
+  
+  // also, need a var to keep track of what ui is being used at the moment
+  var current_view = "threejs"	// default
+  
+  
   //ThreeJS.init();
   //ThreeJS.start_animation();
+  //current_view = "threejs";
   
   PixiJS.init();
+  PixiJS.start_animation();
+  current_view = "pixijs";
+  console.log("current view: "+current_view);
+  console.log("Does this check even work?");
+  if(current_view == "threejs"){
+	  console.log("THREEJS");
+  } else if(current_view == "pixijs") {
+	  console.log("PIXIJS");
+  }
+  
   //PixiJS.start_animation();
   
   WorkerManager.register_command_callback("tles_update", import_callback);
@@ -106,19 +122,27 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios, Taffy, PixiJS) {
 	  deselect_sat(satnum, sat);
 	};
   };
-
+  
   function select_sat (satnum, sat){
-	ThreeJS.add_satellite(satnum, sat.satrec);
-	sat.selected = true;
-	selected_sats[satnum] = sat;
-	$scope.num_active_sats++;
+	  if (current_view == "threejs") {
+		  ThreeJS.add_satellite(satnum, sat.satrec);
+	  } else if (current_view == "pixijs") {
+		  PixiJS.add_satellite(satnum, sat.satrec);
+	  }
+	  sat.selected = true;
+	  selected_sats[satnum] = sat;
+	  $scope.num_active_sats++;
   };
 
   function deselect_sat (satnum, sat){
-	ThreeJS.remove_satellite(satnum);
-	sat.selected = false;
-	selected_sats[satnum] = undefined;
-	$scope.num_active_sats--;
+	  if (current_view == "threejs") {
+		  ThreeJS.remove_satellite(satnum);
+	  } else if (current_view == "pixijs") {
+		  // pixi
+	  }
+	  sat.selected = false;
+	  selected_sats[satnum] = undefined;
+	  $scope.num_active_sats--;
   };
 
   function deselect_all_sats (){
@@ -147,12 +171,20 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios, Taffy, PixiJS) {
 	};
   };
 
-  $scope.set_time_live = function() {
-	ThreeJS.reset_time_offset();
+  $scope.set_time_live = function() {	// NOT HERE
+	  if (current_view == "threejs") {
+		  ThreeJS.reset_time_offset();
+	  } else if (current_view == "pixijs") {
+		  // pixi
+	  }
   };
 
   $scope.forward_time = function(time_delta) {
-	ThreeJS.add_to_time_offset(time_delta);
+	  if (current_view == "threejs") {
+		  ThreeJS.add_to_time_offset(time_delta);
+	  } else if (current_view == "pixijs") {
+		  // pixi
+	  }
   };
 
 
@@ -175,27 +207,34 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios, Taffy, PixiJS) {
   var mouse_X = 0;
   var mouse_Y = 0;
   var rflag = 0; //access radio once by clicking
+  
   $scope.mouse_down = function (event) {
-  console.log("down");
-  if(ThreeJS.onDocumentMouseDown(event) > 0){
-		Radios.start_radio_tracking(ThreeJS.onDocumentMouseDown(event));
+	  //console.log("down");
+	  if (current_view == "threejs") {
+		  if(ThreeJS.onDocumentMouseDown(event) > 0){
+			  Radios.start_radio_tracking(ThreeJS.onDocumentMouseDown(event));
+		  }
+	  } else if (current_view == "pixijs") {
+		  if(PixiJS.onDocumentMouseDown(event) > 0) {
+			  Radios.start_radio_tracking(PixiJS.onDocumentMouseDown(event));
+		  }
 	  }
-	mouse_is_down = true;
+	  mouse_is_down = true;
   };
-
+  
   $scope.mouse_up = function (event) {
-	mouse_is_down = false;
+	  mouse_is_down = false;
   };
 
+  // live_update callback problem is not here
   $scope.mouse_move = function (event) {
-	if (mouse_is_down) {
-	  var mouse_delta_X = (event.offsetX - mouse_X);
-	  var mouse_delta_Y = (event.offsetY - mouse_Y);
-	 // console.log(ThreeJS.onDocumentMouseDown(event));
-	 
-	};
-	mouse_X = event.offsetX;
-	mouse_Y = event.offsetY;
+	  if (mouse_is_down) {
+		  var mouse_delta_X = (event.offsetX - mouse_X);
+		  var mouse_delta_Y = (event.offsetY - mouse_Y);
+		  // console.log(ThreeJS.onDocumentMouseDown(event));
+	  };
+	  mouse_X = event.offsetX;
+	  mouse_Y = event.offsetY;
   };
 
   $scope.mouse_wheel = function (event, delta, deltaX, deltaY){

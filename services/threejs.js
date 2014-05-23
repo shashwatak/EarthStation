@@ -128,7 +128,6 @@ function ThreeJS(WorkerManager) {
 	var three_d_running = false;
 
 	/*	start_animation()
-		idk what this does
 	 */
 	function start_animation() {
 		if(!three_d_running) {
@@ -337,6 +336,7 @@ function ThreeJS(WorkerManager) {
 
 	function live_update_callback(data) {
 		// When the WorkerManager service updates the satellite data.
+		console.log("threejs live_update_callback");
 		var sat_item = data.sat_item;
 		var satnum = sat_item.satnum;
 		if(!sat_table[satnum]) {
@@ -350,6 +350,7 @@ function ThreeJS(WorkerManager) {
 			};
 		}
 	};
+	
 
 	WorkerManager.register_command_callback("path_update", path_update_callback);
 
@@ -377,18 +378,20 @@ function ThreeJS(WorkerManager) {
 				num_active_satellites = 0;
 
 				var light_intesity_start = {
-					intensity: directional_light.intensity
+					//intensity: directional_light.intensity
 				};
 				var light_intesity_target = {
-					intensity: 0
+					//intensity: 0
 				};
 
 				var tween = new TWEEN.Tween(light_intesity_start).to(light_intesity_target, 1000);
 				tween.onUpdate(function () {
-					directional_light.intensity = light_intesity_start.intensity;
+					//directional_light.intensity = light_intesity_start.intensity;
 				});
 				tween.easing(TWEEN.Easing.Linear.None);
 				tween.start();
+				
+				console.log("add_satellite() in threejs");
 
 			};
 
@@ -408,7 +411,7 @@ function ThreeJS(WorkerManager) {
 			if(num_active_satellites <= 0) {
 				num_active_satellites = 0;
 				var light_intesity_start = {
-					intensity: directional_light.intensity
+					//intensity: directional_light.intensity
 				};
 				var light_intesity_target = {
 					intensity: 1
@@ -416,7 +419,7 @@ function ThreeJS(WorkerManager) {
 
 				var tween = new TWEEN.Tween(light_intesity_start).to(light_intesity_target, 1000);
 				tween.onUpdate(function () {
-					directional_light.intensity = light_intesity_start.intensity;
+					//directional_light.intensity = light_intesity_start.intensity;
 				});
 				tween.easing(TWEEN.Easing.Linear.None);
 				tween.start();
@@ -592,20 +595,20 @@ function ThreeJS(WorkerManager) {
 		// All the exposed functions of the ThreeJS Service.
 		// Should be enough to allow users of this service to
 		// initialize, and add satellites, and move camera
-		init: 						init,
-		start_animation:			start_animation,
+		init: 							init,
+		start_animation:				start_animation,
 		stop_animation:				stop_animation,
-		add_satellite:				add_satellite,
-		remove_satellite:			remove_satellite,
-		onDocumentMouseDown:		onDocumentMouseDown,
+		add_satellite:					add_satellite,
+		remove_satellite:				remove_satellite,
+		onDocumentMouseDown:			onDocumentMouseDown,
 		add_to_time_offset:			add_to_time_offset,
 		reset_time_offset:			reset_time_offset,
-		get_current_time:			get_current_time,
+		get_current_time:				get_current_time,
 		switch_to_ground_camera:	switch_to_ground_camera,
 		switch_to_space_camera:		switch_to_space_camera,
-		hide_earth:					hide_earth,
+		hide_earth:						hide_earth,
 		set_observer_location:		set_observer_location,
-		hide_threejs:				hide_threejs		// hide yo wife hide yo world
+		hide_threejs:					hide_threejs		// hide yo wife hide yo world
 	};
 };
 
