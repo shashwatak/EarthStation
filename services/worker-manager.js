@@ -42,6 +42,7 @@ function WorkerManager (){
   };
 
   function register_command_callback (cmd, callback) {
+	 console.log("does it register??? register_command_callback: cmd="+cmd+", callback="+callback);
     if (!callbacks_table[cmd]){
       // First time, make new list.
       callbacks_table[cmd] = [callback];
@@ -73,6 +74,7 @@ function WorkerManager (){
   };
 
   function propagate_orbit (satrec, time, orbit_fraction) {
+	  console.log("Worker Manager propagate_orbit() time="+time);
     propagate_path_worker.postMessage({
       cmd : 'propagate_orbit',
       time : time,

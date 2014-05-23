@@ -1,16 +1,16 @@
 /*
  * EarthStation v0.3
  * pixijs.js
+ * PLANETARIUM VIEW
  */
 
 function PixiJS(WorkerManager) {
 
-	// -- global vars ------------------------------------------------------------
+	// -- GLOBAL VARS ------------------------------------------------------------
 	// Global satellite info
 	var sat_table = {};		// uses "satnum", holds info for satellites
-	var sat_markers = {};	// uses satnum also, container for satellite graphics
+	var sat_marker = {};	// uses satnum also, container for satellite graphics
 	var num_active_satellites = 0;
-	var time_offset = 0;
 	var request_id;
 	//var objects = []; 	// object list to store all objects ?
 
@@ -18,12 +18,15 @@ function PixiJS(WorkerManager) {
 	var $container =  $('#three_d_display'); // $('#two_d_display');	// TEMP
 	var c_width = $container.width();
 	var c_height = $container.height();
-	var mouse = { x: 0, y: 0 };
 	var two_d_running = false;
+	var mouse = { x: 0, y: 0 };
+	var horizon_radius;	// distance from center to "0 degrees" (horizon)
 	
-	var el_0deg;	// distance from center to "0 degrees" (horizon)
-	var el_30deg;	// used for the radius of the marker circles
-	var el_60deg;
+	// Time variables
+	var start_time = get_time();
+	var current_time = start_time;
+	var update_wait_time = 0;
+	var time_offset = 0;
 	
 	// Stage/graphics
 	var stage;
@@ -39,17 +42,14 @@ function PixiJS(WorkerManager) {
 		console.log("PixiJS.init()");
 		
 		// Setup
-		stage = new PIXI.Stage(0x006699); // leaving this obnoxious color here for easy debugging
+		stage = new PIXI.Stage(0x033E6B); // leaving this obnoxious color here for easy debugging
 		renderer = new PIXI.autoDetectRenderer(c_width, c_height, null, false, true);
 		$container.append(renderer.view);
 		requestAnimFrame( animate );
 		
 		// init variables for radius of circle
 		// these will be used to scale distances
-		el_0deg = ( (c_height<c_width)? c_height:c_width ) / 2;
-		el_30deg = el_0deg/3;
-		el_60deg = 2*el_0deg/3
-
+		horizon_radius = ( (c_height<c_width)? c_height:c_width ) / 2;
 
 		// Creating a test sprite
 		var texture = PIXI.Texture.fromImage("../img/bunny.png");
@@ -65,17 +65,17 @@ function PixiJS(WorkerManager) {
 		var guides = new PIXI.Graphics();
 		guides.position.x = c_width/2;
 		guides.position.y = c_height/2;
-		guides.beginFill(0xCCCCCC, 0.2);		// elevation circles
+		guides.beginFill(0xFFFFFF, 0.2);		// elevation circles
 		guides.lineStyle(1, 0xFFFFFF, 1);
-		guides.drawCircle(0, 0, el_0deg);
-		guides.drawCircle(0, 0, el_30deg);
-		guides.drawCircle(0, 0, el_60deg);
+		guides.drawCircle(0, 0, horizon_radius);
+		guides.drawCircle(0, 0, 2*horizon_radius/3);
+		guides.drawCircle(0, 0, horizon_radius/3);
 		guides.endFill()
 		guides.lineStyle(1, 0xFFFFFF);		// azimuth lines
-		guides.moveTo(0, -el_0deg);
-		guides.lineTo(0,  el_0deg);
-		guides.moveTo(-el_0deg, 0);
-		guides.lineTo( el_0deg, 0);
+		guides.moveTo(0, -horizon_radius);
+		guides.lineTo(0,  horizon_radius);
+		guides.moveTo(-horizon_radius, 0);
+		guides.lineTo( horizon_radius, 0);
 		
 		// Add text
 		var guidetext_n = new PIXI.Text("North)", {font:"12px Arial", fill:"white"});
@@ -149,28 +149,28 @@ function PixiJS(WorkerManager) {
 		}
 	}
 	
-	var start_time = get_time();
-	
 	/* animate()
-		Hi. All animations will go in here.
+		Updates renderer continuously. Called animate_for_time() which actually
+		updates the positions of the markers
 	 */
 	function animate(anim_time) {
 		if(two_d_running) {
-			console.log("animate()");
+			//console.log("animate()");
 			requestAnimFrame( animate );
 	
 			// just for fun, lets rotate mr rabbit a little
-			bunny.rotation += 0.1;
+			//bunny.rotation += 0.1;
 		
 			// render the stage   
 			renderer.render(stage);
-			//controls.update();
+			
+			animate_for_time(anim_time);
 		};
 	};
 	
-	var current_time = start_time;
-	var update_wait_time = 0;
-	
+	/* animate_for_time()
+		Called every 0.2 secconds to update positions of all the objects.
+	 */
 	function animate_for_time(anim_time) {
 		if((anim_time - update_wait_time) > 200) { // update every .2s, 5 Hz
 			current_time = increment_time.by_milliseconds(start_time, anim_time + time_offset);
@@ -179,20 +179,30 @@ function PixiJS(WorkerManager) {
 		};
 	};
 	
-	
+	/* get_time()
+	 */
 	function get_time() {
 		var d_now = new Date();
+		console.log("d_now="+d_now);
 		var time = {
-			year: d_now.getUTCFullYear(),
-			month: d_now.getUTCMonth() + 1,
+			year: 			d_now.getUTCFullYear(),
+			month: 			d_now.getUTCMonth() + 1,
 			date_of_month: d_now.getUTCDate(),
-			hour: d_now.getUTCHours(),
-			minute: d_now.getUTCMinutes(),
-			second: d_now.getUTCSeconds()
+			hour: 			d_now.getUTCHours(),
+			minute: 			d_now.getUTCMinutes(),
+			second: 			d_now.getUTCSeconds()
 		};
 		var p_now = performance.now();
 		var start_time = increment_time.by_milliseconds(time, -p_now);
 		return start_time;
+	};
+	
+	function add_to_time_offset(time_delta) {
+		time_offset += time_delta * 1000;
+	};
+	
+	function reset_time_offset() {
+		time_offset = 0;
 	};
 
 	
@@ -205,22 +215,26 @@ function PixiJS(WorkerManager) {
 		WorkerManager service that updates the satellite data.
 	 */
 	function live_update_callback(data) {					// exactly the same as threejs
-		console.log("pixijs live_update_callback ????");
+		console.log("pixijs live_update_callback ????!!! :(");
 		var sat_item = data.sat_item;
 		var satnum = sat_item.satnum;
+		
+		// use sat_item.look_angles.x or .look_angles[0]?
+		// idk man GET THE CALLBACK WORKING FIRST :(
+		var az = 0;
+		var el = 0;
+		
 		if(!sat_table[satnum]) {
 			sat_table[satnum] = {};
 		}
 		if(sat_table[satnum]["is_tracking"]) {
 			if(sat_table[satnum]["marker_ecf"]) {
-				update_satellite_marker(satnum, sat_item.position_ecf);
+				update_satellite_marker(satnum, az, el);	// :(((
 			} else {
-				add_satellite_marker(satnum, sat_item.position_ecf);
+				add_satellite_marker(satnum, az, el);
 			};
 		};
 	};
-	
-	// ≈≈≈ bacon
 	
 	WorkerManager.register_command_callback("path_update", path_update_callback);
 
@@ -245,11 +259,14 @@ function PixiJS(WorkerManager) {
 		Called by the UI and adds the satellite info into Pixi
 	 */
 	function add_satellite(satnum, satrec) {
+		// This function is called but something seems to not be initializing correctly...
 		if(!sat_table[satnum]) {
 			sat_table[satnum] = {};
 			sat_table[satnum]["is_tracking"] = true;
 
 			console.log("hi friend, satnum="+satnum+", satrec="+satrec);
+			add_satellite_marker(satnum);
+			update_satellite_marker(satnum, 30, 30);
 
 			// not sure what this check does?
 			//if(num_active_satellites <= 0) {
@@ -260,15 +277,29 @@ function PixiJS(WorkerManager) {
 
 			num_active_satellites++;
 		};
-		WorkerManager.add_satellite(satrec);
-		WorkerManager.propagate_orbit(satrec, current_time, 1);
-	};			// this seems to be initialized properly
+		WorkerManager.add_satellite(satrec);	// this works
+		WorkerManager.propagate_orbit(satrec, current_time, 1);	// now checking this one
+	};
 	
 	/* add_satellite_marker()
 		inputs: satnum/name?, satrec?
 		Adds a grpahical marker for the satellite, uses satnum table?
 	 */
 	function add_satellite_marker(satnum) {
+		sat_marker[satnum] = new PIXI.Graphics();
+		sat_marker[satnum].position.x = c_width/2;
+		sat_marker[satnum].position.y = c_height/2;
+		//sat_marker.beginFill(0xCCCCCC, 0.2);
+		sat_marker[satnum].lineStyle(1, 0xFFFFFF, 1);
+		sat_marker[satnum].drawCircle(0, 0, horizon_radius/30);
+		sat_marker[satnum].endFill()
+		sat_marker[satnum].lineStyle(1, 0xFFFFFF);		// azimuth lines
+		sat_marker[satnum].moveTo(0, -horizon_radius/20);
+		sat_marker[satnum].lineTo(0,  horizon_radius/20);
+		sat_marker[satnum].moveTo(-horizon_radius/20, 0);
+		sat_marker[satnum].lineTo( horizon_radius/20, 0);
+		
+		stage.addChild(sat_marker[satnum])
 		
 	}
 	
@@ -302,14 +333,18 @@ function PixiJS(WorkerManager) {
 		// whee
 	}
 	
-	/* update_satellite()
+	/* update_satellite_marker()
 		Includes updating marker?
 	 */
-	function update_satellite_marker() {
+	function update_satellite_marker(satnum, az, el) {
 		// called by worker manager to update satellite position
+		sat_marker[satnum].position.x = azel2pixi(az,el)[0];
+		sat_marker[satnum].position.y = azel2pixi(az,el)[1];
 	}
 	
-	
+	/* onDocumentMouseDown()
+		Allows the UI to register a mouse click
+	 */
 	function onDocumentMouseDown(event) {
 		event.preventDefault();
 		mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -341,32 +376,20 @@ function PixiJS(WorkerManager) {
 	function azel2pixi(az, el) {
 		var x = -1;
 		var y = -1;
-		
-		//console.log("az="+az+", el="+el);
-		
-		// calculate raw x,y
+		// calculate unscaled x, y coordinates
 		if (el>=0) {
 			x = Math.abs((90-el)) * Math.sin(az * (3.14159/180));
 			y = -(Math.abs((90-el)) * Math.cos(az * (3.14159/180)));
-			
-			//console.log("x="+x+", y="+y+", [x,y]="+[x,y]);
-			
 			if (az>360) az = az - 360;
-			
 		}
-		
 		// scale to stage
-		// think of a better variable name -.-
-		x = x * (el_0deg / 90)
-		y = y * (el_0deg / 90)
-		
+		x = x * (horizon_radius / 90)
+		y = y * (horizon_radius / 90)
 		// add offset
 		x = x + c_width/2;
 		y = y + c_height/2;
-		
-		
 		return [x,y];
-	}
+	}	// end azel2pixi()
 	
 	/* ll2stage()
 		Maps latitude and longitude to coordinates on stage
@@ -385,11 +408,11 @@ function PixiJS(WorkerManager) {
 		onDocumentMouseDown:		onDocumentMouseDown,
 		start_animation:			start_animation,
 		stop_animation: 			stop_animation,
-		add_satellite: 				add_satellite,
-		remove_satellite: 			remove_satellite
-		//add_to_time_offset:			add_to_time_offset,
-		//reset_time_offset:			reset_time_offset,
-		//get_current_time:				get_current_time,
+		add_satellite: 			add_satellite,
+		remove_satellite: 		remove_satellite,
+		add_to_time_offset:		add_to_time_offset,
+		reset_time_offset:		reset_time_offset,
+		get_time:					get_time
 	};
 	
 };

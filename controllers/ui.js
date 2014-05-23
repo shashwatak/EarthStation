@@ -35,21 +35,10 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios, Taffy, PixiJS) {
   // also, need a var to keep track of what ui is being used at the moment
   var current_view = "threejs"	// default
   
-  
-  //ThreeJS.init();
-  //ThreeJS.start_animation();
-  //current_view = "threejs";
-  
-  PixiJS.init();
-  PixiJS.start_animation();
-  current_view = "pixijs";
+  // Comment/uncomment the following lines to switch between threejs and pixijs views
+  ThreeJS.init(); ThreeJS.start_animation(); current_view = "threejs";
+  //PixiJS.init(); PixiJS.start_animation(); current_view = "pixijs";
   console.log("current view: "+current_view);
-  console.log("Does this check even work?");
-  if(current_view == "threejs"){
-	  console.log("THREEJS");
-  } else if(current_view == "pixijs") {
-	  console.log("PIXIJS");
-  }
   
   //PixiJS.start_animation();
   
@@ -71,6 +60,7 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios, Taffy, PixiJS) {
   function live_update_callback (data) {
 	// When the WorkerManager service updates the satellite data,
 	// it callbacks the controller to update the model here.
+	// Called on initialization
 	var sat_item = data.sat_item;
 	var satnum = sat_item.satnum;
 	if ($scope.sat_table[satnum]){
@@ -172,10 +162,11 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios, Taffy, PixiJS) {
   };
 
   $scope.set_time_live = function() {	// NOT HERE
+	  console.log("?????????????????????????????????????????????????????????????");
 	  if (current_view == "threejs") {
 		  ThreeJS.reset_time_offset();
 	  } else if (current_view == "pixijs") {
-		  // pixi
+		  PixiJS.reset_time_offset();
 	  }
   };
 
@@ -183,7 +174,7 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios, Taffy, PixiJS) {
 	  if (current_view == "threejs") {
 		  ThreeJS.add_to_time_offset(time_delta);
 	  } else if (current_view == "pixijs") {
-		  // pixi
+		  PixiJS.add_to_time_offset(time_delta);
 	  }
   };
 

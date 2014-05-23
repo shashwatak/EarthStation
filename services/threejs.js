@@ -159,6 +159,7 @@ function ThreeJS(WorkerManager) {
 
 	function get_start_time() {
 		var d_now = new Date();
+		console.log("d_now="+d_now);
 		var time = {
 			year: d_now.getUTCFullYear(),
 			month: d_now.getUTCMonth() + 1,
@@ -397,8 +398,8 @@ function ThreeJS(WorkerManager) {
 
 			num_active_satellites++;
 
-			WorkerManager.add_satellite(satrec);
-			WorkerManager.propagate_orbit(satrec, current_time, 1);
+			WorkerManager.add_satellite(satrec); // satrec=[object Object], also time should be running properly....
+			WorkerManager.propagate_orbit(satrec, current_time, 1); // dis one!!
 		};
 
 	};
