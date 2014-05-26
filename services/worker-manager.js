@@ -42,7 +42,6 @@ function WorkerManager (){
   };
 
   function register_command_callback (cmd, callback) {
-	 console.log("does it register??? register_command_callback: cmd="+cmd+", callback="+callback);
     if (!callbacks_table[cmd]){
       // First time, make new list.
       callbacks_table[cmd] = [callback];

@@ -337,8 +337,8 @@ function ThreeJS(WorkerManager) {
 
 	function live_update_callback(data) {
 		// When the WorkerManager service updates the satellite data.
-		console.log("threejs live_update_callback");
-		var sat_item = data.sat_item;
+		//console.log("threejs live_update_callback");
+		var sat_item = data.sat_item;		// data!!!!!
 		var satnum = sat_item.satnum;
 		if(!sat_table[satnum]) {
 			sat_table[satnum] = {};
@@ -356,7 +356,7 @@ function ThreeJS(WorkerManager) {
 	WorkerManager.register_command_callback("path_update", path_update_callback);
 
 	function path_update_callback(data) {
-		var sat_item = data.sat_item;
+		var sat_item = data.sat_item;		// this has the data
 		var satnum = sat_item.satnum;
 		if(!sat_table[satnum]) {
 			sat_table[satnum] = {};
@@ -560,6 +560,9 @@ function ThreeJS(WorkerManager) {
                               observer_altitude];
 		var observer_coords_ecf = satellite.geodetic_to_ecf(observer_coords_gd);
 		var observer_coords_webgl = ecf_array_to_webgl_pos(observer_coords_ecf);
+		
+		console.log("observer coordinates ecf="+observer_coords_ecf);
+		//observer coordinates ecf=-2705.717750383951,-4325.633999311837,3815.1335772482084
 		
 		// Add marker to indicate user location
 		// SphereGeometry( radius, segments, rings )

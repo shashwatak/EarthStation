@@ -37,10 +37,8 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios, Taffy, PixiJS) {
   
   // Comment/uncomment the following lines to switch between threejs and pixijs views
   ThreeJS.init(); ThreeJS.start_animation(); current_view = "threejs";
-  //PixiJS.init(); PixiJS.start_animation(); current_view = "pixijs";
+  PixiJS.init(); PixiJS.start_animation(); //current_view = "pixijs";
   console.log("current view: "+current_view);
-  
-  //PixiJS.start_animation();
   
   WorkerManager.register_command_callback("tles_update", import_callback);
   function import_callback (data) {
@@ -128,7 +126,7 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios, Taffy, PixiJS) {
 	  if (current_view == "threejs") {
 		  ThreeJS.remove_satellite(satnum);
 	  } else if (current_view == "pixijs") {
-		  // pixi
+		  PixiJS.remove_satellite(satnum);
 	  }
 	  sat.selected = false;
 	  selected_sats[satnum] = undefined;
@@ -162,7 +160,6 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios, Taffy, PixiJS) {
   };
 
   $scope.set_time_live = function() {	// NOT HERE
-	  console.log("?????????????????????????????????????????????????????????????");
 	  if (current_view == "threejs") {
 		  ThreeJS.reset_time_offset();
 	  } else if (current_view == "pixijs") {
@@ -247,8 +244,12 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios, Taffy, PixiJS) {
   };
 
   $scope.set_observer_location = function (satnum) {
-	ThreeJS.set_observer_location($scope.observer_longitude, $scope.observer_latitude, $scope.observer_altitude);
-	WorkerManager.set_observer_location($scope.observer_longitude, $scope.observer_latitude, $scope.observer_altitude);
+	  if (current_view == "threejs") {
+		  ThreeJS.set_observer_location($scope.observer_longitude, $scope.observer_latitude, $scope.observer_altitude);
+	  } else if (current_view == "pixijs") {
+		  PixiJS.set_observer_location($scope.observer_longitude, $scope.observer_latitude, $scope.observer_altitude);
+	  }
+	  WorkerManager.set_observer_location($scope.observer_longitude, $scope.observer_latitude, $scope.observer_altitude);
   };
 
   /* Prepare Motor/Radio Controller. */

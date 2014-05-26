@@ -20,7 +20,7 @@ body, html {
 
 #two_d_display {
 	/* 2d mapping display here */
-	/*position absolute;*/
+	display: visible;
 	position: absolute;
 	height: 100%;
 	width: 100%;
@@ -29,6 +29,7 @@ body, html {
 
 #three_d_display {
     /* web gl context in here */
+	 display: hidden;
     position: absolute;
     height: 100%;
     width:  100%;
