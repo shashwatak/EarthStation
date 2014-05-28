@@ -52,7 +52,7 @@ function ThreeJS(WorkerManager) {
 		renderer.setSize(WIDTH, HEIGHT);
 		$container.append(renderer.domElement);
 		container = renderer.domElement;
-
+     
 		// Set the skybox properties.
 		var skybox_radius = 18000,
 			skybox_segments = 500,
@@ -124,6 +124,7 @@ function ThreeJS(WorkerManager) {
 		renderer.render(scene, current_camera);
 
 		THREEx.WindowResize(renderer, current_camera);
+		scene.visible = false;
 	};
 	// end init()
 
@@ -465,6 +466,8 @@ function ThreeJS(WorkerManager) {
 		earth.material.needsUpdate = true;
 	};
 
+	//top_coords_list = array of coords
+	
 	function add_path(satnum, ecf_coords_list) {
 		var path_material_ecf = new THREE.LineBasicMaterial({
 			color: 0x708090,
