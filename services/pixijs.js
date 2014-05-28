@@ -57,7 +57,7 @@ function PixiJS(WorkerManager) {
 		requestAnimFrame( animate );
 		
 		// initialize variables used to scale images to the planetarium view
-		horizon_radius = ( (c_height<c_width)? c_height:c_width ) / 2;
+		horizon_radius = ( (c_height<c_width)? c_height:c_width ) / 3;
 		planetarium_center.x = c_width/2;
 		planetarium_center.y = c_height/2;
 
@@ -146,6 +146,7 @@ function PixiJS(WorkerManager) {
 	/* start_animation()
 	 */
 	function start_animation() {
+		console.log("start pixi animation");
 		if(!two_d_running) {
 			two_d_running = true;
 			animate();
@@ -230,12 +231,10 @@ function PixiJS(WorkerManager) {
 	 */
 	function set_observer_location(observer_longitude, observer_latitude, observer_altitude) {
 		// Get all coordinates information
-		//var deg2rad = Math.PI / 180;
 		observer_coords_gd =  [deg2rad(observer_longitude),
                               	deg2rad(observer_latitude),
                               	observer_altitude];
 		observer_coords_ecf = satellite.geodetic_to_ecf(observer_coords_gd);
-		//var observer_coords_webgl = ecf_array_to_webgl_pos(observer_coords_ecf);
 		console.log("observer coordinates ecf="+observer_coords_ecf);
 	};
 	
@@ -282,6 +281,14 @@ function PixiJS(WorkerManager) {
 			} else {
 				add_path(satnum, sat_item["ecf_coords_list"]);
 			};
+		};
+	};
+	
+	function hide_pixijs() {
+		console.log("hiding pixijs");
+		stop_animation();
+		for (var i = stage.children.length - 1; i >= 0; i--) {
+			stage.removeChild(stage.children[i]);
 		};
 	};
 	
@@ -473,5 +480,6 @@ function PixiJS(WorkerManager) {
 		reset_time_offset:		reset_time_offset,
 		get_time:					get_time,
 		set_observer_location:	set_observer_location,
+		hide_pixijs: 				hide_pixijs		// hide errythang
 	};
 };

@@ -130,6 +130,7 @@ function ThreeJS(WorkerManager) {
 	/*	start_animation()
 	 */
 	function start_animation() {
+		console.log("start threejs animation");
 		if(!three_d_running) {
 			three_d_running = true;
 			animate();
@@ -592,6 +593,10 @@ function ThreeJS(WorkerManager) {
 		// set visibility of everything to false (?) by traversing from a parent node
 		// to all the children of the scene
 		// wow so poetic
+		console.log("hiding threejs");
+		//stop_animation();
+		//var visible = false;
+		scene.traverse( function ( object ) { object.visible = false; } );
 		
 	};
 
