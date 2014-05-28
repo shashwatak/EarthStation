@@ -24,7 +24,7 @@ function WorkerManager (){
   // they are kept in here. When a message is received, this service
   // fires all registered callbacks keyed with e.data.cmd.
   var callbacks_table = {};
-  function worker_update (e){
+  function worker_update (e){2
     if( console4Worker.filterEvent(e) ) { console.log(e.data.data.data[0]);   }
       //  this catches the console.log statements from the Worker threads,
       //  which don't have access to console.log.
@@ -73,6 +73,7 @@ function WorkerManager (){
   };
 
   function propagate_orbit (satrec, time, orbit_fraction) {
+	  console.log("Worker Manager propagate_orbit() time="+time);
     propagate_path_worker.postMessage({
       cmd : 'propagate_orbit',
       time : time,
