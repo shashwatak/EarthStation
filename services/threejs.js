@@ -190,7 +190,7 @@ function ThreeJS(WorkerManager) {
 	var update_wait_time = 0;
 
 	function animate_for_time(anim_time) {
-		if((anim_time - update_wait_time) > 200) { // update every .2s, 5 Hz
+		if((anim_time - update_wait_time) > 1000) { // update every .5s, 2 Hz
 			current_time = increment_time.by_milliseconds(start_time, anim_time + time_offset);
 			WorkerManager.update_sats(current_time);
 			update_wait_time = anim_time;
