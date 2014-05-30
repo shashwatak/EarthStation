@@ -126,6 +126,7 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios, Taffy, PixiJS) {
 	  PixiJS.add_satellite(satnum, sat.satrec);
 	  sat.selected = true;
 	  selected_sats[satnum] = sat;
+	  current_satellite = sat.name;
 	  $scope.num_active_sats++;
   };
 
@@ -232,6 +233,13 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios, Taffy, PixiJS) {
   $scope.hide_the_world = function(satnum){
 	 ThreeJS.hide_earth();
   };
+  
+    //Added this to center to America
+  $scope.center_observer = function(satnum){
+    ThreeJS.center_america($scope.observer_longitude, $scope.observer_latitude);
+     //ThreeJS.center_america(80,-36);
+	 console.log("centering");
+  };
 
   // switch to space view
   // hide pixijs (planetarium) view, start animation for threejs
@@ -254,7 +262,20 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios, Taffy, PixiJS) {
 
 	  WorkerManager.set_observer_location($scope.observer_longitude, $scope.observer_latitude, $scope.observer_altitude);
   };
+  
+  //Database functions! 
+  $scope.access_db = function(satnum){
+	Taffy.load_db();
+  };
 
+  
+    $scope.load_info = function(){
+  console.log(current_satellite);
+	Taffy.find_info(current_satellite);
+	Taffy.find_freq(current_satellite);
+  };
+  
+  
   /* Prepare Motor/Radio Controller. */
   $scope.COM_list = [];
   $scope.selected_motor_port = "";
