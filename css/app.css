@@ -9,7 +9,6 @@ body, html {
   height: 100%;
   width: 100%;
   font-family: Helvetica;
-  background: black;
 }
 
 #chrome_app {
@@ -79,7 +78,7 @@ body, html {
     width: 6%;
     height: 100%;
     background-color: gray;
-    opacity: .2;
+    opacity: .1;
 }
 
 #sidebar_leaflet:hover {
