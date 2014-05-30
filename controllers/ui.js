@@ -6,9 +6,8 @@
  */
 
 
-function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios, Taffy) {
+function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios, Taffy, PixiJS) {
   // First, get the satellites we kept in local storage.
-  var current_satellite;
   var storage = chrome.storage.local;
   storage.get(null,function(result){
 	$scope.$apply(function(){
@@ -20,16 +19,36 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios, Taffy) {
 	  };
 	});
   });
-
+  
+  // what does dis do ?
   $scope.sidebar_selected = false;
   $scope.sidebar_clicked = function(){
-	//console.log("clickety: " + $scope.sidebar_selected);
+	console.log("clickety: " + $scope.sidebar_selected);
 	$scope.sidebar_selected = !$scope.sidebar_selected;
   };
+  
+  // false: 3d view
+  // true: 2d view
+  // poorly named variable is poor
+  $scope.bottom_selected = false;
+  $scope.bottom_clicked = function(){
+	  console.log("clickety click: "+$scope.bottom_selected);
+	  $scope.bottom_selected = !$scope.bottom_selected;
+  };
 
+  // --- Initialize graphics libraries ----------------------------------------
+
+  // I believe we can leave the threejs animations running in the bg
+  // while we "turn off" the renderer and display the 2D view
+  // Or maybe we can hide divs in html?
+  
+  
+  // Comment/uncomment the following lines to switch between threejs and pixijs views
   ThreeJS.init();
   ThreeJS.start_animation();
-
+  PixiJS.init();
+  PixiJS.start_animation();
+  
   WorkerManager.register_command_callback("tles_update", import_callback);
   function import_callback (data) {
 	var sat_item = data.sat_item;
@@ -37,8 +56,7 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios, Taffy) {
 	if (!$scope.sat_table[satnum]){
 	  $scope.$apply(function(){
 		$scope.sat_table[satnum] = sat_item;
-		console.log("called get function")
-		$scope.sat_table[satnum]["uplink_frequency"] = 440000000;
+		$scope.sat_table[satnum]["uplink_frequency"] = 450000000;
 		$scope.sat_table[satnum]["downlink_frequency"] = 145000000;
 	  });
 	  storage.set($scope.sat_table);
@@ -49,6 +67,7 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios, Taffy) {
   function live_update_callback (data) {
 	// When the WorkerManager service updates the satellite data,
 	// it callbacks the controller to update the model here.
+	// Called on initialization
 	var sat_item = data.sat_item;
 	var satnum = sat_item.satnum;
 	if ($scope.sat_table[satnum]){
@@ -64,11 +83,14 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios, Taffy) {
 	};
   };
 
-  $scope.observer_longitude = -118.44833;
-  $scope.observer_latitude = 34.307;
+  // Location to be loaded on default
+  // Currently set at Santa Cruz, CA
+  $scope.observer_longitude = -122.0263;
+  $scope.observer_latitude = 36.9720;
   $scope.observer_altitude = 0.37;
 
   ThreeJS.set_observer_location($scope.observer_longitude, $scope.observer_latitude, $scope.observer_altitude);
+  PixiJS.set_observer_location($scope.observer_longitude, $scope.observer_latitude, $scope.observer_altitude);
   WorkerManager.set_observer_location($scope.observer_longitude, $scope.observer_latitude, $scope.observer_altitude);
 
   $scope.clear_sats = function (){
@@ -98,21 +120,22 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios, Taffy) {
 	  deselect_sat(satnum, sat);
 	};
   };
-
+  
   function select_sat (satnum, sat){
-	ThreeJS.add_satellite(satnum, sat.satrec);
-	sat.selected = true;
-	selected_sats[satnum] = sat;
-	console.log(sat.name);
-	current_satellite = sat.name;
-	$scope.num_active_sats++;
+	  ThreeJS.add_satellite(satnum, sat.satrec);
+	  PixiJS.add_satellite(satnum, sat.satrec);
+	  sat.selected = true;
+	  selected_sats[satnum] = sat;
+	  current_satellite = sat.name;
+	  $scope.num_active_sats++;
   };
 
   function deselect_sat (satnum, sat){
-	ThreeJS.remove_satellite(satnum);
-	sat.selected = false;
-	selected_sats[satnum] = undefined;
-	$scope.num_active_sats--;
+	  ThreeJS.remove_satellite(satnum);
+	  PixiJS.remove_satellite(satnum);
+	  sat.selected = false;
+	  selected_sats[satnum] = undefined;
+	  $scope.num_active_sats--;
   };
 
   function deselect_all_sats (){
@@ -142,11 +165,13 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios, Taffy) {
   };
 
   $scope.set_time_live = function() {
-	ThreeJS.reset_time_offset();
+	  ThreeJS.reset_time_offset();
+	  PixiJS.reset_time_offset();
   };
 
   $scope.forward_time = function(time_delta) {
-	ThreeJS.add_to_time_offset(time_delta);
+	  ThreeJS.add_to_time_offset(time_delta);
+	  PixiJS.add_to_time_offset(time_delta);
   };
 
 
@@ -169,27 +194,30 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios, Taffy) {
   var mouse_X = 0;
   var mouse_Y = 0;
   var rflag = 0; //access radio once by clicking
+  
+  // add checks here to disable accidentally clicking things in both views
   $scope.mouse_down = function (event) {
-  console.log("down");
-  if(ThreeJS.onDocumentMouseDown(event) > 0){
-		Radios.start_radio_tracking(ThreeJS.onDocumentMouseDown(event));
+	  //console.log("down");
+	  if(!$scope.bottom_selected && ThreeJS.onDocumentMouseDown(event)>0){
+		  Radios.start_radio_tracking(ThreeJS.onDocumentMouseDown(event));
 	  }
-	mouse_is_down = true;
+	  if($scope.bottom_selected && PixiJS.onDocumentMouseDown(event) > 0) {
+		  Radios.start_radio_tracking(PixiJS.onDocumentMouseDown(event));
+	  }
+	  mouse_is_down = true;
   };
-
+  
   $scope.mouse_up = function (event) {
-	mouse_is_down = false;
+	  mouse_is_down = false;
   };
 
   $scope.mouse_move = function (event) {
-	if (mouse_is_down) {
-	  var mouse_delta_X = (event.offsetX - mouse_X);
-	  var mouse_delta_Y = (event.offsetY - mouse_Y);
-	 // console.log(ThreeJS.onDocumentMouseDown(event));
-	 
-	};
-	mouse_X = event.offsetX;
-	mouse_Y = event.offsetY;
+	  if (mouse_is_down) {
+		  var mouse_delta_X = (event.offsetX - mouse_X);
+		  var mouse_delta_Y = (event.offsetY - mouse_Y);
+	  };
+	  mouse_X = event.offsetX;
+	  mouse_Y = event.offsetY;
   };
 
   $scope.mouse_wheel = function (event, delta, deltaX, deltaY){
@@ -201,38 +229,53 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios, Taffy) {
 	ThreeJS.switch_to_ground_camera();
   };
   
-   //Added this myself to hide the world
+  //Added this myself to hide the world
   $scope.hide_the_world = function(satnum){
 	 ThreeJS.hide_earth();
   };
-
-  //Added this to center to America
+  
+    //Added this to center to America
   $scope.center_observer = function(satnum){
     ThreeJS.center_america($scope.observer_longitude, $scope.observer_latitude);
      //ThreeJS.center_america(80,-36);
 	 console.log("centering");
   };
+
+  // switch to space view
+  // hide pixijs (planetarium) view, start animation for threejs
+	$scope.switch_to_space_view = function (satnum) {
+		//PixiJS.hide_pixijs();
+		ThreeJS.start_animation();
+		ThreeJS.switch_to_space_camera();
+	};
   
-  $scope.switch_to_space_camera = function (satnum) {
-	ThreeJS.switch_to_space_camera();
-  };
+	// switch to planetarium view
+	// hide threejs (space view), start animation for pixijs
+	$scope.switch_to_planetarium_view = function (satnum) {
+		ThreeJS.hide_threejs();
+		PixiJS.start_animation();
+	};
 
   $scope.set_observer_location = function (satnum) {
-	ThreeJS.set_observer_location($scope.observer_longitude, $scope.observer_latitude, $scope.observer_altitude);
-	WorkerManager.set_observer_location($scope.observer_longitude, $scope.observer_latitude, $scope.observer_altitude);
+	  ThreeJS.set_observer_location($scope.observer_longitude, $scope.observer_latitude, $scope.observer_altitude);
+	  PixiJS.set_observer_location($scope.observer_longitude, $scope.observer_latitude, $scope.observer_altitude);
+
+	  WorkerManager.set_observer_location($scope.observer_longitude, $scope.observer_latitude, $scope.observer_altitude);
   };
   
   //Database functions! 
   $scope.access_db = function(satnum){
 	Taffy.load_db();
   };
+
   
-  $scope.load_info = function(){
+    $scope.load_info = function(){
   console.log(current_satellite);
 	Taffy.find_info(current_satellite);
 	Taffy.find_freq(current_satellite);
   };
-
+  
+  
   /* Prepare Motor/Radio Controller. */
   $scope.COM_list = [];
   $scope.selected_motor_port = "";
