@@ -6,9 +6,8 @@
  */
 
 
-function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios, Taffy) {
+function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios, Taffy, PixiJS) {
   // First, get the satellites we kept in local storage.
-  var current_satellite;
   var storage = chrome.storage.local;
   storage.get(null,function(result){
 	$scope.$apply(function(){
@@ -37,7 +36,6 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios, Taffy) {
 	  $scope.bottom_selected = !$scope.bottom_selected;
   };
 
-<<<<<<< HEAD
   // --- Initialize graphics libraries ----------------------------------------
 
   // I believe we can leave the threejs animations running in the bg
@@ -51,11 +49,6 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios, Taffy) {
   PixiJS.init();
   PixiJS.start_animation();
   
-=======
-  ThreeJS.init();
-  ThreeJS.start_animation();
-
->>>>>>> 80f240162a280d3235d155814f90556682198706
   WorkerManager.register_command_callback("tles_update", import_callback);
   function import_callback (data) {
 	var sat_item = data.sat_item;
@@ -63,8 +56,7 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios, Taffy) {
 	if (!$scope.sat_table[satnum]){
 	  $scope.$apply(function(){
 		$scope.sat_table[satnum] = sat_item;
-		console.log("called get function")
-		$scope.sat_table[satnum]["uplink_frequency"] = 440000000;
+		$scope.sat_table[satnum]["uplink_frequency"] = 450000000;
 		$scope.sat_table[satnum]["downlink_frequency"] = 145000000;
 	  });
 	  storage.set($scope.sat_table);
@@ -91,15 +83,14 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios, Taffy) {
 	};
   };
 
-  $scope.observer_longitude = -118.44833;
-  $scope.observer_latitude = 34.307;
+  // Location to be loaded on default
+  // Currently set at Santa Cruz, CA
+  $scope.observer_longitude = -122.0263;
+  $scope.observer_latitude = 36.9720;
   $scope.observer_altitude = 0.37;
 
   ThreeJS.set_observer_location($scope.observer_longitude, $scope.observer_latitude, $scope.observer_altitude);
-<<<<<<< HEAD
   PixiJS.set_observer_location($scope.observer_longitude, $scope.observer_latitude, $scope.observer_altitude);
-=======
->>>>>>> 80f240162a280d3235d155814f90556682198706
   WorkerManager.set_observer_location($scope.observer_longitude, $scope.observer_latitude, $scope.observer_altitude);
 
   $scope.clear_sats = function (){
@@ -131,20 +122,11 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios, Taffy) {
   };
   
   function select_sat (satnum, sat){
-<<<<<<< HEAD
 	  ThreeJS.add_satellite(satnum, sat.satrec);
 	  PixiJS.add_satellite(satnum, sat.satrec);
 	  sat.selected = true;
 	  selected_sats[satnum] = sat;
 	  $scope.num_active_sats++;
-=======
-	ThreeJS.add_satellite(satnum, sat.satrec);
-	sat.selected = true;
-	selected_sats[satnum] = sat;
-	console.log(sat.name);
-	current_satellite = sat.name;
-	$scope.num_active_sats++;
->>>>>>> 80f240162a280d3235d155814f90556682198706
   };
 
   function deselect_sat (satnum, sat){
@@ -251,7 +233,6 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios, Taffy) {
 	 ThreeJS.hide_earth();
   };
 
-<<<<<<< HEAD
   // switch to space view
   // hide pixijs (planetarium) view, start animation for threejs
 	$scope.switch_to_space_view = function (satnum) {
@@ -266,35 +247,12 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios, Taffy) {
 		ThreeJS.hide_threejs();
 		PixiJS.start_animation();
 	};
-=======
-  //Added this to center to America
-  $scope.center_observer = function(satnum){
-    ThreeJS.center_america($scope.observer_longitude, $scope.observer_latitude);
-     //ThreeJS.center_america(80,-36);
-	 console.log("centering");
-  };
-  
-  $scope.switch_to_space_camera = function (satnum) {
-	ThreeJS.switch_to_space_camera();
-  };
->>>>>>> 80f240162a280d3235d155814f90556682198706
 
   $scope.set_observer_location = function (satnum) {
 	  ThreeJS.set_observer_location($scope.observer_longitude, $scope.observer_latitude, $scope.observer_altitude);
 	  PixiJS.set_observer_location($scope.observer_longitude, $scope.observer_latitude, $scope.observer_altitude);
 
 	  WorkerManager.set_observer_location($scope.observer_longitude, $scope.observer_latitude, $scope.observer_altitude);
-  };
-  
-  //Database functions! 
-  $scope.access_db = function(satnum){
-	Taffy.load_db();
-  };
-  
-  $scope.load_info = function(){
-  console.log(current_satellite);
-	Taffy.find_info(current_satellite);
-	Taffy.find_freq(current_satellite);
   };
 
   /* Prepare Motor/Radio Controller. */
