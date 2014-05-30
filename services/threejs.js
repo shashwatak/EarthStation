@@ -10,7 +10,10 @@ function ThreeJS(WorkerManager) {
 	var current_camera, scene, renderer, earth, skybox, ambient_light, directional_light, ball;
 	var space_camera, space_camera_pivot, ground_camera, ground_camera_pivot, ground_camera_flag = false;
 	var domEvents;
-	var mouse = { x: 0, y: 0 };
+	var mouse = {
+		x: 0,
+		y: 0
+	};
 	var sat_table = {};
 	/*sat_table = {
 	  satnum: {
@@ -35,27 +38,25 @@ function ThreeJS(WorkerManager) {
 
 	var objects = [];
 
-	/*	init()
-		Initializes scene, camera, renderer, etc
-	 */
+	// begin init()
 	function init() {
-	
 		// Initialize the big three
 		renderer = new THREE.WebGLRenderer();
 		scene = new THREE.Scene();
 		ambient_light = new THREE.AmbientLight(0xF0F0F0);
+		directional_light = new THREE.DirectionalLight(0xFFFFFF, 0);
 
 		// Add initialized renderer to the DOM
 		renderer.setSize(WIDTH, HEIGHT);
 		$container.append(renderer.domElement);
 		container = renderer.domElement;
-     
+
 		// Set the skybox properties.
-		var skybox_radius = 18000,
-			skybox_segments = 500,
-			skybox_rings = 100;
-		var neheTexture = new THREE.ImageUtils.loadTexture("../img/stars.jpg");
-		var skybox_sphere = new THREE.SphereGeometry(skybox_radius, skybox_segments, skybox_rings);
+		var skybox_radius 	= 18000,
+			skybox_segments	= 500,
+			skybox_rings 	= 100;
+		var neheTexture 	= new THREE.ImageUtils.loadTexture("../img/stars.jpg");
+		var skybox_sphere 	= new THREE.SphereGeometry(skybox_radius, skybox_segments, skybox_rings);
 		var skybox_material = new THREE.MeshBasicMaterial({
 			map: neheTexture,
 			wireframe: false,
@@ -66,20 +67,22 @@ function ThreeJS(WorkerManager) {
 		skybox = new THREE.Mesh(skybox_sphere, skybox_material);
 
 		// Set the globes properties.
-		var earth_radius = EARTH_RADIUS,
-			earth_segments = 500,
-			earth_rings = 100;
-		var earth_sphere = new THREE.SphereGeometry(earth_radius, earth_segments, earth_rings);
-		var earth_texture = new THREE.ImageUtils.loadTexture("../img/world.jpg");
-		var earth_material = new THREE.MeshPhongMaterial({
+		var earth_radius 	= EARTH_RADIUS,
+			earth_segments 	= 500,
+			earth_rings 	= 100;
+		var earth_sphere 	= new THREE.SphereGeometry(earth_radius, earth_segments, earth_rings);
+		var earth_texture 	= new THREE.ImageUtils.loadTexture("../img/world.jpg");
+		var earth_material 	= new THREE.MeshPhongMaterial({
 			map: earth_texture,
 			wireframe: false,
 			shininess: 1
 		});
+		// Create map 3D object
 		earth = new THREE.Mesh(earth_sphere, earth_material);
+		//objects.push(earth);
 
-		// Create custom material from the shader code above
-		// that is within specially labelled script tags
+		// create custom material from the shader code above
+		//   that is within specially labeled script tags
 		var customMaterial = new THREE.ShaderMaterial({
 			uniforms: {},
 			vertexShader: document.getElementById('vertexShader').textContent,
@@ -88,14 +91,21 @@ function ThreeJS(WorkerManager) {
 			blending: THREE.AdditiveBlending,
 			transparent: true
 		});
-
-		// Created custom glow in the background for better visibility
+ 
+		//load axis for debugging purposes - turn it off if you want, but it does look nice, 
+		var axes = new THREE.AxisHelper(20000);
+		scene.add(axes);
+		
+		
+	
+		//Created Custom glow in the background
 		var ballGeometry = new THREE.SphereGeometry(EARTH_RADIUS + 1400, 500, 100);
 		ball = new THREE.Mesh(ballGeometry, customMaterial);
 		scene.add(ball);
 
 		// Initialize the space camera.
 		space_camera = new THREE.PerspectiveCamera(VIEW_ANGLE, ASPECT, NEAR, FAR);
+		//space_camera.add (directional_light);
 		space_camera.position.x = 40000;
 		space_camera.lookAt(new THREE.Vector3(0, 0, 0));
 
@@ -104,34 +114,26 @@ function ThreeJS(WorkerManager) {
 		space_camera_pivot.add(space_camera);
 		earth.add(space_camera_pivot);
 		controls = new THREE.OrbitControls(space_camera, renderer.domElement);
-		
 		// Initialize the ground camera.
 		ground_camera = new THREE.PerspectiveCamera(VIEW_ANGLE, ASPECT, NEAR, FAR);
 		earth.add(ground_camera);
 
-		// Set the camera to be used for initial rendering.
+		// Set the camera to be used for rendering.
 		current_camera = space_camera;
 
 		// Add the Earth and Sky to the scene
-		scene.add(skybox);
+		//scene.add(skybox);
 		scene.add(earth);
 		scene.add(ambient_light);
-		
-		// Last but not least, render!
+		// when window is ready, render
 		renderer.render(scene, current_camera);
 
 		THREEx.WindowResize(renderer, current_camera);
-		scene.visible = false;
-	};
-	// end init()
+	};	// end init()
 
 
 	var three_d_running = false;
-
-	/*	start_animation()
-	 */
 	function start_animation() {
-		console.log("start threejs animation");
 		if(!three_d_running) {
 			three_d_running = true;
 			animate();
@@ -144,12 +146,12 @@ function ThreeJS(WorkerManager) {
 	function hide_earth() {
 		if(!earth_hidden) {
 			earth.visible = false;
-			ball.visible = false;
-			earth_hidden = true;
+			ball.visible  = false;
+			earth_hidden  = true;
 		} else {
 			earth.visible = true;
-			ball.visible = true;
-			earth_hidden = false;
+			ball.visible  = true;
+			earth_hidden  = false;
 		};
 	}; // end hide_earth()
 
@@ -161,7 +163,6 @@ function ThreeJS(WorkerManager) {
 
 	function get_start_time() {
 		var d_now = new Date();
-		console.log("d_now="+d_now);
 		var time = {
 			year: d_now.getUTCFullYear(),
 			month: d_now.getUTCMonth() + 1,
@@ -320,7 +321,7 @@ function ThreeJS(WorkerManager) {
 	};
 
 	function ecf_array_to_webgl_pos(ecf_array) {
-		return { // WEBGL  : ECF
+		return {              // WEBGL  : ECF
 			x: ecf_array[0], // X      : X
 			y: ecf_array[2], // Y      : Z
 			z: -ecf_array[1] // Z      : -Y
@@ -328,7 +329,7 @@ function ThreeJS(WorkerManager) {
 	};
 
 	function ecf_obj_to_webgl_pos(ecf_obj) {
-		return { // WEBGL  : ECF
+		return {           // WEBGL  : ECF
 			x: ecf_obj.x, // X      : X
 			y: ecf_obj.z, // Y      : Z
 			z: -ecf_obj.y // Z      : -Y
@@ -339,26 +340,24 @@ function ThreeJS(WorkerManager) {
 
 	function live_update_callback(data) {
 		// When the WorkerManager service updates the satellite data.
-		//console.log("threejs live_update_callback");
-		var sat_item = data.sat_item;		// data!!!!!
+		var sat_item = data.sat_item;
 		var satnum = sat_item.satnum;
 		if(!sat_table[satnum]) {
 			sat_table[satnum] = {};
 		}
 		if(sat_table[satnum]["is_tracking"]) {
 			if(sat_table[satnum]["marker_ecf"]) {
-				update_marker(satnum, sat_item.position_ecf);
+				update_marker(satnum, sat_item.position_ecf,sat_item.position_gd);
 			} else {
-				add_marker(satnum, sat_item.position_ecf);
+				add_marker(satnum, sat_item.position_ecf, sat_item.position_gd);
 			};
 		}
 	};
-	
 
 	WorkerManager.register_command_callback("path_update", path_update_callback);
 
 	function path_update_callback(data) {
-		var sat_item = data.sat_item;		// this has the data
+		var sat_item = data.sat_item;
 		var satnum = sat_item.satnum;
 		if(!sat_table[satnum]) {
 			sat_table[satnum] = {};
@@ -381,27 +380,25 @@ function ThreeJS(WorkerManager) {
 				num_active_satellites = 0;
 
 				var light_intesity_start = {
-					//intensity: directional_light.intensity
+					intensity: directional_light.intensity
 				};
 				var light_intesity_target = {
-					//intensity: 0
+					intensity: 0
 				};
 
 				var tween = new TWEEN.Tween(light_intesity_start).to(light_intesity_target, 1000);
 				tween.onUpdate(function () {
-					//directional_light.intensity = light_intesity_start.intensity;
+					directional_light.intensity = light_intesity_start.intensity;
 				});
 				tween.easing(TWEEN.Easing.Linear.None);
 				tween.start();
-				
-				console.log("add_satellite() in threejs");
 
 			};
 
 			num_active_satellites++;
 
-			WorkerManager.add_satellite(satrec); // satrec=[object Object], also time should be running properly....
-			WorkerManager.propagate_orbit(satrec, current_time, 1); // dis one!!
+			WorkerManager.add_satellite(satrec);
+			WorkerManager.propagate_orbit(satrec, current_time, 1);
 		};
 
 	};
@@ -414,7 +411,7 @@ function ThreeJS(WorkerManager) {
 			if(num_active_satellites <= 0) {
 				num_active_satellites = 0;
 				var light_intesity_start = {
-					//intensity: directional_light.intensity
+					intensity: directional_light.intensity
 				};
 				var light_intesity_target = {
 					intensity: 1
@@ -422,7 +419,7 @@ function ThreeJS(WorkerManager) {
 
 				var tween = new TWEEN.Tween(light_intesity_start).to(light_intesity_target, 1000);
 				tween.onUpdate(function () {
-					//directional_light.intensity = light_intesity_start.intensity;
+					directional_light.intensity = light_intesity_start.intensity;
 				});
 				tween.easing(TWEEN.Easing.Linear.None);
 				tween.start();
@@ -443,7 +440,7 @@ function ThreeJS(WorkerManager) {
 		time_offset = 0;
 	};
 
-	function add_marker(satnum, position_ecf) {
+	function add_marker(satnum, position_ecf,position_gd) {
 		var marker_radius = 300,
 			marker_segments = 1000,
 			marker_rings = 100;
@@ -453,23 +450,189 @@ function ThreeJS(WorkerManager) {
 			emissive: 0xffffff,
 			wireframe: false
 		});
+		
+		//Load satellite images
+		var satTexture = THREE.ImageUtils.loadTexture( "../img/sat_icon.png" );
 		// Create marker 3D object
-
+        //Custom satellite image
+		//var satMat = new THREE.SpriteMaterial( { map: satTexture, useScreenCoordinates: false} );
+		//var sprite = new THREE.Sprite( crateMaterial );
+		var crateMaterial = new THREE.SpriteMaterial( { map: satTexture, useScreenCoordinates: false, color: 0x0000ff } );
+	var sprite2 = new THREE.Sprite( crateMaterial );
+	
 		var marker_ecf = new THREE.Mesh(marker_sphere, marker_material);
-		marker_ecf.name = satnum;
+		sprite2.name = satnum;
+		//console.log(position_ecf);
 		var position = ecf_array_to_webgl_pos(position_ecf);
 		marker_ecf.position = position;
 		var point_light = new THREE.PointLight(0xffffff, 2, 0);
+		console.log(position_gd[2]);
+		
+		//Started here for footprint
+		
+		var deg2rad = Math.PI / 180;
+		var tot = (Math.sqrt(2)/2); 
+		
+		
+		var p = get_distance(position_gd[2],position_gd[1]); //returns [lat,long]
+		var numPoints = 12;
+		var a = [];
+       
+		
+		a[0] = convert_longitude(position_gd[0]);
+		a[1] = convert_latitude(position_gd[1]);
+		a[2] = 60;
+		console.log("LONG,LAT,HEIGHT");
+		console.log("BEFORE A : " + a[0] + " " + a[1] + " " + a[2]);
+		
+		a[0] = parseFloat(a[0]) + parseFloat(p[1]);
+		a[0] = a[0].toPrecision(4);
+		console.log("AFTER : " + a[0] + " " + a[1] + " " + a[2]);
+		a = [a[0] * deg2rad,a[1] * deg2rad,a[2]];
+       var a_array = satellite.geodetic_to_ecf(a);
+		var a_gl = ecf_array_to_webgl_pos(a_array);
+		console.log(a_gl);
+		var test = satellite.geodetic_to_ecf(position_gd);
+		test = ecf_array_to_webgl_pos(test);
+		console.log("TEST IS: ");
+		console.log(test);
+	   
+	   var b = []
+	    b[0] = convert_longitude(position_gd[0]);
+		b[1] = convert_latitude(position_gd[1]);
+		b[2] = 60;
+        b[0] = parseFloat(b[0]) - parseFloat(p[1]);
+		b[0] = b[0].toPrecision(4);
+		console.log("AFTER B : " + b[0] + " " + b[1] + " " + b[2]);
+		b = [b[0] * deg2rad,b[1] * deg2rad,b[2]];
+		console.log(b);
+        var b_array = satellite.geodetic_to_ecf(b);
+		var b_gl = ecf_array_to_webgl_pos(b_array);
+		
+		
+		var c = [];
+		 c[0] = convert_longitude(position_gd[0]);
+		 c[1] = convert_latitude(position_gd[1]);
+		 c[2] = 60;
+		
+       	c[1] = parseFloat(c[1]) + parseFloat(p[0]);
+		c[1] = c[1].toPrecision(4);
+		console.log(p);
+		 console.log(c[1]);
+		 console.log("AFTER C : " + c[0] + " " + c[1] + " " + c[2]);
+		c = [c[0] * deg2rad,c[1] * deg2rad,c[2]];
+        var c_array = satellite.geodetic_to_ecf(c);
+		var c_gl = ecf_array_to_webgl_pos(c_array);
+		
+		
+		
+		var d = [];
+		 d[1] = convert_latitude(position_gd[1]);
+		 d[0] = convert_longitude(position_gd[0]);
+		 d[2] = 60;
+        d[1] = parseFloat(d[1]) - parseFloat(p[0]); 
+		d[1] = d[1].toPrecision(4);
+		console.log("AFTER D : " + d[0] + " " + d[1] + " " + d[2]);
+		d = [d[0] * deg2rad,d[1] * deg2rad,d[2]];		
+		var d_array = satellite.geodetic_to_ecf(d);
+		var d_gl = ecf_array_to_webgl_pos(d_array);
+		
+		var e =[];
+		e[1] = convert_latitude(position_gd[1]);
+		e[0] = convert_longitude(position_gd[0]);
+		e[2] = 60; 
+		e[1] = parseFloat(e[1]) +( tot * parseFloat(p[0])); 
+		e[1] = e[1].toPrecision(4);
+		e[0] = parseFloat(e[0]) + (tot * parseFloat(p[1]));
+		e[0] = e[0].toPrecision(4);
+		e = [e[0] * deg2rad,e[1] * deg2rad,e[2]];
+		var e_array = satellite.geodetic_to_ecf(e);
+		var e_gl = ecf_array_to_webgl_pos(e_array);
+		
+		var f =[];
+		f[1] = convert_latitude(position_gd[1]);
+		f[0] = convert_longitude(position_gd[0]);
+		f[2] = 60; 
+		f[1] = parseFloat(f[1]) +( tot * parseFloat(p[0])); 
+		f[1] = f[1].toPrecision(4);
+		f[0] = parseFloat(f[0]) - (tot * parseFloat(p[1]));
+		f[0] = f[0].toPrecision(4);
+		f = [f[0] * deg2rad,f[1] * deg2rad,f[2]];
+		var f_array = satellite.geodetic_to_ecf(f);
+		var f_gl = ecf_array_to_webgl_pos(f_array);
+		
+		var g =[];
+		g[1] = convert_latitude(position_gd[1]);
+		g[0] = convert_longitude(position_gd[0]);
+		g[2] = 60; 
+		g[1] = parseFloat(g[1]) -( tot * parseFloat(p[0])); 
+		g[1] = g[1].toPrecision(4);
+		g[0] = parseFloat(g[0]) - (tot * parseFloat(p[1]));
+		g[0] = g[0].toPrecision(4);
+		g = [g[0] * deg2rad,g[1] * deg2rad,g[2]];
+		var g_array = satellite.geodetic_to_ecf(g);
+		var g_gl = ecf_array_to_webgl_pos(g_array);
+		
+		var h =[];
+		h[1] = convert_latitude(position_gd[1]);
+		h[0] = convert_longitude(position_gd[0]);
+		h[2] = 60; 
+		h[1] = parseFloat(h[1]) -( tot * parseFloat(p[0])); 
+		h[1] = h[1].toPrecision(4);
+		h[0] = parseFloat(h[0]) + (tot * parseFloat(p[1]));
+		h[0] = h[0].toPrecision(4);
+		h = [h[0] * deg2rad,h[1] * deg2rad,h[2]];
+		var h_array = satellite.geodetic_to_ecf(h);
+		var h_gl = ecf_array_to_webgl_pos(h_array);
+		
+
+    spline = new THREE.SplineCurve3([
+    new THREE.Vector3(a_gl.x,a_gl.y,a_gl.z),
+	new THREE.Vector3(e_gl.x,e_gl.y,e_gl.z),
+	new THREE.Vector3(c_gl.x,c_gl.y,c_gl.z),
+	new THREE.Vector3(f_gl.x,f_gl.y,f_gl.z),
+    new THREE.Vector3(b_gl.x,b_gl.y,b_gl.z),
+	new THREE.Vector3(g_gl.x,g_gl.y,g_gl.z),
+    new THREE.Vector3(d_gl.x,d_gl.y,d_gl.z),
+	new THREE.Vector3(h_gl.x,h_gl.y,h_gl.z),
+	new THREE.Vector3(a_gl.x,a_gl.y,a_gl.z)
+    ]);
+	
+	
+	
+
+    var material = new THREE.LineBasicMaterial({
+        color: 0xff00f0,
+    });
+
+    var geometry = new THREE.Geometry();
+    var splinePoints = spline.getPoints(numPoints);
+
+    for (var i = 0; i < splinePoints.length; i++) {
+        geometry.vertices.push(splinePoints[i]);
+    }
+
+    var line = new THREE.Line(geometry, material);
+    scene.add(line);
+	sat_table[satnum]["line"] = line;
+	
+	
+
+		
+		// ^foot print end ^ 
+		console.log("POSITION IS" + position);
+		sprite2.position.set(position.x,position.y,position.z);
+	sprite2.scale.set( 1500, 1500, 1.0 ); // imageWidth, imageHeight
+	scene.add( sprite2 );
+		
 		point_light.position = position;
 		//marker_ecf.add(point_light);
-		scene.add(marker_ecf);
-		objects.push(marker_ecf);
-		sat_table[satnum]["marker_ecf"] = marker_ecf;
+		//scene.add(marker_ecf);
+		objects.push(sprite2);
+		sat_table[satnum]["marker_ecf"] = sprite2;
 		earth.material.needsUpdate = true;
 	};
 
-	//top_coords_list = array of coords
-	
 	function add_path(satnum, ecf_coords_list) {
 		var path_material_ecf = new THREE.LineBasicMaterial({
 			color: 0x708090,
@@ -486,9 +649,154 @@ function ThreeJS(WorkerManager) {
 		sat_table[satnum]["path_ecf"] = path_ecf;
 	};
 
-	function update_marker(satnum, position_ecf) {
+	function update_marker(satnum, position_ecf,position_gd) {
+		var tot = (Math.sqrt(2)/2);
+		var deg2rad = Math.PI / 180;
 		var start_position = sat_table[satnum]["marker_ecf"].position;
 		var target_position = ecf_array_to_webgl_pos(position_ecf);
+		//edited /*
+		scene.remove(sat_table[satnum]["line"]);
+		var p = get_distance(position_gd[2],position_gd[1]); //returns [lat,long]
+		var numPoints = 12;
+		var a = [];
+       
+		
+		a[0] = convert_longitude(position_gd[0]);
+		a[1] = convert_latitude(position_gd[1]);
+		a[2] = 60;
+		//console.log("LONG,LAT,HEIGHT");
+		//console.log("BEFORE A : " + a[0] + " " + a[1] + " " + a[2]);
+		
+		a[0] = parseFloat(a[0]) + parseFloat(p[1]);
+		a[0] = a[0].toPrecision(4);
+		//console.log("AFTER : " + a[0] + " " + a[1] + " " + a[2]);
+		a = [a[0] * deg2rad,a[1] * deg2rad,a[2]];
+       var a_array = satellite.geodetic_to_ecf(a);
+		var a_gl = ecf_array_to_webgl_pos(a_array);
+		//console.log(a_gl);
+		var test = satellite.geodetic_to_ecf(position_gd);
+		test = ecf_array_to_webgl_pos(test);
+		//console.log("TEST IS: ");
+		//console.log(test);
+	   
+	   var b = []
+	    b[0] = convert_longitude(position_gd[0]);
+		b[1] = convert_latitude(position_gd[1]);
+		b[2] = 60;
+        b[0] = parseFloat(b[0]) - parseFloat(p[1]);
+		b[0] = b[0].toPrecision(4);
+		//console.log("AFTER B : " + b[0] + " " + b[1] + " " + b[2]);
+		b = [b[0] * deg2rad,b[1] * deg2rad,b[2]];
+		//console.log(b);
+        var b_array = satellite.geodetic_to_ecf(b);
+		var b_gl = ecf_array_to_webgl_pos(b_array);
+		
+		
+		var c = [];
+		 c[0] = convert_longitude(position_gd[0]);
+		 c[1] = convert_latitude(position_gd[1]);
+		 c[2] = 60;
+		
+       	c[1] = parseFloat(c[1]) + parseFloat(p[0]);
+		c[1] = c[1].toPrecision(4);
+		//console.log(p);
+		// console.log(c[1]);
+		// console.log("AFTER C : " + c[0] + " " + c[1] + " " + c[2]);
+		c = [c[0] * deg2rad,c[1] * deg2rad,c[2]];
+        var c_array = satellite.geodetic_to_ecf(c);
+		var c_gl = ecf_array_to_webgl_pos(c_array);
+		
+		
+		
+		var d = [];
+		 d[1] = convert_latitude(position_gd[1]);
+		 d[0] = convert_longitude(position_gd[0]);
+		 d[2] = 60;
+        d[1] = parseFloat(d[1]) - parseFloat(p[0]); 
+		d[1] = d[1].toPrecision(4);
+		//console.log("AFTER D : " + d[0] + " " + d[1] + " " + d[2]);
+		d = [d[0] * deg2rad,d[1] * deg2rad,d[2]];		
+		var d_array = satellite.geodetic_to_ecf(d);
+		var d_gl = ecf_array_to_webgl_pos(d_array);
+
+   var e =[];
+		e[1] = convert_latitude(position_gd[1]);
+		e[0] = convert_longitude(position_gd[0]);
+		e[2] = 60; 
+		e[1] = parseFloat(e[1]) +( tot * parseFloat(p[0])); 
+		e[1] = e[1].toPrecision(4);
+		e[0] = parseFloat(e[0]) + (tot * parseFloat(p[1]));
+		e[0] = e[0].toPrecision(4);
+		e = [e[0] * deg2rad,e[1] * deg2rad,e[2]];
+		var e_array = satellite.geodetic_to_ecf(e);
+		var e_gl = ecf_array_to_webgl_pos(e_array);
+		
+		var f =[];
+		f[1] = convert_latitude(position_gd[1]);
+		f[0] = convert_longitude(position_gd[0]);
+		f[2] = 60; 
+		f[1] = parseFloat(f[1]) +( tot * parseFloat(p[0])); 
+		f[1] = f[1].toPrecision(4);
+		f[0] = parseFloat(f[0]) - (tot * parseFloat(p[1]));
+		f[0] = f[0].toPrecision(4);
+		f = [f[0] * deg2rad,f[1] * deg2rad,f[2]];
+		var f_array = satellite.geodetic_to_ecf(f);
+		var f_gl = ecf_array_to_webgl_pos(f_array);
+		
+		var g =[];
+		g[1] = convert_latitude(position_gd[1]);
+		g[0] = convert_longitude(position_gd[0]);
+		g[2] = 60; 
+		g[1] = parseFloat(g[1]) -( tot * parseFloat(p[0])); 
+		g[1] = g[1].toPrecision(4);
+		g[0] = parseFloat(g[0]) - (tot * parseFloat(p[1]));
+		g[0] = g[0].toPrecision(4);
+		g = [g[0] * deg2rad,g[1] * deg2rad,g[2]];
+		var g_array = satellite.geodetic_to_ecf(g);
+		var g_gl = ecf_array_to_webgl_pos(g_array);
+		
+		var h =[];
+		h[1] = convert_latitude(position_gd[1]);
+		h[0] = convert_longitude(position_gd[0]);
+		h[2] = 60; 
+		h[1] = parseFloat(h[1]) -( tot * parseFloat(p[0])); 
+		h[1] = h[1].toPrecision(4);
+		h[0] = parseFloat(h[0]) + (tot * parseFloat(p[1]));
+		h[0] = h[0].toPrecision(4);
+		h = [h[0] * deg2rad,h[1] * deg2rad,h[2]];
+		var h_array = satellite.geodetic_to_ecf(h);
+		var h_gl = ecf_array_to_webgl_pos(h_array);
+		
+		
+
+    spline = new THREE.SplineCurve3([
+    new THREE.Vector3(a_gl.x,a_gl.y,a_gl.z),
+	new THREE.Vector3(e_gl.x,e_gl.y,e_gl.z),
+	new THREE.Vector3(c_gl.x,c_gl.y,c_gl.z),
+	new THREE.Vector3(f_gl.x,f_gl.y,f_gl.z),
+    new THREE.Vector3(b_gl.x,b_gl.y,b_gl.z),
+	new THREE.Vector3(g_gl.x,g_gl.y,g_gl.z),
+    new THREE.Vector3(d_gl.x,d_gl.y,d_gl.z),
+	new THREE.Vector3(h_gl.x,h_gl.y,h_gl.z),
+	new THREE.Vector3(a_gl.x,a_gl.y,a_gl.z)
+    ]);
+
+	
+	 var material = new THREE.LineBasicMaterial({
+        color: 0xff00f0,
+    });
+
+    var geometry = new THREE.Geometry();
+    var splinePoints = spline.getPoints(numPoints);
+
+    for (var i = 0; i < splinePoints.length; i++) {
+        geometry.vertices.push(splinePoints[i]);
+    }
+
+    var line = new THREE.Line(geometry, material);
+    scene.add(line);
+	sat_table[satnum]["line"] = line;
+		//ended*/
 		var tween = new TWEEN.Tween(start_position).to(target_position, 500);
 		tween.onUpdate(function () {
 			if(sat_table[satnum] && sat_table[satnum]["marker_ecf"]) {
@@ -506,6 +814,8 @@ function ThreeJS(WorkerManager) {
 
 	function remove_marker(satnum) {
 		scene.remove(sat_table[satnum]["marker_ecf"]);
+		scene.remove(sat_table[satnum]["line"]);
+		sat_table[satnum]["line"] = undefined;
 		sat_table[satnum]["marker_ecf"] = undefined;
 	};
 
@@ -517,6 +827,75 @@ function ThreeJS(WorkerManager) {
 	function get_current_time() {
 		return current_time;
 	};
+	
+	//calcuate w from Petersen's formula here. 
+	
+	function get_distance(height,latitude){
+		var v = Math.sqrt((Math.pow((height+EARTH_RADIUS),2)-(Math.pow((EARTH_RADIUS),2))));
+		var u = Math.asin(EARTH_RADIUS/(height+EARTH_RADIUS));		// in radians
+		var theta = 90 - (u)*(180/3.14);	// in degrees
+		//console.log("V IS : " + v + ", u=" + u + ",   Theta IS: " + theta);
+		//var distance = EARTH_RADIUS*3.14*(theta/180);
+		var distance = v*Math.sin(u);
+		//console.log("distance is: " + distance);
+		var radius = v*(Math.sin(u));
+		//console.log(radius);
+		var lat = distance/110.54;
+		var lon = distance/(111.320*Math.cos((latitude*(3.14/180))));
+		
+		//console.log("LAT IS " + lat +" LONG IS  " + lon); //conversion between lat and long should be about the same
+		lat = lat.toPrecision(4);
+	return [lat,lon]; 
+	//We don't need long anymore because if we wish to make 
+	//a circle(footprint), then the radius will both be 
+	//the same on a cylindrical map. 
+	
+	};
+	
+	function convert_latitude(input){
+
+	var degrees = (input/Math.PI*180) % (360);		// 360
+	
+    degrees = degrees.toPrecision(4);
+	//console.log("INPUT IS " + degrees);
+	//console.log("Degrees is: " + degrees);
+    if (degrees > 90 || degrees < -90){
+	console.log("ERROR IN convert latitude");
+      return "Error";
+    }
+
+    if (degrees > 0){
+      degrees = degrees;
+    }
+    else{
+      degrees = degrees;
+	}
+	return degrees;
+	
+	};
+	
+	function convert_longitude(input) {
+    if (typeof input !== 'number') { return input; }
+    var degrees = (input/Math.PI*180) % (360);
+	//console.log("LONG IS : " + degrees);
+    if (degrees > 180){
+      degrees = 360 - degrees;
+    }
+    else if (degrees < -180){
+      degrees = 360 + degrees;
+    }
+    degrees = degrees.toPrecision(4);
+	//console.log("Degrees is " + degrees);
+    if (degrees > 0) {
+      degrees;
+    }
+    else if (degrees <= 0){
+      degrees;
+    }
+    return degrees;
+
+};
+	
 
 	//Interaction added in. 
 	//document.addEventListener( 'mousedown', onDocumentMouseDown, false );
@@ -550,81 +929,120 @@ function ThreeJS(WorkerManager) {
 		}
 	}
 
+
+  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ //interaction ended
+ 
+
+  function set_observer_location (observer_longitude, observer_latitude, observer_altitude) {
+    var deg2rad = Math.PI / 180;
+    var observer_coords_gd = [observer_longitude*deg2rad,
+                              observer_latitude*deg2rad,
+                              observer_altitude];
+    var observer_coords_ecf = satellite.geodetic_to_ecf (observer_coords_gd);
+    var observer_coords_webgl = ecf_array_to_webgl_pos (observer_coords_ecf);
+    //ground_camera.position = new THREE.Vector3( 0, 0, 0 );
+    //ground_camera.lookAt(observer_coords_webgl);
+    //ground_camera .translateZ(EARTH_RADIUS);
+  };
+
+
+
 	//interaction ended
 
-	/*	set_observer_location()
-		Translates longitude, latitude, and altitude to webGL coordinates
-	 */
-	function set_observer_location(observer_longitude, observer_latitude, observer_altitude) {
-		
-		// Get all coordinates information
-		var deg2rad = Math.PI / 180;
-		var observer_coords_gd = [observer_longitude * deg2rad,
-                              observer_latitude * deg2rad,
-                              observer_altitude];
-		var observer_coords_ecf = satellite.geodetic_to_ecf(observer_coords_gd);
-		var observer_coords_webgl = ecf_array_to_webgl_pos(observer_coords_ecf);
-		
-		console.log("observer coordinates ecf="+observer_coords_ecf);
-		//observer coordinates ecf=-2705.717750383951,-4325.633999311837,3815.1335772482084
-		
-		// Add marker to indicate user location
-		// SphereGeometry( radius, segments, rings )
-		var marker_sphere = new THREE.SphereGeometry( 100, 100, 100 );
+	function add_observer(position_ecf) {
+		var marker_radius = 100,
+			marker_segments = 1000,
+			marker_rings = 100;
+		var marker_sphere = new THREE.SphereGeometry(marker_radius, marker_segments, marker_rings);
 		var marker_material = new THREE.MeshPhongMaterial({
 			color: 0xff0000,
 			emissive: 0xffffff,
 			wireframe: false
 		});
+		// Create marker 3D object
 
 		var marker_ecf = new THREE.Mesh(marker_sphere, marker_material);
-		marker_ecf.name = "observer";
-		marker_ecf.position = observer_coords_webgl;
+		//marker_ecf.name = satnum;
+
+		var position = ecf_array_to_webgl_pos(position_ecf);
+		marker_ecf.position = position;
+
+		var point_light = new THREE.PointLight(0xffffff, 2, 0);
+		point_light.position = position;
+		//marker_ecf.add(point_light);
 
 		scene.add(marker_ecf);
-		
-		// Position ground camera
+		//objects.push(marker_ecf);
+		//sat_table[satnum]["marker_ecf"] = marker_ecf;
+		earth.material.needsUpdate = true;
+	};
+
+	function set_observer_location(observer_longitude, observer_latitude, observer_altitude) {
+		var deg2rad = Math.PI / 180;
+		var observer_coords_gd = [observer_longitude * deg2rad,
+							  observer_latitude * deg2rad,
+							  observer_altitude];
+		var observer_coords_ecf = satellite.geodetic_to_ecf(observer_coords_gd);
+		var observer_coords_webgl = ecf_array_to_webgl_pos(observer_coords_ecf);
 		ground_camera.position = new THREE.Vector3(0, 0, 0);
 		ground_camera.lookAt(observer_coords_webgl);
-		//ground_camera.translateZ(EARTH_RADIUS);
+		ground_camera.translateZ(EARTH_RADIUS);
+
 	};
 	
-	/*	hide_threejs()
-		Hides errythang
-	 */
-	function hide_threejs() {
-		// set visibility of everything to false (?) by traversing from a parent node
-		// to all the children of the scene
-		// wow so poetic
-		console.log("hiding threejs");
-		//stop_animation();
-		//var visible = false;
-		scene.traverse( function ( object ) { object.visible = false; } );
+	//80
+	//-36
+	function center_america(observer_longitude, observer_latitude) {
+		var deg2rad = Math.PI / 180;
 		
+		// observer coordinates at ground
+		var observer_coords_gd = [observer_longitude * deg2rad,
+							  observer_latitude * deg2rad,
+							  0];
+		// geodetic_to_ecf ????
+		var observer_coords_ecf = satellite.geodetic_to_ecf(observer_coords_gd);
+		console.log(observer_coords_ecf);
+		var observer_coords_webgl = ecf_array_to_webgl_pos(observer_coords_ecf);
+		//ground_camera.position = new THREE.Vector3(0, 0, 0);
+		//ground_camera.lookAt(observer_coords_webgl);
+		//ground_camera.translateZ(EARTH_RADIUS);
+		space_camera.position = new THREE.Vector3(0, 0, 0);
+		console.log(observer_coords_webgl.y);
+		space_camera.lookAt( new THREE.Vector3(
+			-observer_coords_webgl.x,
+			-observer_coords_webgl.y,
+			-observer_coords_webgl.z) );
+		space_camera.translateZ(EARTH_RADIUS+15000);
+        console.log("'Murica");
 	};
+	
+	  return {
+    // All the exposed functions of the ThreeJS Service.
+    // Should be enough to allow users of this service to
+    // initialize, and add satellites, and move camera
+    init                          : init,
+    start_animation               : start_animation,
+    stop_animation                : stop_animation,
+    add_satellite                 : add_satellite,
+    remove_satellite              : remove_satellite,
+    onDocumentMouseDown           : onDocumentMouseDown,
+    add_to_time_offset            : add_to_time_offset,
+    reset_time_offset             : reset_time_offset,
+    get_current_time              : get_current_time,
+    switch_to_ground_camera       : switch_to_ground_camera,
+    switch_to_space_camera        : switch_to_space_camera,
+	hide_earth                    : hide_earth,
+    set_observer_location         : set_observer_location,
+	center_america                : center_america
+  };
+  };
 
-	return {
-		// All the exposed functions of the ThreeJS Service.
-		// Should be enough to allow users of this service to
-		// initialize, and add satellites, and move camera
-		init: 							init,
-		start_animation:				start_animation,
-		stop_animation:				stop_animation,
-		add_satellite:					add_satellite,
-		remove_satellite:				remove_satellite,
-		onDocumentMouseDown:			onDocumentMouseDown,
-		add_to_time_offset:			add_to_time_offset,
-		reset_time_offset:			reset_time_offset,
-		get_current_time:				get_current_time,
-		switch_to_ground_camera:	switch_to_ground_camera,
-		switch_to_space_camera:		switch_to_space_camera,
-		hide_earth:						hide_earth,
-		set_observer_location:		set_observer_location,
-		hide_threejs:					hide_threejs		// hide yo wife hide yo world
-	};
-};
-
-/*
-pivot_camera_for_mouse_deltas : pivot_camera_for_mouse_deltas,
-	zoom_camera_for_scroll_delta  : zoom_camera_for_scroll_delta,
-	*/
+	
