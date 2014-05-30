@@ -9,6 +9,7 @@ body, html {
   height: 100%;
   width: 100%;
   font-family: Helvetica;
+  background: black;
 }
 
 #chrome_app {
@@ -17,12 +18,44 @@ body, html {
     width: 100%;
 }
 
+#two_d_display {
+	/* 2d mapping display here */
+	display: none;
+	position: absolute;
+	background: blue;
+	height: 100%;
+	width: 100%;
+	margin: auto;
+}
+
+#two_d_display.two_d_visible {
+	display:block;
+}
+
 #three_d_display {
     /* web gl context in here */
+	 display: block;
     position: absolute;
+	 background: green;
     height: 100%;
-    width:  100%%;
+    width:  100%;
     margin: auto;
+}
+
+#three_d_display.three_d_visible {
+	display:none;
+}
+
+#bottom_leaflet {
+    float: bottom;
+    width: 100%;
+    height: 100%;
+    background-color: gray;
+    opacity: .2;
+}
+
+#bottom_leaflet:hover {
+    background-color: #FFFFFF;
 }
 
 #sidebar_panel {
@@ -46,7 +79,7 @@ body, html {
     width: 6%;
     height: 100%;
     background-color: gray;
-    opacity: .1;
+    opacity: .2;
 }
 
 #sidebar_leaflet:hover {
@@ -84,14 +117,16 @@ body, html {
 }
 
 #footer {
-    font-size: 1.0em;
-    text-align: center;
-    position: absolute;
-    bottom: 0%;
-    clear: both;
-    height: 5%;
-    width: 100%;
-	Padding-bottom: 15px;
+   background-color: transparent;
+   opacity: .8;
+	font-size: 1.0em;
+	text-align: center;
+	position: absolute;
+	bottom: 0%;
+	clear: both;
+	height: 6%;
+	width: 100%;
+	Padding-bottom: 0px;
 }
 
 #time_control {
@@ -179,4 +214,3 @@ body, html {
 .selected {
     height: auto;
 }
-

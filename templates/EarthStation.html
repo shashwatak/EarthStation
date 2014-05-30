@@ -7,7 +7,16 @@
  */
 !-->
 
+<div id="two_d_display"
+	ng-class="{ two_d_visible : bottom_selected }"
+   ng-mousedown="mouse_down($event)"
+   ng-mouseup="mouse_up($event)"
+   ng-mousemove="mouse_move($event)"
+   msd-wheel="mouse_wheel($event, $delta, $deltaX, $deltaY)">
+</div>
+
 <div id="three_d_display"
+	ng-class="{ three_d_visible : bottom_selected }"
    ng-mousedown="mouse_down($event)"
    ng-mouseup="mouse_up($event)"
    ng-mousemove="mouse_move($event)"
@@ -33,21 +42,22 @@
   <img src="../img/fullscreen.png" id="fullscreen_button" ng-click="fullscreen()"></img>
   <div>
   <center>
-  <button class="input" ng-click="center_observer()">Center</button>
   <button class="input" ng-click="hide_the_world()">Earth/CrossSection</button>
   <button class="input" ng-click="switch_to_ground_camera()">Ground</button>
-  <button class="input" ng-click="switch_to_space_camera()">Space</button>
-  <button class="input" ng-click="access_db()">Load DB</button>
-  <button class="input" ng-click="load_info(sat)">Load sat info</button>
+  <button class="input" ng-click="switch_to_planetarium_view()">Planetarium View</button>
+  <button class="input" ng-click="switch_to_space_view()">Space View</button>
   </center>
   </div>
+  
+  <div id="bottom_leaflet" ng-click="bottom_clicked()"></div>
+  
 </div>
 <!-- End Footer -->
 
 <div id="sidebar_panel" ng-class="{ sidebar_visible : sidebar_selected }">
   <div id="sidebar_leaflet" ng-click="sidebar_clicked()"></div>
   <div id="sidebar">
-		
+
     <div ng-repeat="(satnum, sat) in sat_table"
          class="panel"
          ng-class="{selected : sat.selected}">
@@ -72,7 +82,7 @@
           {{sat.look_angles[1] | elevation}}
           {{sat.look_angles[2] | distance}}
         </p>
-		
+
 		<!-- Start Radios Panel -->
         <div class="panel">
           <div class="panel_head sidebar_text" ng-click="sat_radios_clicked(sat)">
@@ -98,7 +108,7 @@
 			 <p>
                 <input type="checkbox" ng-click="calc_offset()" > LinkOffset<br>
             </p>
-			
+
             <p class="sidebar_text">
               USB: {{sat.radio_main_frequency}}
             </p>
@@ -111,7 +121,7 @@
           </div>
         </div>
 		<!-- Begin Radios Panel -->
-		
+
 		<!-- Start Motors Panel -->
         <div class="panel">
           <div class="panel_head sidebar_text" ng-click="sat_motors_clicked(sat)">
@@ -137,7 +147,7 @@
                 Close Motor
               </button>
             </p>
-			
+
 			<p>
               <button class="input" ng-click="start_motors(satnum)">
                 Start Motor
@@ -145,7 +155,7 @@
               <button class="input" ng-click="stop_motors(satnum)">
                 Stop Motor
               </button>
-			  
+
 			  <!--
 			  </br>
 			  <button class="input" ng-click="up_motors(satnum)">
@@ -162,8 +172,8 @@
               </button>
 			  -->
             </p>
-			
-			
+
+
             <!--<p>
               <button class="input" ng-click="start_motor_tracking(satnum)">
                 Start Motor
@@ -179,22 +189,22 @@
 			<p class="sidebar_text">
 				Satellite Elevation: {{sat.look_angles[1] | elevation}}
             </p>
-			
+
 			<p class="sidebar_text">
 				Motor Azimuth: {{sat.motor_azimuth}}
             </p>
 			<p class="sidebar_text">
 				Motor Elevation: {{sat.motor_elevation}}
             </p>
-			
+
           </div>
         </div>
 		<!-- End Motors Panel -->
-		
+
       </div>
     </div>
-	
-	
+
+
     <div class="panel">
 	<p>
 	User Information
@@ -234,7 +244,7 @@
         </p>
     </div>
 	<!-- End Panel -->
-	
+
   </div>
 </div>
 <!-- End Sidebar Panel -->

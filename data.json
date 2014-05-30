@@ -1,5 +1,6 @@
-[{"Name":"ISS (ZARYA)","UpFreq":123,"DownFreq":321,"Info":"This is a data from iss"},
-{"Name":"AMSAT ECHO","UpFreq":123,"DownFreq":321,"Info":"This is a data from AMSAT"},
-{"Name":"HAMSAT","UpFreq":435250000,"DownFreq":145300000,"Info":"This is a data from HAMSAT"},
-{"Name":"sat","UpFreq":123,"DownFreq":321,"Info":"This is a data"},
-{"Name":"sat","UpFreq":123,"DownFreq":321,"Info":"This is a data"}]
+{Name:'',UpFreq:'',DownFreq:'',Info:''},
+{Name:'',UpFreq:'',DownFreq:'',Info:''},
+{Name:'',UpFreq:'',DownFreq:'',Info:''},
+{Name:'',UpFreq:'',DownFreq:'',Info:''},
+{Name:'',UpFreq:'',DownFreq:'',Info:''},
+{Name:'',UpFreq:'',DownFreq:'',Info:''}
