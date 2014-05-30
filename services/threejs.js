@@ -10,10 +10,7 @@ function ThreeJS(WorkerManager) {
 	var current_camera, scene, renderer, earth, skybox, ambient_light, directional_light, ball;
 	var space_camera, space_camera_pivot, ground_camera, ground_camera_pivot, ground_camera_flag = false;
 	var domEvents;
-	var mouse = {
-		x: 0,
-		y: 0
-	};
+	var mouse = { x: 0, y: 0 };
 	var sat_table = {};
 	/*sat_table = {
 	  satnum: {
@@ -132,9 +129,9 @@ function ThreeJS(WorkerManager) {
 	var three_d_running = false;
 
 	/*	start_animation()
-		idk what this does
 	 */
 	function start_animation() {
+		console.log("start threejs animation");
 		if(!three_d_running) {
 			three_d_running = true;
 			animate();
@@ -164,6 +161,7 @@ function ThreeJS(WorkerManager) {
 
 	function get_start_time() {
 		var d_now = new Date();
+		console.log("d_now="+d_now);
 		var time = {
 			year: d_now.getUTCFullYear(),
 			month: d_now.getUTCMonth() + 1,
@@ -341,7 +339,8 @@ function ThreeJS(WorkerManager) {
 
 	function live_update_callback(data) {
 		// When the WorkerManager service updates the satellite data.
-		var sat_item = data.sat_item;
+		//console.log("threejs live_update_callback");
+		var sat_item = data.sat_item;		// data!!!!!
 		var satnum = sat_item.satnum;
 		if(!sat_table[satnum]) {
 			sat_table[satnum] = {};
@@ -354,11 +353,12 @@ function ThreeJS(WorkerManager) {
 			};
 		}
 	};
+	
 
 	WorkerManager.register_command_callback("path_update", path_update_callback);
 
 	function path_update_callback(data) {
-		var sat_item = data.sat_item;
+		var sat_item = data.sat_item;		// this has the data
 		var satnum = sat_item.satnum;
 		if(!sat_table[satnum]) {
 			sat_table[satnum] = {};
@@ -381,25 +381,27 @@ function ThreeJS(WorkerManager) {
 				num_active_satellites = 0;
 
 				var light_intesity_start = {
-					intensity: directional_light.intensity
+					//intensity: directional_light.intensity
 				};
 				var light_intesity_target = {
-					intensity: 0
+					//intensity: 0
 				};
 
 				var tween = new TWEEN.Tween(light_intesity_start).to(light_intesity_target, 1000);
 				tween.onUpdate(function () {
-					directional_light.intensity = light_intesity_start.intensity;
+					//directional_light.intensity = light_intesity_start.intensity;
 				});
 				tween.easing(TWEEN.Easing.Linear.None);
 				tween.start();
+				
+				console.log("add_satellite() in threejs");
 
 			};
 
 			num_active_satellites++;
 
-			WorkerManager.add_satellite(satrec);
-			WorkerManager.propagate_orbit(satrec, current_time, 1);
+			WorkerManager.add_satellite(satrec); // satrec=[object Object], also time should be running properly....
+			WorkerManager.propagate_orbit(satrec, current_time, 1); // dis one!!
 		};
 
 	};
@@ -412,7 +414,7 @@ function ThreeJS(WorkerManager) {
 			if(num_active_satellites <= 0) {
 				num_active_satellites = 0;
 				var light_intesity_start = {
-					intensity: directional_light.intensity
+					//intensity: directional_light.intensity
 				};
 				var light_intesity_target = {
 					intensity: 1
@@ -420,7 +422,7 @@ function ThreeJS(WorkerManager) {
 
 				var tween = new TWEEN.Tween(light_intesity_start).to(light_intesity_target, 1000);
 				tween.onUpdate(function () {
-					directional_light.intensity = light_intesity_start.intensity;
+					//directional_light.intensity = light_intesity_start.intensity;
 				});
 				tween.easing(TWEEN.Easing.Linear.None);
 				tween.start();
@@ -563,6 +565,9 @@ function ThreeJS(WorkerManager) {
 		var observer_coords_ecf = satellite.geodetic_to_ecf(observer_coords_gd);
 		var observer_coords_webgl = ecf_array_to_webgl_pos(observer_coords_ecf);
 		
+		console.log("observer coordinates ecf="+observer_coords_ecf);
+		//observer coordinates ecf=-2705.717750383951,-4325.633999311837,3815.1335772482084
+		
 		// Add marker to indicate user location
 		// SphereGeometry( radius, segments, rings )
 		var marker_sphere = new THREE.SphereGeometry( 100, 100, 100 );
@@ -591,6 +596,10 @@ function ThreeJS(WorkerManager) {
 		// set visibility of everything to false (?) by traversing from a parent node
 		// to all the children of the scene
 		// wow so poetic
+		console.log("hiding threejs");
+		//stop_animation();
+		//var visible = false;
+		scene.traverse( function ( object ) { object.visible = false; } );
 		
 	};
 
@@ -598,20 +607,20 @@ function ThreeJS(WorkerManager) {
 		// All the exposed functions of the ThreeJS Service.
 		// Should be enough to allow users of this service to
 		// initialize, and add satellites, and move camera
-		init: 						init,
-		start_animation:			start_animation,
+		init: 							init,
+		start_animation:				start_animation,
 		stop_animation:				stop_animation,
-		add_satellite:				add_satellite,
-		remove_satellite:			remove_satellite,
-		onDocumentMouseDown:		onDocumentMouseDown,
+		add_satellite:					add_satellite,
+		remove_satellite:				remove_satellite,
+		onDocumentMouseDown:			onDocumentMouseDown,
 		add_to_time_offset:			add_to_time_offset,
 		reset_time_offset:			reset_time_offset,
-		get_current_time:			get_current_time,
+		get_current_time:				get_current_time,
 		switch_to_ground_camera:	switch_to_ground_camera,
 		switch_to_space_camera:		switch_to_space_camera,
-		hide_earth:					hide_earth,
+		hide_earth:						hide_earth,
 		set_observer_location:		set_observer_location,
-		hide_threejs:				hide_threejs		// hide yo wife hide yo world
+		hide_threejs:					hide_threejs		// hide yo wife hide yo world
 	};
 };
 
