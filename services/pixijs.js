@@ -1,7 +1,14 @@
 /*
  * EarthStation v0.3
  * pixijs.js
- * PLANETARIUM VIEW
+ * PLANETARIUM VIEW:
+ *		- Basic planetarium view with azimuth/elevation guides showing the
+ *		  positions of the satellites and motors
+ *		- Side bar with more specific information about the satellite angles
+ * TO-DO:
+ * 	- Display Path
+ * 	- Display AOS/LOS
+ * 	- Compass markers
  */
 
 function PixiJS(WorkerManager) {
@@ -9,9 +16,12 @@ function PixiJS(WorkerManager) {
 	// -- GLOBAL VARS ------------------------------------------------------------
 	// Global satellite info
 	var sat_table 	= {};	// uses "satnum", holds info for satellites
+	
 	var sat_marker = {};	// uses satnum also, container for satellite graphics
 	var sat_text	= {};	// goes with sat_marker and has text
 	var sat_path	= {};	// yup hi
+	var sat_aos		= {};
+	var sat_los		= {};
 	
 	var observer_coords_gd;
 	var observer_coords_ecf;
@@ -26,7 +36,9 @@ function PixiJS(WorkerManager) {
 	var c_width 	= $container.width();
 	var c_height	= $container.height();
 	var two_d_running = false;
+	
 	var horizon_radius = 0;	// distance from center to "0 degrees" (horizon)
+	var compass_radius = 0;
 	var planetarium_center 	= { x:0, y:0 };	// reference point for planetarium view
 	var azimuth_center 		= { x:0, y:0 };	// ref point for azimuth marker
 	var elevation_center 	= { x:0, y:0 };	// ref point for elevation angle marker
@@ -51,87 +63,107 @@ function PixiJS(WorkerManager) {
 		console.log("PixiJS.init()");
 		
 		// Setup
-		stage = new PIXI.Stage(0x033E6B); // leaving this obnoxious color here for easy debugging
+		stage = new PIXI.Stage(0x000000);
 		renderer = new PIXI.autoDetectRenderer(c_width, c_height, null, false, true);
 		$container.append(renderer.view);
 		requestAnimFrame( animate );
 		
-		// initialize variables used to scale images to the planetarium view
-		horizon_radius = ( (c_height<c_width)? c_height:c_width ) / 3;
+		// Variables for planetarium view
+		horizon_radius = 2*( (c_height<c_width)? c_height:c_width ) / 5;
+		compass_radius = horizon_radius/3;
 		planetarium_center.x = c_width/2;
 		planetarium_center.y = c_height/2;
+		
+		// Variables for compass views
+		azimuth_center.x = 4*c_width/5;
+		azimuth_center.y = 1*c_height/3;
+		elevation_center.x = 4*c_width/5;
+		elevation_center.y = 2*c_height/3;
+		
 
 		// Creating a test sprite
-		var texture = PIXI.Texture.fromImage("../img/bunny.png");
-		bunny = new PIXI.Sprite(texture);
-		bunny.anchor.x = 0.5;		// Set anchor in the middle of the bunny
-		bunny.anchor.y = 0.5;
-
-		var testpos = azel2pixi(0,90);		// 45, 135, 225, 305
+		//var texture = PIXI.Texture.fromImage("../img/bunny.png");
+		//bunny = new PIXI.Sprite(texture);
+		//bunny.anchor.x = 0.5;		// Set anchor in the middle of the bunny
+		//bunny.anchor.y = 0.5;
 		//console.log("x="+test);
-		bunny.position.x = testpos.x; //testpos[0]; //c_width/2;
-		bunny.position.y = testpos.y; //c_height/2;
+		//bunny.position = azel2pixi(0,90);
 		
-		// Add in azimuth/elevation guides
-		var guides = new PIXI.Graphics();
-		guides.position.x = planetarium_center.x;
-		guides.position.y = planetarium_center.y;
-		guides.beginFill(0xFFFFFF, 0.2);		// elevation circles
-		guides.lineStyle(1, 0xFFFFFF, 1);
-		guides.drawCircle(0, 0, horizon_radius);
-		guides.drawCircle(0, 0, 2*horizon_radius/3);
-		guides.drawCircle(0, 0, horizon_radius/3);
-		guides.endFill()
-		guides.lineStyle(1, 0xFFFFFF);		// azimuth lines
-		guides.moveTo(0, -horizon_radius);
-		guides.lineTo(0,  horizon_radius);
-		guides.moveTo(-horizon_radius, 0);
-		guides.lineTo( horizon_radius, 0);
+		
+		// Add in planetarium view
+		var planetarium_guides = new PIXI.Graphics();
+		planetarium_guides.position = planetarium_center;
+		planetarium_guides.beginFill(0xFFFFFF, 0);		// elevation circles
+		planetarium_guides.lineStyle(3, 0x206676);
+		planetarium_guides.drawCircle(0, 0, horizon_radius);
+		planetarium_guides.lineStyle(1, 0xCCCCCC);
+		planetarium_guides.drawCircle(0, 0, 2*horizon_radius/3);
+		planetarium_guides.drawCircle(0, 0, horizon_radius/3);
+		planetarium_guides.endFill()
+		planetarium_guides.lineStyle(1, 0x206676);		// azimuth lines
+		planetarium_guides.moveTo(0, -horizon_radius);
+		planetarium_guides.lineTo(0,  horizon_radius);
+		planetarium_guides.moveTo(-horizon_radius, 0);
+		planetarium_guides.lineTo( horizon_radius, 0);
+		
+		// Add in azimuth compass
+		var azimuth_guides = new PIXI.Graphics();
+		azimuth_guides.position = azimuth_center;
+		azimuth_guides.beginFill(0xFFFFFF, 0);
+		azimuth_guides.lineStyle(3, 0x206676);
+		azimuth_guides.drawCircle(0, 0, compass_radius);
+		
+		// Add in elevation compass
+		var elevation_guides = new PIXI.Graphics();
+		elevation_guides.position = elevation_center;
+		elevation_guides.beginFill(0xFFFFFF, 0);
+		elevation_guides.lineStyle(3, 0x206676);
+		elevation_guides.drawCircle(0, 0, compass_radius);
+		
+		//var test = new PIXI.Graphics();
+		//test.position = planetarium_center;
+		//test.beginFill(0xFFFFFF, 0);
+		//test.lineStyle(3, 0x00FF00);
+		//test.moveTo( 0, -horizon_radius );
+		//test.lineTo( horizon_radius, 0 );
+		//test.moveTo( 0, horizon_radius );
+		//test.lineTo( -horizon_radius, 0 );
+		//stage.addChild(test);
 		
 		// Add text
-		var guidetext_n = new PIXI.Text("North", {font:"14px Arial", fill:"white"});
+		var guidetext_n 		= new PIXI.Text("N", {font:"20px Arial", fill:"white"});
 		guidetext_n.anchor.x = guidetext_n.anchor.y = 0.5;
-		guidetext_n.position.x = (azel2pixi(0,10)).x;
-		guidetext_n.position.y = (azel2pixi(0,10)).y;
+		guidetext_n.position = (azel2pixi(0,0));
 		
-		var guidetext_e = new PIXI.Text("East", {font:"14px Arial", fill:"white"});
+		var guidetext_e 		= new PIXI.Text("E", {font:"20px Arial", fill:"white"});
 		guidetext_e.anchor.x = guidetext_e.anchor.y = 0.5;
-		guidetext_e.position.x = (azel2pixi(90,10)).x;
-		guidetext_e.position.y = (azel2pixi(90,10)).y;
+		guidetext_e.position = (azel2pixi(90,0));
 		
-		var guidetext_s = new PIXI.Text("South", {font:"14px Arial", fill:"white"});
+		var guidetext_s 		= new PIXI.Text("S", {font:"20px Arial", fill:"white"});
 		guidetext_s.anchor.x = guidetext_s.anchor.y = 0.5;
-		guidetext_s.position.x = (azel2pixi(180,10)).x;
-		guidetext_s.position.y = (azel2pixi(180,10)).y;
+		guidetext_s.position	= (azel2pixi(180,0));
 		
-		var guidetext_w = new PIXI.Text("West", {font:"14px Arial", fill:"white"});
+		var guidetext_w 		= new PIXI.Text("W", {font:"20px Arial", fill:"white"});
 		guidetext_w.anchor.x = guidetext_w.anchor.y = 0.5;
-		guidetext_w.position.x = (azel2pixi(270,10)).x;
-		guidetext_w.position.y = (azel2pixi(270,10)).y;
+		guidetext_w.position = (azel2pixi(270,0));
 		
-		var guidetext_w = new PIXI.Text("West", {font:"14px Arial", fill:"white"});
-		guidetext_w.anchor.x = guidetext_w.anchor.y = 0.5;
-		guidetext_w.position.x = (azel2pixi(270,10)).x;
-		guidetext_w.position.y = (azel2pixi(270,10)).y;
-		
-		var guidetext_0 = new PIXI.Text("0 deg", {font:"14px Arial", fill:"white"});
+		var guidetext_0 		= new PIXI.Text("0", {font:"14px Arial", fill:"white"});
 		guidetext_0.anchor.x = guidetext_0.anchor.y = 0.5;
-		guidetext_0.position.x = (azel2pixi(305,0)).x;
-		guidetext_0.position.y = (azel2pixi(305,0)).y;
+		guidetext_0.position = (azel2pixi(270,5));
 		
-		var guidetext_30 = new PIXI.Text("30 deg", {font:"14px Arial", fill:"white"});
+		var guidetext_30 		 = new PIXI.Text("30", {font:"14px Arial", fill:"white"});
 		guidetext_30.anchor.x = guidetext_30.anchor.y = 0.5;
-		guidetext_30.position.x = (azel2pixi(305,30)).x;
-		guidetext_30.position.y = (azel2pixi(305,30)).y;
+		guidetext_30.position = (azel2pixi(270,35));
 		
-		var guidetext_60 = new PIXI.Text("60 deg", {font:"14px Arial", fill:"white"});
+		var guidetext_60 		 = new PIXI.Text("60", {font:"14px Arial", fill:"white"});
 		guidetext_60.anchor.x = guidetext_60.anchor.y = 0.5;
-		guidetext_60.position.x = (azel2pixi(305,60)).x;
-		guidetext_60.position.y = (azel2pixi(305,60)).y;
+		guidetext_60.position = (azel2pixi(270,65));
 		
 		// Add everything to the stage
-		stage.addChild(guides);
-		stage.addChild(bunny);
+		stage.addChild(planetarium_guides);
+		//stage.addChild(azimuth_guides);
+		//stage.addChild(elevation_guides);
+		//stage.addChild(bunny);
 		
 		stage.addChild(guidetext_n);
 		stage.addChild(guidetext_e);
@@ -180,7 +212,7 @@ function PixiJS(WorkerManager) {
 		Called every 0.2 secconds to update positions of all the objects.
 	 */
 	function animate_for_time(anim_time) {
-		if((anim_time - update_wait_time) > 200) { // update every .2s, 5 Hz
+		if((anim_time - update_wait_time) > 500) { // update every .5s, 2 Hz
 			current_time = increment_time.by_milliseconds(start_time, anim_time + time_offset);
 			WorkerManager.update_sats(current_time);
 			update_wait_time = anim_time;
@@ -263,6 +295,7 @@ function PixiJS(WorkerManager) {
 			sat_table[satnum] = {};
 		}
 		if(sat_table[satnum]["is_tracking"]) {
+			//console.log("Does it update the satellite marker?");
 			update_satellite_marker(satnum, az, el);
 		};
 	};
@@ -270,16 +303,20 @@ function PixiJS(WorkerManager) {
 	WorkerManager.register_command_callback("path_update", path_update_callback);
 
 	function path_update_callback(data) {
+		//console.log("pixijs path update callback");
 		var sat_item = data.sat_item;
 		var satnum = sat_item.satnum;
+		//console.log("pixi sat_table[satnum][is_tracking]="+sat_table[satnum]["is_tracking"]);
+		
 		if(!sat_table[satnum]) {
 			sat_table[satnum] = {};
 		};
 		if(sat_table[satnum]["is_tracking"]) {
 			if(sat_table[satnum]["path_ecf"]) {
-				update_path(satnum, sat_item["ecf_coords_list"]);
+				update_path(satnum, sat_item["lookangles_list"], sat_item['gmst_list']);
+				//console.log("does it go here?");	// doesn't go here?
 			} else {
-				add_path(satnum, sat_item["ecf_coords_list"]);
+				add_path(satnum, sat_item["lookangles_list"], sat_item['gmst_list']);
 			};
 		};
 	};
@@ -353,7 +390,7 @@ function PixiJS(WorkerManager) {
 	/* remove_satellite_marker()
 	 */
 	function remove_satellite_marker(satnum) {
-		stage.removeChild(sat_marker[satnum]);		// this should work
+		stage.removeChild(sat_marker[satnum]);
 		stage.removeChild(sat_text[satnum]);
 	};
 	
@@ -371,7 +408,7 @@ function PixiJS(WorkerManager) {
 			sat_text[satnum].position.y = azel2pixi(az,el).y;
 			//console.log("satellite visible, coords.x="+azel2pixi(az,el).x);
 		} else {
-			console.log("satellite invisible");
+			//console.log("satellite invisible");
 			sat_marker[satnum].visible = false;
 			sat_text[satnum].visible = false;
 		}
@@ -379,38 +416,59 @@ function PixiJS(WorkerManager) {
 	
 	// --- PATH FUNCTIONS --------------------------------------------------------
 	
-	function add_path(satnum, ecf_coords_list) {
-		// there is no convenient way ot drawing lines :(
+	function add_path(satnum, lookangles_list, gmst_list) {		
+		// there is no convenient way of drawing lines :(
 		// so we'll basically need to make a for loop that connects a bunch of points
 		// this might be beneficial for us in the end
-		//
 		sat_path[satnum] = new PIXI.Graphics();
-		sat_path[satnum].lineStyle(1, 0xFFFFFF, 1);
-		sat_path[satnum].position.x = planetarium_center.x;
-		sat_path[satnum].position.y = planetarium_center.y;
+		sat_path[satnum].beginFill(0xFFFFFF, 0);
+		sat_path[satnum].lineStyle(1, 0x777777);
 		
-		//console.log("ecf_coords_list.length="+ecf_coords_list.length);
-		//console.log("ecf_coords_list[10]="+ecf_coords_list[17]);
-		
-		for(var i=0; i<ecf_coords_list.length; i++) {
-			var pos = satellite.ecf_to_look_angles(observer_coords_gd,ecf_coords_list[i]);
+		for(var i=0; i<lookangles_list.length; i++) {
+			//console.log("Hello?");	// definitely goes in here
+			var pos = lookangles_list[i];
 			pos[0] = rad2deg(pos[0]);
 			pos[1] = rad2deg(pos[1]);
-			console.log("pos="+pos);
-			console.log("pos.x="+pos[0]+", pos.y="+pos[1]);
-			sat_path[satnum].lineTo(azel2pixi(pos.x,pos.y));
+			//console.log("pos="+pos);
+
+			if (!sat_aos[satnum] && pos[1]>-1 && pos[1]<0) {
+				console.log("start path at: "+pos);
+				
+				sat_aos[satnum] = new PIXI.Text(gmst_list[i],
+					{font:"12px Arial", fill:"white"}
+				);
+				sat_aos[satnum].position = azel2pixi(pos[0], pos[1]);
+				
+				sat_path[satnum].moveTo(
+					azel2pixi(pos[0],pos[1]).x,
+					azel2pixi(pos[0],pos[1]).y );
+			} else if (pos[1]>=0) {
+				console.log("pos="+pos);
+				sat_path[satnum].lineTo(
+					(azel2pixi(pos[0],pos[1])).x,
+					(azel2pixi(pos[0],pos[1])).y );
+			} else if (sat_aos[satnum] && pos[1]<0 ) {
+				sat_los[satnum] = new PIXI.Text(gmst_list[i],
+					{font:"12px Arial", fill:"white"}
+				);
+				sat_los[satnum].position = azel2pixi(pos[0], pos[1]);
+			}
 		}
 		
+		stage.addChild(sat_aos[satnum]);
+		stage.addChild(sat_los[satnum]);
 		stage.addChild(sat_path[satnum]);
 	}
 	
 	function remove_path(satnum) {
 		stage.removeChild(sat_path[satnum]);
+		stage.removeChild(sat_aos[satnum]);
+		stage.removeChild(sat_los[satnum]);
 	}
 	
-	function update_path(satnum, ecf_coords_list) {
+	function update_path(satnum, lookangles_list, gmst_list) {
 		remove_path(satnum);
-		add_path(satnum, ecf_coords_list);
+		add_path(satnum, lookangles_list, gmst_list);
 	}
 	
 	/* --- HELPER FUNCTIONS --------------------------------------------------- */
@@ -440,11 +498,16 @@ function PixiJS(WorkerManager) {
 		// calculate unscaled x, y coordinates
 		if (el>=0) {
 			pixi.x = Math.abs((90-el)) * Math.sin(az * (3.14159/180));
-			pixi.y = -(Math.abs((90-el)) * Math.cos(az * (3.14159/180)));
-			if (az>360) az = az - 360;
-		}
+		} else if (el<0) {
+			// implement later
+			pixi.x = Math.abs((90-el)) * Math.sin(az * (3.14159/180));
+		};
+		
+		pixi.y = -(Math.abs((90-el)) * Math.cos(az * (3.14159/180)));
+		if (az>360) az = az - 360;
+		
 		// scale to stage
-		pixi.x = pixi.x * (horizon_radius / 90)
+		pixi.x = pixi.x * (horizon_radius / 90)	// 90 degees
 		pixi.y = pixi.y * (horizon_radius / 90)
 		// add offset
 		pixi.x = pixi.x + planetarium_center.x;

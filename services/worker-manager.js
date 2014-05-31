@@ -70,6 +70,8 @@ function WorkerManager (){
                               observer_latitude*deg2rad,
                               observer_altitude];
     track_sat_worker.postMessage({cmd : 'observer_location', observer_coords_gd : observer_coords_gd});
+	 propagate_path_worker.postMessage({cmd : 'observer_location', observer_coords_gd : observer_coords_gd});
+	 // Call set_observer_location from track_sat and propagate_path here
   };
 
   function propagate_orbit (satrec, time, orbit_fraction) {

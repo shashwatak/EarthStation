@@ -19,8 +19,7 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios, Taffy, PixiJS) {
 	  };
 	});
   });
-  
-  // what does dis do ?
+
   $scope.sidebar_selected = false;
   $scope.sidebar_clicked = function(){
 	console.log("clickety: " + $scope.sidebar_selected);
