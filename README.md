@@ -27,7 +27,7 @@ Microcontroller Design
 
 Software Design
 
-###ARS Ground Station Team Rev. 1
+###ARS Ground Station Team 
 
 **Jason Ragland** *AG6RM*
 
