@@ -17,11 +17,13 @@ function PixiJS(WorkerManager) {
 	// Global satellite info
 	var sat_table 	= {};	// uses "satnum", holds info for satellites
 	
-	var sat_marker = {};	// uses satnum also, container for satellite graphics
+	var sat_marker 	= {};	// uses satnum also, container for satellite graphics
 	var sat_text	= {};	// goes with sat_marker and has text
 	var sat_path	= {};	// yup hi
 	var sat_aos		= {};
 	var sat_los		= {};
+	
+	var motor_marker;
 	
 	var observer_coords_gd;
 	var observer_coords_ecf;
@@ -173,6 +175,8 @@ function PixiJS(WorkerManager) {
 		stage.addChild(guidetext_30);
 		stage.addChild(guidetext_60);
 		
+		add_motor_marker();
+		
 	}; // end init()
 	
 	/* start_animation()
@@ -282,9 +286,13 @@ function PixiJS(WorkerManager) {
 		var satnum = sat_item.satnum;
 		
 		// use sat_item.look_angles.x or .look_angles[0]?
-		var az = rad2deg(sat_item.look_angles[0]);
-		var el = rad2deg(sat_item.look_angles[1]);
-		//console.log("new az="+az+", el="+el);
+		// scope.sat_table[satnum]["look_angles"] = sat_item.look_angles;
+		var sat_az = rad2deg(sat_item.look_angles[0]);
+		var sat_el = rad2deg(sat_item.look_angles[1]);
+		
+		var mot_az = rad2deg(sat_item.motor_azimuth);
+		var mot_el = rad2deg(sat_item.motor_elevation);
+		console.log("motor az="+mot_az+", el="+mot_el);
 		
 		//console.log("sat_item.satnum="+sat_item.satnum);
 		// *~*~*~*~ what was i trying to do? ~*~*~*~*
@@ -296,7 +304,8 @@ function PixiJS(WorkerManager) {
 		}
 		if(sat_table[satnum]["is_tracking"]) {
 			//console.log("Does it update the satellite marker?");
-			update_satellite_marker(satnum, az, el);
+			update_satellite_marker(satnum, sat_az, sat_el);
+			update_motor_marker(mot_az, mot_el);
 		};
 	};
 	
@@ -402,10 +411,8 @@ function PixiJS(WorkerManager) {
 		if(el>=0) {
 			sat_marker[satnum].visible = true;
 			sat_text[satnum].visible = true;
-			sat_marker[satnum].position.x = azel2pixi(az,el).x;
-			sat_marker[satnum].position.y = azel2pixi(az,el).y;
-			sat_text[satnum].position.x = azel2pixi(az,el).x;
-			sat_text[satnum].position.y = azel2pixi(az,el).y;
+			sat_marker[satnum].position = azel2pixi(az,el);
+			sat_text[satnum].position = azel2pixi(az,el);
 			//console.log("satellite visible, coords.x="+azel2pixi(az,el).x);
 		} else {
 			//console.log("satellite invisible");
@@ -470,6 +477,27 @@ function PixiJS(WorkerManager) {
 		remove_path(satnum);
 		add_path(satnum, lookangles_list, gmst_list);
 	}
+	
+	// --- MOTOR FUNCTIONS ------------------------------------------------------
+	
+	function add_motor_marker() {
+		motor_marker = new PIXI.Graphics();
+		motor_marker.lineStyle(1, 0xFFFFFF, 1);
+		motor_marker.drawCircle(0, 0, horizon_radius/15);
+		motor_marker.endFill()
+		
+		stage.addChild(motor_marker);
+	};
+	
+	function remove_motor_marker(satnum) {
+		stage.removeChild(motor_marker);
+	}
+	
+	function update_motor_marker(az, el) {
+		//motor_marker.visible = true;
+		motor_marker.position = azel2pixi(az,el);
+	}
+	
 	
 	/* --- HELPER FUNCTIONS --------------------------------------------------- */
 	

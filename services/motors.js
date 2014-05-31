@@ -112,7 +112,7 @@ function Motors (WorkerManager) {
 						sat_elevation);
 			setTimeout(function () {
 				motor_comms_async_loop(sat_item);
-				}, 2000);
+				}, 5000);
 		}
 	}
 
@@ -139,16 +139,26 @@ function Motors (WorkerManager) {
 			}
 			
 			// Find motor azimuth and elevation
-			parse_results = adc2azel( parse_motor_response(incoming_bytes)[0], parse_motor_response(incoming_bytes)[1]  );
+			
+			var parse_results = parse_motor_response(incoming_bytes);
+			var angles = adc2azel(
+				parse_motor_response(incoming_bytes)[1],
+				parse_motor_response(incoming_bytes)[2]
+				);
+			
+			//var parse_results = adc2azel(
+			//	parse_motor_response(incoming_bytes)[1],
+			//	parse_motor_response(incoming_bytes)[2]
+			//	);
 			if (sat_table[keeper]["is_tracking"]) {
 
 				//sat_table[satnum]["sat_azimuth"] = sat_item.look_angles[0];
 				//sat_table[satnum]["sat_elevation"] = sat_item.look_angles[1];
 			
-				if(parse_results[0]>=0 && parse_results[1]>=0) {
+				if(parse_results[0]==1 && parse_results[1]>=0 && parse_results[2]>=0) {
 					//update values
-					sat_table[keeper]["motor_azimuth"] = parse_results[0].toFixed(2);
-					sat_table[keeper]["motor_elevation"] = parse_results[1].toFixed(2);
+					sat_table[keeper]["motor_azimuth"]   = angles[0].toFixed(2);
+					sat_table[keeper]["motor_elevation"] = angles[1].toFixed(2);
 				}
 				
 				//var sat_azimuth = rad2deg(sat_table[keeper]["sat_azimuth"]);
@@ -184,6 +194,7 @@ function Motors (WorkerManager) {
 		var adcval = [];
 		adcval[0] = -1;
 		adcval[1] = -1;
+		adcval[2] = -1;
 		
 		//console.log("Parsing incoming_bytes: "+incoming_bytes);
 
@@ -202,28 +213,17 @@ function Motors (WorkerManager) {
 					j++;
 					adcval[j] = 0;
 				} else {
-					if(k >= 0) {
-						// convert data to decimal value
-						//var im = ascii2dec(incoming_bytes[i]);
-						//console.log("im "+im);
-						//var so = exp(10,k--);
-						//console.log("so "+so);
-						//var confused = (im * so);
-						//console.log("confused "+confused);
-						
+					if(adcval[0]!=1 && j==0) {
+						adcval[0] = 1;
+					} else if(j!=0 && k>=0) {
 						adcval[j] += (ascii2dec(incoming_bytes[i]) * exp(10, k--));
-						//adcval[j] = adcval[j] + confused;			// does not work...
-						//console.log("adcval["+j+"] = "+adcval[j]);
-						//console.log("im: "+im+" so: "+so+" confused: "+confused+
-						//	"??? ans="+adcval[j]);
 					}
 				}
 				i++;
 			}
 		
 		}
-		
-		//console.log("adcval: "+adcval);
+		console.log("[0]="+adcval[0]+", [1]="+adcval[1]+", [2]="+adcval[2]);
 		return adcval;
 	};
 	
@@ -234,19 +234,26 @@ function Motors (WorkerManager) {
 	 */
 	var adc2azel = function(azadc, eladc) {
 		var angles = [];
-		angles[0] = -1;
-		angles[1] = -1;
+		angles[0] = -1;	// az
+		angles[1] = -1;	// el
 		
-		//console.log("azadc="+azadc+", eladc="+eladc);
 		
-		if(azadc >= 1048) {
-		
-			angles[0] = (azadc-1048) * (90/262);
-		} else {
-			angles[0] = azadc * (359/1048);
+		angles[0] = azadc * (470/2480);
+		if(angles[0]>360) {
+			angles[0] = angles[0] - 360;
 		}
 		
-		angles[1] = eladc * (180/1392);		// experimentally determined
+		//if(azadc >= 1048) {
+		//	angles[0] = (azadc-1048) * (90/262);
+		//} else {
+		//	angles[0] = azadc * (359/1048);
+		//}
+		
+		angles[1] = eladc * (180/2770);		// experimentally determined
+		
+		
+		console.log("ADC: az="+azadc.toFixed(2)+", el="+eladc.toFixed(2));
+		console.log("ANG: az="+angles[0].toFixed(2)+", el="+angles[1].toFixed(2));
 		
 		//console.log("angles: "+angles);
 		return angles;
@@ -414,9 +421,9 @@ function Motors (WorkerManager) {
 	 */
 	function start_motors(satnum) {
 		// Initializes motors and starts tracking
-		console.log("start_motors(), motorConnectionId="+sat_table[satnum].connectionId);
+		//console.log("start_motors(), motorConnectionId="+sat_table[satnum].connectionId);
 		chrome.serial.send(sat_table[satnum].connectionId,
-			str2ab("c,255,0,0,2\n\rt,250,1\n\ro,0,255,0\n\r"),	// should be 34 bytes
+			str2ab("c,255,0,0,3\n\rt,500,1\n\ro,0,255,0\n\raz,0\n\rel,0\n\r"),
 			function(info) {console.log("info.bytesSent="+info.bytesSent);} );
 		if (sat_table[satnum] && !sat_table[satnum]["is_tracking"]) {
 			sat_table[satnum]["is_tracking"] = true;
@@ -428,7 +435,7 @@ function Motors (WorkerManager) {
 	 */
 	function stop_motors(satnum) {
 		// stops tracking
-		console.log("start_motors(), motorConnectionId="+motorConnectionId);
+		//console.log("start_motors(), motorConnectionId="+motorConnectionId);
 		chrome.serial.send(motorConnectionId,
 			str2ab("az,0\n\rel,0\n\r"),
 			function(info) {console.log("info.bytesSent="+info.bytesSent);} );
@@ -441,7 +448,7 @@ function Motors (WorkerManager) {
 	 * move_motors_up()
 	 */
 	function move_motors_up(satnum) {
-		console.log("move_motors_up(), motorConnectionId="+motorConnectionId);
+		//console.log("move_motors_up(), motorConnectionId="+motorConnectionId);
 		chrome.serial.send(motorConnectionId,
 			str2ab("el,1\n\r"),
 			function(){});
@@ -451,14 +458,14 @@ function Motors (WorkerManager) {
 	 * move_motors_down()
 	 */
 	function move_motors_down(satnum) {
-		console.log("move_motors_down(), motorConnectionId="+motorConnectionId);
+		//console.log("move_motors_down(), motorConnectionId="+motorConnectionId);
 		chrome.serial.send(motorConnectionId,
 			str2ab("el,2\n\r"),
 			function(){});
 	};
 	
 	function stop_el(satnum) {
-		console.log("stop_el(), motorConnectionId="+motorConnectionId);
+		//console.log("stop_el(), motorConnectionId="+motorConnectionId);
 		chrome.serial.send(motorConnectionId,
 			str2ab("el,0\n\r"),
 			function(){});
@@ -468,7 +475,7 @@ function Motors (WorkerManager) {
 	 * move_motors_left()
 	 */
 	function move_motors_left(satnum) {
-		console.log("move_motors_left(), motorConnectionId="+motorConnectionId);
+		//console.log("move_motors_left(), motorConnectionId="+motorConnectionId);
 		chrome.serial.send(motorConnectionId,
 			str2ab("az,1\n\r"),
 			function(){});
@@ -478,14 +485,14 @@ function Motors (WorkerManager) {
 	 * move_motors_right()
 	 */
 	function move_motors_right(satnum) {
-		console.log("move_motors_right(), motorConnectionId="+motorConnectionId);
+		//console.log("move_motors_right(), motorConnectionId="+motorConnectionId);
 		chrome.serial.send(motorConnectionId,
 			str2ab("az,2\n\r"),
 			function(){});
 	};//end move_motors_right()
 	
 	function stop_az(satnum) {
-		console.log("stop_az(), motorConnectionId="+motorConnectionId);
+		//console.log("stop_az(), motorConnectionId="+motorConnectionId);
 		chrome.serial.send(motorConnectionId,
 			str2ab("az,0\n\r"),
 			function(){});
