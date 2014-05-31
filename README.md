@@ -1,4 +1,4 @@
-EarthStation (v0.3)
+EarthStation (v0.4)
 ===================
 This software is part of a larger project, to build a working
 Ground Station for Satellite Communication as part of the Amateur Radio Service at UCSC.
@@ -12,7 +12,22 @@ The goals of this software are to make satellite radio contacts:
 
 We considered many different approaches to building this app before settling on making a Google Chrome Packaged App. High on our list of priorities was cross OS support, and Chrome is available on all major OSs. The Packaged App approach allows us to access USB and COM ports, to manipulate external hardware. Further, a Packaged App is installed on the user's computer, which means it can run completely offline. Finally, the relatively new `performance.now()` function gives us microsecond precise timing.
 
-###ARS Ground Station Team
+
+###ARS Ground Station Team Rev. 2
+
+**Kayla Hidalgo** *KK6JGU*
+
+Team Lead, Antenna Design
+
+**Julie Do** *KK6JHF*
+
+Microcontroller Design
+
+**William Ye** *KK6JGV*
+
+Software Design
+
+###ARS Ground Station Team Rev. 1
 
 **Jason Ragland** *AG6RM*
 
