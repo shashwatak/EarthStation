@@ -9,18 +9,18 @@
 
 <div id="two_d_display"
 	ng-class="{ two_d_visible : bottom_selected }"
-   ng-mousedown="mouse_down($event)"
-   ng-mouseup="mouse_up($event)"
-   ng-mousemove="mouse_move($event)"
-   msd-wheel="mouse_wheel($event, $delta, $deltaX, $deltaY)">
+	ng-mousedown="mouse_down($event)"
+	ng-mouseup="mouse_up($event)"
+	ng-mousemove="mouse_move($event)"
+	msd-wheel="mouse_wheel($event, $delta, $deltaX, $deltaY)">
 </div>
 
 <div id="three_d_display"
 	ng-class="{ three_d_visible : bottom_selected }"
-   ng-mousedown="mouse_down($event)"
-   ng-mouseup="mouse_up($event)"
-   ng-mousemove="mouse_move($event)"
-   msd-wheel="mouse_wheel($event, $delta, $deltaX, $deltaY)">
+	ng-mousedown="mouse_down($event)"
+	ng-mouseup="mouse_up($event)"
+	ng-mousemove="mouse_move($event)"
+	msd-wheel="mouse_wheel($event, $delta, $deltaX, $deltaY)">
 </div>
 
 <div id="header">
@@ -42,11 +42,12 @@
   <img src="../img/fullscreen.png" id="fullscreen_button" ng-click="fullscreen()"></img>
   <div>
   <center>
+  
   <button class="input" ng-click="hide_the_world()">Earth/CrossSection</button>
   <button class="input" ng-click="switch_to_ground_camera()">Ground</button>
-  <button class="input" ng-click="switch_to_planetarium_view()">Planetarium View</button>
   <button class="input" ng-click="switch_to_space_view()">Space View</button>
-    <button class="input" ng-click="access_db()">Load DB</button>
+  
+  <button class="input" ng-click="access_db()">Load DB</button>
   <button class="input" ng-click="load_info(sat)">Load sat info</button>
   </center>
   </div>

@@ -113,7 +113,6 @@ function Motors (WorkerManager) {
 		setTimeout(function () {
 			motor_comms_async_loop(sat_item);
 			}, 500);
-		//}
 	}
 
 	/**

@@ -6,9 +6,8 @@
  *		  positions of the satellites and motors
  *		- Side bar with more specific information about the satellite angles
  * TO-DO:
- * 	- Display Path
- * 	- Display AOS/LOS
- * 	- Compass markers
+ * 	- Show motor marker
+ * 	- Display AOS/LOS: need to convert gmst to utc
  */
 
 function PixiJS(WorkerManager) {
@@ -163,8 +162,6 @@ function PixiJS(WorkerManager) {
 		
 		// Add everything to the stage
 		stage.addChild(planetarium_guides);
-		//stage.addChild(azimuth_guides);
-		//stage.addChild(elevation_guides);
 		//stage.addChild(bunny);
 		
 		stage.addChild(guidetext_n);
@@ -323,9 +320,10 @@ function PixiJS(WorkerManager) {
 		};
 		if(sat_table[satnum]["is_tracking"]) {
 			if(sat_table[satnum]["path_ecf"]) {
+				console.log("calls update_path()");
 				update_path(satnum, sat_item["lookangles_list"], sat_item['gmst_list']);
-				//console.log("does it go here?");	// doesn't go here?
 			} else {
+				console.log("calls add_path()");
 				add_path(satnum, sat_item["lookangles_list"], sat_item['gmst_list']);
 			};
 		};
@@ -393,6 +391,7 @@ function PixiJS(WorkerManager) {
 			num_active_satellites--;
 			console.log("bye friend");
 			remove_satellite_marker(satnum);
+			remove_path(satnum);
 			sat_table[satnum] = undefined;
 		};
 	};
@@ -402,6 +401,8 @@ function PixiJS(WorkerManager) {
 	function remove_satellite_marker(satnum) {
 		stage.removeChild(sat_marker[satnum]);
 		stage.removeChild(sat_text[satnum]);
+		sat_marker[satnum] = undefined;
+		sat_text[satnum] = undefined;
 	};
 	
 	/* update_satellite_marker()
@@ -424,54 +425,88 @@ function PixiJS(WorkerManager) {
 	
 	// --- PATH FUNCTIONS --------------------------------------------------------
 	
-	function add_path(satnum, lookangles_list, gmst_list) {		
-		// there is no convenient way of drawing lines :(
-		// so we'll basically need to make a for loop that connects a bunch of points
-		// this might be beneficial for us in the end
-		sat_path[satnum] = new PIXI.Graphics();
-		sat_path[satnum].beginFill(0xFFFFFF, 0);
-		sat_path[satnum].lineStyle(1, 0x777777);
-		
-		for(var i=0; i<lookangles_list.length; i++) {
-			//console.log("Hello?");	// definitely goes in here
-			var pos = lookangles_list[i];
-			pos[0] = rad2deg(pos[0]);
-			pos[1] = rad2deg(pos[1]);
-			//console.log("pos="+pos);
-
-			if (!sat_aos[satnum] && pos[1]>-1 && pos[1]<0) {
-				//console.log("start path at: "+pos);
-				
-				sat_aos[satnum] = new PIXI.Text(gmst_list[i],
-					{font:"12px Arial", fill:"white"}
-				);
-				sat_aos[satnum].position = azel2pixi(pos[0], pos[1]);
-				
-				sat_path[satnum].moveTo(
-					azel2pixi(pos[0],pos[1]).x,
-					azel2pixi(pos[0],pos[1]).y );
-			} else if (pos[1]>=0) {
+	function add_path(satnum, lookangles_list, gmst_list) {
+		if(sat_path[satnum]==undefined) {
+			var aos_set = false;
+			var los_set = false;
+			var aos = [-1,-1];
+			var los = [-1,-1];
+			
+			sat_path[satnum] = new PIXI.Graphics();
+			sat_path[satnum].beginFill(0xFFFFFF, 0);
+			sat_path[satnum].lineStyle(1, 0x777777);
+			
+			// Step through list
+			for(var i=0; i<lookangles_list.length; i++) {
+				var pos = lookangles_list[i];
+				pos[0] = rad2deg(pos[0]);
+				pos[1] = rad2deg(pos[1]);
 				//console.log("pos="+pos);
-				sat_path[satnum].lineTo(
-					(azel2pixi(pos[0],pos[1])).x,
-					(azel2pixi(pos[0],pos[1])).y );
-			} else if (sat_aos[satnum] && pos[1]<0 ) {
-				sat_los[satnum] = new PIXI.Text(gmst_list[i],
-					{font:"12px Arial", fill:"white"}
-				);
-				sat_los[satnum].position = azel2pixi(pos[0], pos[1]);
+
+				if(lookangles_list[0][1] < 0) {
+					if (!aos_set && pos[1]>-1 && pos[1]<0) {
+						aos[0] = pos[0];
+						aos[1] = pos[1];
+						aos[2] = i;
+
+						sat_path[satnum].moveTo(
+							azel2pixi(pos[0],pos[1]).x,
+							azel2pixi(pos[0],pos[1]).y );
+					} else if (pos[1]>=0) {
+						aos_set = true;
+						//console.log("pos="+pos);
+						sat_path[satnum].lineTo(
+							(azel2pixi(pos[0],pos[1])).x,
+							(azel2pixi(pos[0],pos[1])).y );
+					} else if (aos_set && !los_set && pos[1]<0 ) {
+						los[0] = pos[0];
+						los[1] = pos[1];
+						los[2] = i;
+						
+						
+						los_set = true;
+					}
+				} else {
+					if (pos[1]>=0) {
+						aos_set = true;
+						//console.log("pos="+pos);
+						sat_path[satnum].lineTo(
+							(azel2pixi(pos[0],pos[1])).x,
+							(azel2pixi(pos[0],pos[1])).y );
+					} else if (aos_set && !los_set && pos[1]<0 ) {
+						los[0] = pos[0];
+						los[1] = pos[1];
+						los[2] = i;
+						
+						
+						los_set = true;
+					}
+				}
 			}
+			
+			// Add LOS markers
+			sat_aos[satnum] = new PIXI.Text("AOS",
+				{font:"12px Arial", fill:"white"}
+				);
+			sat_aos[satnum].position = azel2pixi(aos[0], aos[1]);
+			sat_los[satnum] = new PIXI.Text("LOS",
+				{font:"12px Arial", fill:"white"}
+				);
+			sat_los[satnum].position = azel2pixi(los[0], los[1]);
+			
+			stage.addChild(sat_aos[satnum]);
+			stage.addChild(sat_los[satnum]);
+			stage.addChild(sat_path[satnum]);
 		}
-		
-		stage.addChild(sat_aos[satnum]);
-		stage.addChild(sat_los[satnum]);
-		stage.addChild(sat_path[satnum]);
 	}
 	
 	function remove_path(satnum) {
 		stage.removeChild(sat_path[satnum]);
 		stage.removeChild(sat_aos[satnum]);
 		stage.removeChild(sat_los[satnum]);
+		sat_path[satnum] = undefined;
+		sat_aos[satnum] = undefined;
+		sat_los[satnum] = undefined;
 	}
 	
 	function update_path(satnum, lookangles_list, gmst_list) {

@@ -245,6 +245,7 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios, Taffy, PixiJS) {
   };
   
     //Added this to center to America
+	// William this is racist
   $scope.center_observer = function(satnum){
     ThreeJS.center_america($scope.observer_longitude, $scope.observer_latitude);
      //ThreeJS.center_america(80,-36);
@@ -342,7 +343,8 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios, Taffy, PixiJS) {
  };
 
   /*--- temp functions (for demo purposes) ---*/
-
+  
+  /*
   $scope.start_motors = function (satnum) {
 	Motors.start_motors(satnum);
   };
@@ -366,6 +368,7 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios, Taffy, PixiJS) {
   $scope.right_motors = function (satnum) {
 	Motors.move_motors_right(satnum);
   };
+  */
   
   /*--- end temp functions---*/
 
