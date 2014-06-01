@@ -99,8 +99,8 @@ function Motors (WorkerManager) {
 	
 	
 	function motor_comms_async_loop(sat_item) {
+		console.log("motor_comms_async_loop");	// this is only called once?
 		if (sat_table[keeper]["is_tracking"]) {
-			//console.log("motor_comms_async_loop (does it go here???)");
 			var sat_azimuth = (rad2deg(sat_table[keeper]["sat_azimuth"])).toFixed(2);
 			var sat_elevation = (rad2deg(sat_table[keeper]["sat_elevation"])).toFixed(2);
 			
@@ -109,10 +109,11 @@ function Motors (WorkerManager) {
 						sat_table[keeper]["motor_elevation"],
 						sat_azimuth,
 						sat_elevation);
-			setTimeout(function () {
-				motor_comms_async_loop(sat_item);
-				}, 500);
 		}
+		setTimeout(function () {
+			motor_comms_async_loop(sat_item);
+			}, 500);
+		//}
 	}
 
 	/**
@@ -379,6 +380,7 @@ function Motors (WorkerManager) {
 				console.log("MOTOR CONNECTED: motorConnectionId="+motorConnectionId);
 				chrome.serial.flush (sat_table[satnum]["connectionId"], function(result){
 					if(result) {
+						console.log("motors on_open()");
 						setTimeout(function () {
 							motor_comms_async_loop(sat_table[satnum]);
 							}, 1000);
