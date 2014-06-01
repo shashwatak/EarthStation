@@ -45,6 +45,11 @@ function Radios(WorkerManager) {
 	var autoFlag = false;  //check if autoset was ever turned on
     var bgStop = false; //checks if stop_radio_tracking2 was called
 	var oldSatnum = 0; //tracks old satellite you were tracking
+	var freqHold = 0; //This freq holds the frequency when doing an offset
+	var localMain = 0; //This freq will be the main freq taken from the sat_table
+	var localSub = 0; //This freq will be the sub freq taken from the sat_table
+	var doppMain = 0; //this freq will be the main freq calculated with Doppler;
+	var doppSub = 0; //this freq will be the sub freq calculated with Doppler
 	
 	function save_satnum(satnum) {
 		keeper = satnum;
@@ -72,9 +77,10 @@ function Radios(WorkerManager) {
 			//Since this is not polling anymore, we will change the way we detect background tuning.   
 			if(sat_item["is_tracking"]) { //auto tuning
 				autoFlag = true;
-				sat_item["radio_main_frequency"] = Math.floor(sat_item["doppler_factor"] * sat_item["radio_main_frequency"]); //might need to change this 
-				sat_item["radio_sub_frequency"] = Math.floor(sat_item["doppler_factor"] * sat_item["radio_sub_frequency"]); 
-				
+				//sat_item["radio_main_frequency"] = Math.floor(sat_item["doppler_factor"] * sat_item["radio_main_frequency"]); //might need to change this 
+				//sat_item["radio_sub_frequency"] = Math.floor(sat_item["doppler_factor"] * sat_item["radio_sub_frequency"]); 
+				doppMain = Math.floor(sat_item["doppler_factor"] * sat_item["radio_main_frequency"]); 
+				doppSub = Math.floor(sat_item["doppler_factor"] * sat_item["radio_sub_frequency"]);  
                 origFreq = sat_item["radio_sub_frequency"]; //to fix the bug in resetting frequency after auto-tuning
 				origSubFreq = sat_item["radio_main_frequency"];
 				console.log("Setting orig Freq: " + origFreq);
@@ -88,8 +94,10 @@ function Radios(WorkerManager) {
 				}
 				freqtemp = sat_item["radio_sub_frequency"];
 
-				sat_item["functions"].set_main_frequency(sat_item["connectionId"], sat_item["radio_main_frequency"], function (set_main_result) {
-					sat_item["functions"].set_sub_frequency(sat_item["connectionId"], sat_item["radio_sub_frequency"], function (set_sub_result) {
+				//sat_item["functions"].set_main_frequency(sat_item["connectionId"], sat_item["radio_main_frequency"], function (set_main_result) {
+					//sat_item["functions"].set_sub_frequency(sat_item["connectionId"], sat_item["radio_sub_frequency"], function (set_sub_result) {
+				sat_item["functions"].set_main_frequency(sat_item["connectionId"], doppMain, function (set_main_result) {
+					sat_item["functions"].set_sub_frequency(sat_item["connectionId"], doppSub, function (set_sub_result) {
 						sat_item["callback"]({
 							radio_main_frequency: sat_item["radio_main_frequency"],
 							radio_sub_frequency: sat_item["radio_sub_frequency"],
@@ -128,6 +136,7 @@ function Radios(WorkerManager) {
 
 		if(sat_table[keeper]["offsetFlag"] === false) {
 			console.log("OFFSET: ON, Offset is: " + sat_table[keeper]["offset"]);
+			//freqHold = sat_table[keeper]["radio_main__frequency"];
 			sat_table[keeper]["offsetFlag"] = true;
 			freqtemp = sat_table[keeper]["radio_sub_frequency"];
 

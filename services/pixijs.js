@@ -290,9 +290,10 @@ function PixiJS(WorkerManager) {
 		var sat_az = rad2deg(sat_item.look_angles[0]);
 		var sat_el = rad2deg(sat_item.look_angles[1]);
 		
+		//var mot_az = rad2deg(sat_item.motor_azimuth);
 		var mot_az = rad2deg(sat_item.motor_azimuth);
 		var mot_el = rad2deg(sat_item.motor_elevation);
-		console.log("motor az="+mot_az+", el="+mot_el);
+		//console.log("motor az="+mot_az+", el="+mot_el);
 		
 		//console.log("sat_item.satnum="+sat_item.satnum);
 		// *~*~*~*~ what was i trying to do? ~*~*~*~*
@@ -439,7 +440,7 @@ function PixiJS(WorkerManager) {
 			//console.log("pos="+pos);
 
 			if (!sat_aos[satnum] && pos[1]>-1 && pos[1]<0) {
-				console.log("start path at: "+pos);
+				//console.log("start path at: "+pos);
 				
 				sat_aos[satnum] = new PIXI.Text(gmst_list[i],
 					{font:"12px Arial", fill:"white"}
@@ -450,7 +451,7 @@ function PixiJS(WorkerManager) {
 					azel2pixi(pos[0],pos[1]).x,
 					azel2pixi(pos[0],pos[1]).y );
 			} else if (pos[1]>=0) {
-				console.log("pos="+pos);
+				//console.log("pos="+pos);
 				sat_path[satnum].lineTo(
 					(azel2pixi(pos[0],pos[1])).x,
 					(azel2pixi(pos[0],pos[1])).y );

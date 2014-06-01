@@ -92,6 +92,17 @@
           </div>
           <div class="panel_body" ng-class="{selected : sat.radios_selected}">
             <p>
+              COM: <select class="input" ng-model="selected_radio_port" ng-options="port for port in COM_list"></select>
+            </p>
+            <p>
+              <button class="input" ng-click="refresh_com_ports_list()">
+                Refresh COM List
+              </button>
+            </p>
+            <p>
+              Radio: <select class="input" ng-model="selected_radio_type" ng-options="radio_type for radio_type in supported_radio_types"></select>
+            </p>
+            <p>
               <button class="input" ng-click="connect_radio_to_sat(satnum, selected_radio_port, selected_radio_type, uplink_frequency, downlink_frequency)">
                 Open Radio
               </button>
@@ -223,27 +234,7 @@
       <button class="input" ng-click="set_observer_location()">Set Location</button>
       <button class="input" ng-click="choose_file()">Update TLEs</button>
       <button class="input" ng-click="clear_sats()">Clear Sats</button>
-	  <p>
-		Radio Options
-		</p>
-		<p>
-          COM: <select class="input" ng-model="selected_radio_port" ng-options="port for port in COM_list"></select>
-        
-          <button class="input" ng-click="refresh_com_ports_list()">
-            Refresh USB List
-          </button>
-		</p>
-		<p>
-		  <button class="input" ng-click="">
-             Connect Radio
-          </button>
-		  <button class="input" ng-click="">
-             Close Radio
-          </button>
-        </p>
-        <p>
-          Radio: <select class="input" ng-model="selected_radio_type" ng-options="radio_type for radio_type in supported_radio_types"></select>
-        </p>
+	  
     </div>
 	<!-- End Panel -->
 

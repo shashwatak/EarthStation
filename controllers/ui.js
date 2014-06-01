@@ -7,6 +7,10 @@
 
 
 function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios, Taffy, PixiJS) {
+
+  var motor_azimuth = -1;		// fix later
+  var motor_elevation = -1;
+
   // First, get the satellites we kept in local storage.
   var storage = chrome.storage.local;
   storage.get(null,function(result){
@@ -37,17 +41,12 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios, Taffy, PixiJS) {
 
   // --- Initialize graphics libraries ----------------------------------------
 
-  // I believe we can leave the threejs animations running in the bg
-  // while we "turn off" the renderer and display the 2D view
-  // Or maybe we can hide divs in html?
-  
-  
-  // Comment/uncomment the following lines to switch between threejs and pixijs views
   ThreeJS.init();
   ThreeJS.start_animation();
   PixiJS.init();
   PixiJS.start_animation();
   
+  // tles_update WorkerManager callback
   WorkerManager.register_command_callback("tles_update", import_callback);
   function import_callback (data) {
 	var sat_item = data.sat_item;
@@ -62,11 +61,14 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios, Taffy, PixiJS) {
 	};
   };
 
+  // live_update WorkerManager callback
   WorkerManager.register_command_callback("live_update", live_update_callback);
   function live_update_callback (data) {
 	// When the WorkerManager service updates the satellite data,
 	// it callbacks the controller to update the model here.
 	// Called on initialization
+	
+	//console.log("live_update_callback in ui.js");
 	var sat_item = data.sat_item;
 	var satnum = sat_item.satnum;
 	if ($scope.sat_table[satnum]){
@@ -77,6 +79,15 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios, Taffy, PixiJS) {
 		$scope.sat_table[satnum]["position_eci"] = sat_item.position_eci;
 		$scope.sat_table[satnum]["position_gd"] = sat_item.position_gd;
 		$scope.sat_table[satnum]["doppler_factor"] = sat_item.doppler_factor;
+		
+		$scope.sat_table[satnum]["motor_azimuth"] = motor_azimuth;
+		$scope.sat_table[satnum]["motor_elevation"] = motor_elevation;
+		//console.log("motor az="+motor_azimuth+", el="+motor_elevation);
+		
+		//$scope.sat_table[satnum]["motor_azimuth"] = sat_item.motor_azimuth;
+		//$scope.sat_table[satnum]["motor_elevation"] = sat_item.motor_elevation;
+		//console.log("sat_item.motor_azimuth="+sat_item.motor_azimuth);
+		
 		$scope.current_time = sat_item.time;
 	  });
 	};
@@ -313,6 +324,8 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios, Taffy, PixiJS) {
   $scope.connect_motors_to_sat = function (satnum, selected_port, selected_motor_type){
 	function motor_tracking_callback(motor_data) {
 	  $scope.$apply(function() {
+		motor_azimuth = motor_data["motor_azimuth"];
+		motor_elevation = motor_data["motor_elevation"];
 		$scope.sat_table[satnum]["motor_azimuth"] = motor_data["motor_azimuth"];
 		$scope.sat_table[satnum]["motor_elevation"] = motor_data["motor_elevation"];
 		$scope.sat_table[satnum]["motor_status"] = motor_data["motor_status"];

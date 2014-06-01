@@ -100,19 +100,18 @@ function Motors (WorkerManager) {
 	
 	function motor_comms_async_loop(sat_item) {
 		if (sat_table[keeper]["is_tracking"]) {
-			console.log("motor_comms_async_loop");
-			var sat_azimuth = rad2deg(sat_table[keeper]["sat_azimuth"]);
-			var sat_elevation = rad2deg(sat_table[keeper]["sat_elevation"]);
+			//console.log("motor_comms_async_loop (does it go here???)");
+			var sat_azimuth = (rad2deg(sat_table[keeper]["sat_azimuth"])).toFixed(2);
+			var sat_elevation = (rad2deg(sat_table[keeper]["sat_elevation"])).toFixed(2);
 			
 			// move motor
-			console.log( "sat az=" + (sat_azimuth).toFixed(2) + ", sat el=" + (sat_elevation).toFixed(2) );
 			move_motors(sat_table[keeper]["motor_azimuth"],
 						sat_table[keeper]["motor_elevation"],
 						sat_azimuth,
 						sat_elevation);
 			setTimeout(function () {
 				motor_comms_async_loop(sat_item);
-				}, 5000);
+				}, 500);
 		}
 	}
 
@@ -141,7 +140,7 @@ function Motors (WorkerManager) {
 			// Find motor azimuth and elevation
 			
 			var parse_results = parse_motor_response(incoming_bytes);
-			var angles = adc2azel(
+			var motor_angles = adc2azel(
 				parse_motor_response(incoming_bytes)[1],
 				parse_motor_response(incoming_bytes)[2]
 				);
@@ -157,17 +156,17 @@ function Motors (WorkerManager) {
 			
 				if(parse_results[0]==1 && parse_results[1]>=0 && parse_results[2]>=0) {
 					//update values
-					sat_table[keeper]["motor_azimuth"]   = angles[0].toFixed(2);
-					sat_table[keeper]["motor_elevation"] = angles[1].toFixed(2);
+					sat_table[keeper]["motor_azimuth"]   = motor_angles[0].toFixed(2);
+					sat_table[keeper]["motor_elevation"] = motor_angles[1].toFixed(2);
 				}
 				
-				//var sat_azimuth = rad2deg(sat_table[keeper]["sat_azimuth"]);
-				//var sat_elevation = rad2deg(sat_table[keeper]["sat_elevation"]);
+				var sat_azimuth = rad2deg(sat_table[keeper]["sat_azimuth"]);
+				var sat_elevation = rad2deg(sat_table[keeper]["sat_elevation"]);
 				
 				// move motor
 				//console.log( "sat az=" + (sat_azimuth).toFixed(2) + ", sat el=" + (sat_elevation).toFixed(2) );
-				//move_motors(sat_table[keeper]["motor_azimuth"],
-				//			sat_table[keeper]["motor_elevation"],
+				//move_motors(motor_angles[0],
+				//			motor_angles[1],
 				//			sat_azimuth,
 				//			sat_elevation);
 				
@@ -223,7 +222,7 @@ function Motors (WorkerManager) {
 			}
 		
 		}
-		console.log("[0]="+adcval[0]+", [1]="+adcval[1]+", [2]="+adcval[2]);
+		//console.log("[0]="+adcval[0]+", [1]="+adcval[1]+", [2]="+adcval[2]);
 		return adcval;
 	};
 	
@@ -252,8 +251,8 @@ function Motors (WorkerManager) {
 		angles[1] = eladc * (180/2770);		// experimentally determined
 		
 		
-		console.log("ADC: az="+azadc.toFixed(2)+", el="+eladc.toFixed(2));
-		console.log("ANG: az="+angles[0].toFixed(2)+", el="+angles[1].toFixed(2));
+		//console.log("ADC: az="+azadc.toFixed(2)+", el="+eladc.toFixed(2));
+		//console.log("ANG: az="+angles[0].toFixed(2)+", el="+angles[1].toFixed(2));
 		
 		//console.log("angles: "+angles);
 		return angles;
@@ -382,7 +381,7 @@ function Motors (WorkerManager) {
 					if(result) {
 						setTimeout(function () {
 							motor_comms_async_loop(sat_table[satnum]);
-							}, 2000);
+							}, 1000);
 					}
 				});
 			} else {
@@ -502,16 +501,21 @@ function Motors (WorkerManager) {
 	 * move_motors()
 	 */
 	function move_motors(az, el, nextAz, nextEl) {
-		if( (nextAz-az) > 0) {
+		console.log("moving motors: mot=("+az+", "+el+"), sat=("+nextAz+", "+nextEl+")");
+		if( (nextAz-az) > 5) {
 			move_motors_right(keeper);
-		} else if( (nextAz-az) < 0 ) {
+		} else if( (nextAz-az) < -5 ) {
 			move_motors_left(keeper)
+		} else {
+			stop_az(keeper);
 		}
 		
-		if( (nextEl-el) > 0) {
+		if( (nextEl-el) > 5) {
 			move_motors_up(keeper);
-		} else if( (nextEl-el) < 0 ) {
+		} else if( (nextEl-el) < -10 ) {
 			move_motors_down(keeper)
+		} else {
+			stop_el(keeper);
 		}
 	};//end move_motors()
 	
