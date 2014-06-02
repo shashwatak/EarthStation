@@ -7,6 +7,7 @@
  *		- Side bar with more specific information about the satellite angles
  * TO-DO:
  * 	- Show motor marker
+ *  - Path: still glitches for multiple passes
  * 	- Display AOS/LOS: need to convert gmst to utc
  */
 
@@ -282,20 +283,13 @@ function PixiJS(WorkerManager) {
 		var sat_item = data.sat_item;					// data!!!
 		var satnum = sat_item.satnum;
 		
-		// use sat_item.look_angles.x or .look_angles[0]?
-		// scope.sat_table[satnum]["look_angles"] = sat_item.look_angles;
 		var sat_az = rad2deg(sat_item.look_angles[0]);
 		var sat_el = rad2deg(sat_item.look_angles[1]);
-		
-		//var mot_az = rad2deg(sat_item.motor_azimuth);
+;
 		var mot_az = rad2deg(sat_item.motor_azimuth);
 		var mot_el = rad2deg(sat_item.motor_elevation);
-		//console.log("motor az="+mot_az+", el="+mot_el);
 		
-		//console.log("sat_item.satnum="+sat_item.satnum);
-		// *~*~*~*~ what was i trying to do? ~*~*~*~*
-		// sat_item.____ definitions are in track_sat.js
-		// doesn't look like there's one for a name?
+		//console.log("sat_item.name="+sat_item.name); // this doesn't work
 		
 		if(!sat_table[satnum]) {
 			sat_table[satnum] = {};

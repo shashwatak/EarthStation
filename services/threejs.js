@@ -457,7 +457,7 @@ function ThreeJS(WorkerManager) {
         //Custom satellite image
 		//var satMat = new THREE.SpriteMaterial( { map: satTexture, useScreenCoordinates: false} );
 		//var sprite = new THREE.Sprite( crateMaterial );
-		var crateMaterial = new THREE.SpriteMaterial( { map: satTexture, useScreenCoordinates: false, color: 0x0000ff } );
+		var crateMaterial = new THREE.SpriteMaterial( { map: satTexture, useScreenCoordinates: false, color: 0xFFFFFF } );
 	var sprite2 = new THREE.Sprite( crateMaterial );
 	
 		var marker_ecf = new THREE.Mesh(marker_sphere, marker_material);

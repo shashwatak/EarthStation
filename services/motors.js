@@ -99,7 +99,7 @@ function Motors (WorkerManager) {
 	
 	
 	function motor_comms_async_loop(sat_item) {
-		console.log("motor_comms_async_loop");	// this is only called once?
+		//console.log("motor_comms_async_loop");	// this is only called once?
 		if (sat_table[keeper]["is_tracking"]) {
 			var sat_azimuth = (rad2deg(sat_table[keeper]["sat_azimuth"])).toFixed(2);
 			var sat_elevation = (rad2deg(sat_table[keeper]["sat_elevation"])).toFixed(2);
@@ -195,7 +195,7 @@ function Motors (WorkerManager) {
 		adcval[1] = -1;
 		adcval[2] = -1;
 		
-		//console.log("Parsing incoming_bytes: "+incoming_bytes);
+		console.log("Parsing incoming_bytes: "+incoming_bytes);
 
 		if(incoming_bytes[0] !== UBW_PREAM) {
 			//console.log("Sketch preamble: "+incoming_bytes[i]);
@@ -503,17 +503,17 @@ function Motors (WorkerManager) {
 	 */
 	function move_motors(az, el, nextAz, nextEl) {
 		console.log("moving motors: mot=("+az+", "+el+"), sat=("+nextAz+", "+nextEl+")");
-		if( (nextAz-az) > 5) {
+		if( (nextAz-az) > 2) {
 			move_motors_right(keeper);
-		} else if( (nextAz-az) < -5 ) {
+		} else if( (nextAz-az) < -2 ) {
 			move_motors_left(keeper)
 		} else {
 			stop_az(keeper);
 		}
 		
-		if( (nextEl-el) > 5) {
+		if( (nextEl-el) > 2) {
 			move_motors_up(keeper);
-		} else if( (nextEl-el) < -10 ) {
+		} else if( (nextEl-el) < -2 ) {
 			move_motors_down(keeper)
 		} else {
 			stop_el(keeper);

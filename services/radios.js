@@ -93,7 +93,7 @@ function Radios(WorkerManager) {
 					console.log("YOUR OFFSET IN AUTOMATICAL SETTING IS : " + sat_item["offset"]);
 				}
 				freqtemp = sat_item["radio_sub_frequency"];
-
+                console.log("DOPPMAIN IS" + doppMain);
 				//sat_item["functions"].set_main_frequency(sat_item["connectionId"], sat_item["radio_main_frequency"], function (set_main_result) {
 					//sat_item["functions"].set_sub_frequency(sat_item["connectionId"], sat_item["radio_sub_frequency"], function (set_sub_result) {
 				sat_item["functions"].set_main_frequency(sat_item["connectionId"], doppMain, function (set_main_result) {
@@ -101,7 +101,9 @@ function Radios(WorkerManager) {
 						sat_item["callback"]({
 							radio_main_frequency: sat_item["radio_main_frequency"],
 							radio_sub_frequency: sat_item["radio_sub_frequency"],
-							offset: sat_item["offset"]
+							offset: sat_item["offset"],
+							radio_transmit_frequency : doppMain,
+							radio_receive_frequency : doppSub
 						});
 					});
 				});
@@ -136,11 +138,14 @@ function Radios(WorkerManager) {
 
 		if(sat_table[keeper]["offsetFlag"] === false) {
 			console.log("OFFSET: ON, Offset is: " + sat_table[keeper]["offset"]);
-			//freqHold = sat_table[keeper]["radio_main__frequency"];
+			freqHold = sat_table[keeper]["radio_main_frequency"]; //hold main
 			sat_table[keeper]["offsetFlag"] = true;
 			freqtemp = sat_table[keeper]["radio_sub_frequency"];
 
-		} else sat_table[keeper]["offsetFlag"] = false
+		} else {
+		sat_table[keeper]["offsetFlag"] = false
+		sat_table[keeper]["radio_main_frequency"] = freqHold; //set back main
+		};
 	};
 
 	
@@ -166,8 +171,8 @@ function Radios(WorkerManager) {
 				console.log("this is your uplink " + uplink);
 				console.log("this is your downlink " + downlink);
 				//This function definitely works. 
-				sat_table[satnum]["uplink_frequency"] = uplink;
-				sat_table[satnum]["downlink_frequency"] = downlink;
+				sat_table[satnum]["radio_main_frequency"] = uplink;
+				sat_table[satnum]["radio_sub_frequency"] = downlink;
 				sat_table[satnum]["background_tuning_wait_start"] = 0;
 				sat_table[satnum]["offsetFlag"] = false;
 				sat_table[satnum]["offset"] = 0;
@@ -311,20 +316,26 @@ function Radios(WorkerManager) {
 
 					if(flag === 0) {
 						console.log("is it going here? flag = 0");
-						sat_table[keeper]["radio_main_frequency"] = parseInt(parse_results);
+						//sat_table[keeper]["radio_main_frequency"] = parseInt(parse_results);
+						sat_table[keeper]["radio_main_display"] = parseInt(parse_results);
 						origSubFreq = parseInt(parse_results); //main freq
 						sat_table[keeper]["callback"]({
-							radio_main_frequency: sat_table[keeper]["radio_main_frequency"]
+							radio_main_frequency: sat_table[keeper]["radio_main_frequency"],
+							radio_main_display: sat_table[keeper]["radio_main_display"]
 						});
 
 					} else if(flag == 1) {
 						console.log("is it going in here? flag = 1");
 						origFreq = parseInt(parse_results); //sub freq
 						console.log(origFreq + "THIS IS YOUR ORIG FREQ");
-						sat_table[keeper]["radio_sub_frequency"] = parseInt(parse_results);
+						//sat_table[keeper]["radio_sub_frequency"] = parseInt(parse_results);
+						sat_table[keeper]["radio_sub_display"] = parseInt(parse_results);
 						sat_table[keeper]["callback"]({ //data structure for callback for HTML
 							radio_main_frequency: sat_table[keeper]["radio_main_frequency"],
-							radio_sub_frequency: sat_table[keeper]["radio_sub_frequency"]
+							radio_main_display: sat_table[keeper]["radio_main_display"],
+							radio_sub_frequency: sat_table[keeper]["radio_sub_frequency"],
+							radio_sub_display: sat_table[keeper]["radio_sub_display"]
+							
 						});
 
 					} else {
@@ -356,7 +367,9 @@ function Radios(WorkerManager) {
 
 						sat_table[keeper]["callback"]({
 							radio_main_frequency: sat_table[keeper]["radio_main_frequency"],
+							radio_main_display: sat_table[keeper]["radio_main_display"],
 							radio_sub_frequency: sat_table[keeper]["radio_sub_frequency"],
+							radio_sub_display: sat_table[keeper]["radio_sub_display"],
 							offset: sat_table[keeper]["offset"]
 						});
 
