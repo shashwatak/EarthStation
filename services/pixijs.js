@@ -314,17 +314,17 @@ function PixiJS(WorkerManager) {
 		};
 		if(sat_table[satnum]["is_tracking"]) {
 			if(sat_table[satnum]["path_ecf"]) {
-				console.log("calls update_path()");
+				//console.log("calls update_path()");
 				update_path(satnum, sat_item["lookangles_list"], sat_item['gmst_list']);
 			} else {
-				console.log("calls add_path()");
+				//console.log("calls add_path()");
 				add_path(satnum, sat_item["lookangles_list"], sat_item['gmst_list']);
 			};
 		};
 	};
 	
 	function hide_pixijs() {
-		console.log("hiding pixijs");
+		//console.log("hiding pixijs");
 		stop_animation();
 		for (var i = stage.children.length - 1; i >= 0; i--) {
 			stage.removeChild(stage.children[i]);

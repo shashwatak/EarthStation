@@ -466,7 +466,7 @@ function ThreeJS(WorkerManager) {
 		var position = ecf_array_to_webgl_pos(position_ecf);
 		marker_ecf.position = position;
 		var point_light = new THREE.PointLight(0xffffff, 2, 0);
-		console.log(position_gd[2]);
+		//console.log(position_gd[2]);
 		
 		//Started here for footprint
 		
@@ -482,20 +482,20 @@ function ThreeJS(WorkerManager) {
 		a[0] = convert_longitude(position_gd[0]);
 		a[1] = convert_latitude(position_gd[1]);
 		a[2] = 60;
-		console.log("LONG,LAT,HEIGHT");
-		console.log("BEFORE A : " + a[0] + " " + a[1] + " " + a[2]);
+		//console.log("LONG,LAT,HEIGHT");
+		//console.log("BEFORE A : " + a[0] + " " + a[1] + " " + a[2]);
 		
 		a[0] = parseFloat(a[0]) + parseFloat(p[1]);
 		a[0] = a[0].toPrecision(4);
-		console.log("AFTER : " + a[0] + " " + a[1] + " " + a[2]);
+		//console.log("AFTER : " + a[0] + " " + a[1] + " " + a[2]);
 		a = [a[0] * deg2rad,a[1] * deg2rad,a[2]];
        var a_array = satellite.geodetic_to_ecf(a);
 		var a_gl = ecf_array_to_webgl_pos(a_array);
-		console.log(a_gl);
+		//console.log(a_gl);
 		var test = satellite.geodetic_to_ecf(position_gd);
 		test = ecf_array_to_webgl_pos(test);
-		console.log("TEST IS: ");
-		console.log(test);
+		//console.log("TEST IS: ");
+		//console.log(test);
 	   
 	   var b = []
 	    b[0] = convert_longitude(position_gd[0]);
@@ -503,9 +503,9 @@ function ThreeJS(WorkerManager) {
 		b[2] = 60;
         b[0] = parseFloat(b[0]) - parseFloat(p[1]);
 		b[0] = b[0].toPrecision(4);
-		console.log("AFTER B : " + b[0] + " " + b[1] + " " + b[2]);
+		//console.log("AFTER B : " + b[0] + " " + b[1] + " " + b[2]);
 		b = [b[0] * deg2rad,b[1] * deg2rad,b[2]];
-		console.log(b);
+		//console.log(b);
         var b_array = satellite.geodetic_to_ecf(b);
 		var b_gl = ecf_array_to_webgl_pos(b_array);
 		
@@ -517,9 +517,9 @@ function ThreeJS(WorkerManager) {
 		
        	c[1] = parseFloat(c[1]) + parseFloat(p[0]);
 		c[1] = c[1].toPrecision(4);
-		console.log(p);
-		 console.log(c[1]);
-		 console.log("AFTER C : " + c[0] + " " + c[1] + " " + c[2]);
+		//console.log(p);
+		// console.log(c[1]);
+		// console.log("AFTER C : " + c[0] + " " + c[1] + " " + c[2]);
 		c = [c[0] * deg2rad,c[1] * deg2rad,c[2]];
         var c_array = satellite.geodetic_to_ecf(c);
 		var c_gl = ecf_array_to_webgl_pos(c_array);
@@ -532,7 +532,7 @@ function ThreeJS(WorkerManager) {
 		 d[2] = 60;
         d[1] = parseFloat(d[1]) - parseFloat(p[0]); 
 		d[1] = d[1].toPrecision(4);
-		console.log("AFTER D : " + d[0] + " " + d[1] + " " + d[2]);
+		//console.log("AFTER D : " + d[0] + " " + d[1] + " " + d[2]);
 		d = [d[0] * deg2rad,d[1] * deg2rad,d[2]];		
 		var d_array = satellite.geodetic_to_ecf(d);
 		var d_gl = ecf_array_to_webgl_pos(d_array);
@@ -620,7 +620,7 @@ function ThreeJS(WorkerManager) {
 
 		
 		// ^foot print end ^ 
-		console.log("POSITION IS" + position);
+		//console.log("POSITION IS" + position);
 		sprite2.position.set(position.x,position.y,position.z);
 	sprite2.scale.set( 1500, 1500, 1.0 ); // imageWidth, imageHeight
 	scene.add( sprite2 );
