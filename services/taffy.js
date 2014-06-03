@@ -62,7 +62,7 @@ console.log(satnum);
 	       }
 	    };
 
-return [upfreq,upfreq];
+return [upfreq,downfreq];
 
 };
 

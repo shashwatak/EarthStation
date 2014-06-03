@@ -289,7 +289,7 @@ function PixiJS(WorkerManager) {
 		var mot_az = rad2deg(sat_item.motor_azimuth);
 		var mot_el = rad2deg(sat_item.motor_elevation);
 		
-		//console.log("sat_item.name="+sat_item.name); // this doesn't work
+		console.log(sat_item); // this doesn't work
 		
 		if(!sat_table[satnum]) {
 			sat_table[satnum] = {};

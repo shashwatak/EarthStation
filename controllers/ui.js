@@ -280,10 +280,14 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios, Taffy, PixiJS) {
   };
 
   
-    $scope.load_info = function(){
+    $scope.load_info = function(sat){
   console.log(current_satellite);
+  console.log(sat)
+ var dbKeep;
 	Taffy.find_info(current_satellite);
-	Taffy.find_freq(current_satellite);
+	dbKeep = Taffy.find_freq(current_satellite);
+	sat.uplink_frequency = dbKeep[0];
+	sat.downlink_frequency = dbKeep[1];
   };
   
   

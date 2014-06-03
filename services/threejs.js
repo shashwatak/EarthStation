@@ -196,89 +196,6 @@ function ThreeJS(WorkerManager) {
 		};
 	};
 
-	/*
-  function camera_left_right_pivot (mouse_delta_X) {
-	//  IMPORTANT NOTE:
-	//  The WebGL world is 3D, and uses a different coordinate system.
-
-	//  Apparent Left-Right rotation of the Earth,
-	//  caused by dragging the mouse left-right.
-	//  Left-Right is the X-axis in HTML/CSS.
-	//  The "Left-Right" rotation that the user sees corresponds to
-	//  rotating the Camera Pivot on its Y axis in WebGL.
-	var camera_rotation_start = { y: space_camera_pivot.rotation.y };
-	var pivot_delta_rot_Y = -mouse_delta_X/WIDTH*Math.PI*6;
-	var new_pivot_rot_y = space_camera_pivot.rotation.y + pivot_delta_rot_Y;
-	var camera_rotation_target = { y: new_pivot_rot_y };
-
-	var tween = new TWEEN.Tween(camera_rotation_start).to(camera_rotation_target, 500);
-	tween.onUpdate(function(){
-	  space_camera_pivot.rotation.y = camera_rotation_start.y;
-	});
-	tween.easing(TWEEN.Easing.Exponential.Out);
-	tween.start();
-  };
-
-  function camera_up_down_pivot (mouse_delta_Y){
-	//  IMPORTANT NOTE:
-	//  The WebGL world is 3D, and uses a different coordinate system.
-
-	//  Apparent Up-Down rotation of the Earth,
-	//  caused by dragging the mouse up-down.
-	//  Up-Down is the Y-axis in HTML/CSS.
-	//  The "Up-Down" rotation that the user sees corresponds to
-	//  rotating the Camera Pivot on its Z axis in WebGL.
-	var camera_rotation_start = { z: space_camera_pivot.rotation.z };
-	var pivot_delta_rot_Z = mouse_delta_Y/HEIGHT*Math.PI*6;
-	var new_pivot_rot_z = space_camera_pivot.rotation.z + pivot_delta_rot_Z;
-
-	if (new_pivot_rot_z > Math.PI/3) { new_pivot_rot_z = Math.PI/3; }
-	else if (new_pivot_rot_z < -Math.PI/3) { new_pivot_rot_z = -Math.PI/3; };
-
-	var camera_rotation_target = { z: new_pivot_rot_z };
-
-	var tween = new TWEEN.Tween(camera_rotation_start).to(camera_rotation_target, 500);
-	tween.onUpdate(function(){
-	  space_camera_pivot.rotation.z = camera_rotation_start.z;
-	});
-	tween.easing(TWEEN.Easing.Exponential.Out);
-	tween.start();
-  };
-
-  function pivot_camera_for_mouse_deltas (mouse_delta_X, mouse_delta_Y) {
-	if (!ground_camera_flag){
-	  // Don't move the space camera if we are using the ground camera
-	  camera_left_right_pivot (mouse_delta_X);
-	  camera_up_down_pivot (mouse_delta_Y);
-	};
-  };
-
-  
-  function zoom_camera_for_scroll_delta (delta){
-	// Move camera inwards when user scrolls up
-	// Move camera out when user scrolls down.
-	if (!ground_camera_flag){
-	  // Don't move the space camera is we are using the ground camera
-	  var new_camera_position = delta*1000 + space_camera.position.x;
-	  if (new_camera_position < 10000){
-		new_camera_position = 10000;
-	  }
-	  else if (new_camera_position > 100000){
-		new_camera_position = 100000;
-	  };
-
-	  var camera_zoom_start = { x: space_camera.position.x };
-	  var camera_zoom_target = { x: new_camera_position };
-
-	  var tween = new TWEEN.Tween(camera_zoom_start).to(camera_zoom_target, 500);
-	  tween.onUpdate(function(){
-		space_camera.position.x = camera_zoom_start.x;
-	  });
-	  tween.easing(TWEEN.Easing.Exponential.Out);
-	  tween.start();
-	};
-  };
-*/
 
 	function switch_to_ground_camera() {
 		earth.visible = false;
@@ -453,8 +370,6 @@ function ThreeJS(WorkerManager) {
 		var satTexture = THREE.ImageUtils.loadTexture( "../img/sat_icon.png" );
 		// Create marker 3D object
         //Custom satellite image
-		//var satMat = new THREE.SpriteMaterial( { map: satTexture, useScreenCoordinates: false} );
-		//var sprite = new THREE.Sprite( crateMaterial );
 		var crateMaterial = new THREE.SpriteMaterial( { map: satTexture, useScreenCoordinates: false, color: 0xFFFFFF } );
 	var sprite2 = new THREE.Sprite( crateMaterial );
 	
@@ -965,6 +880,14 @@ function ThreeJS(WorkerManager) {
 			emissive: 0xffffff,
 			wireframe: false
 		});
+		
+		//Load satellite images
+		var boxText = THREE.ImageUtils.loadTexture( "../img/chicken.gif" );
+		// Create marker 3D object
+        //Custom satellite image
+		var cMaterial = new THREE.SpriteMaterial( { map: boxText, useScreenCoordinates: false, color: 0xFFFFFF } );
+	    var sprite2 = new THREE.Sprite( cMaterial );
+		
 		// Create marker 3D object
 
 		var marker_ecf = new THREE.Mesh(marker_sphere, marker_material);
@@ -972,6 +895,9 @@ function ThreeJS(WorkerManager) {
 
 		var position = ecf_array_to_webgl_pos(position_ecf);
 		marker_ecf.position = position;
+		sprite2.position= position;
+	    sprite2.scale.set( 100, 100, 1.0 ); // imageWidth, imageHeight
+	    //scene.add( sprite2 );
 
 		var point_light = new THREE.PointLight(0xffffff, 2, 0);
 		point_light.position = position;
@@ -990,6 +916,7 @@ function ThreeJS(WorkerManager) {
 							  observer_altitude];
 		var observer_coords_ecf = satellite.geodetic_to_ecf(observer_coords_gd);
 		var observer_coords_webgl = ecf_array_to_webgl_pos(observer_coords_ecf);
+		add_observer(observer_coords_ecf);
 		ground_camera.position = new THREE.Vector3(0, 0, 0);
 		ground_camera.lookAt(observer_coords_webgl);
 		ground_camera.translateZ(EARTH_RADIUS);
