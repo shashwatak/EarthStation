@@ -93,8 +93,6 @@ function ThreeJS(WorkerManager) {
 		});
  
 		//load axis for debugging purposes - turn it off if you want, but it does look nice, 
-		var axes = new THREE.AxisHelper(20000);
-		scene.add(axes);
 		
 		
 	
