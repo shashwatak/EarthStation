@@ -77,7 +77,7 @@ body, html {
 #sidebar_leaflet {
     float: right;
     width: 6%;
-    height: 100%;
+    height: 400%;
     background-color: gray;
     opacity: .2;
 }
