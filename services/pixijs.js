@@ -289,7 +289,6 @@ function PixiJS(WorkerManager) {
 		var mot_az = rad2deg(sat_item.motor_azimuth);
 		var mot_el = rad2deg(sat_item.motor_elevation);
 		
-		console.log(sat_item); // this doesn't work
 		
 		if(!sat_table[satnum]) {
 			sat_table[satnum] = {};
@@ -336,11 +335,13 @@ function PixiJS(WorkerManager) {
 	/* add_satellite()
 		Called by the UI and adds the satellite info into Pixi
 	 */
-	function add_satellite(satnum, satrec) {
+	 //Added in name
+	function add_satellite(satnum, satrec, name) {
 		if(!sat_table[satnum]) {
 			sat_table[satnum] = {};
 			sat_table[satnum]["is_tracking"] = true;
-
+            sat_table[satnum]["name"] = name;
+			console.log(name);
 			console.log("hi friend, satnum="+satnum+", satrec="+satrec);
 			add_satellite_marker(satnum);
 			

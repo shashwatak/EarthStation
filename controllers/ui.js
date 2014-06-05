@@ -56,6 +56,8 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios, Taffy, PixiJS) {
 		$scope.sat_table[satnum] = sat_item;
 		$scope.sat_table[satnum]["uplink_frequency"] = 450000000;
 		$scope.sat_table[satnum]["downlink_frequency"] = 145000000;
+		$scope.sat_table[satnum]["name"] = sat_item.name;
+		console.log(sat_item.name);
 	  });
 	  storage.set($scope.sat_table);
 	};
@@ -133,7 +135,7 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios, Taffy, PixiJS) {
   
   function select_sat (satnum, sat){
 	  ThreeJS.add_satellite(satnum, sat.satrec);
-	  PixiJS.add_satellite(satnum, sat.satrec);
+	  PixiJS.add_satellite(satnum, sat.satrec,$scope.sat_table[satnum]["name"]);
 	  sat.selected = true;
 	  selected_sats[satnum] = sat;
 	  current_satellite = sat.name;
