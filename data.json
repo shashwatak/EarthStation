@@ -1,5 +1,7 @@
 [{"Name":"ISS (ZARYA)","UpFreq":123,"DownFreq":321,"Info":"This is a data from iss"},
 {"Name":"AMSAT ECHO","UpFreq":123,"DownFreq":321,"Info":"This is a data from AMSAT"},
 {"Name":"HAMSAT","UpFreq":435250000,"DownFreq":145900000,"Info":"This Uplinks on LSB and Downlinks on USB "},
-{"Name":"JAS 2","UpFreq":145950519,"DownFreq":435849481,"Info":"This Uplinks on LSB and Downlinks on USB "},
+{"Name":"JAS 2","UpFreq":145950500,"DownFreq":435849500,"Info":"This Uplinks on LSB and Downlinks on USB "},
+{"Name":"OSCAR 7","UpFreq":145950000,"DownFreq":435850000,"Info":"This Uplinks on LSB and Downlinks on USB "},
+{"Name":"OSCAR 10","UpFreq":145950519,"DownFreq":435849481,"Info":"This Uplinks on LSB and Downlinks on USB "},
 {"Name":"FUNCUBE-1","UpFreq":435139622,"DownFreq":145960378,"Info":"This Uplinks on LSB and Downlinks on USB "}]

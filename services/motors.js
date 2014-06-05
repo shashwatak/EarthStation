@@ -195,7 +195,7 @@ function Motors (WorkerManager) {
 		adcval[1] = -1;
 		adcval[2] = -1;
 		
-		console.log("Parsing incoming_bytes: "+incoming_bytes);
+		//console.log("Parsing incoming_bytes: "+incoming_bytes);
 
 		if(incoming_bytes[0] !== UBW_PREAM) {
 			//console.log("Sketch preamble: "+incoming_bytes[i]);
@@ -502,7 +502,7 @@ function Motors (WorkerManager) {
 	 * move_motors()
 	 */
 	function move_motors(az, el, nextAz, nextEl) {
-		console.log("moving motors: mot=("+az+", "+el+"), sat=("+nextAz+", "+nextEl+")");
+		//console.log("moving motors: mot=("+az+", "+el+"), sat=("+nextAz+", "+nextEl+")");
 		if( (nextAz-az) > 2) {
 			move_motors_right(keeper);
 		} else if( (nextAz-az) < -2 ) {

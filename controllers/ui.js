@@ -84,7 +84,9 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios, Taffy, PixiJS) {
 		
 		$scope.sat_table[satnum]["motor_azimuth"] = motor_azimuth;
 		$scope.sat_table[satnum]["motor_elevation"] = motor_elevation;
-		//console.log("motor az="+motor_azimuth+", el="+motor_elevation);
+		console.log("motor az="+motor_azimuth+", el="+motor_elevation);
+		
+		PixiJS.update_motor_marker(motor_azimuth, motor_elevation);
 		
 		//$scope.sat_table[satnum]["motor_azimuth"] = sat_item.motor_azimuth;
 		//$scope.sat_table[satnum]["motor_elevation"] = sat_item.motor_elevation;
@@ -333,6 +335,7 @@ function UICtrl($scope, ThreeJS, WorkerManager, Motors, Radios, Taffy, PixiJS) {
 	  $scope.$apply(function() {
 		motor_azimuth = motor_data["motor_azimuth"];
 		motor_elevation = motor_data["motor_elevation"];
+		// ???
 		$scope.sat_table[satnum]["motor_azimuth"] = motor_data["motor_azimuth"];
 		$scope.sat_table[satnum]["motor_elevation"] = motor_data["motor_elevation"];
 		$scope.sat_table[satnum]["motor_status"] = motor_data["motor_status"];

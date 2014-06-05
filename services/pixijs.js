@@ -96,13 +96,13 @@ function PixiJS(WorkerManager) {
 		var planetarium_guides = new PIXI.Graphics();
 		planetarium_guides.position = planetarium_center;
 		planetarium_guides.beginFill(0xFFFFFF, 0);		// elevation circles
-		planetarium_guides.lineStyle(3, 0x206676);
+		planetarium_guides.lineStyle(3, 0x226F95);
 		planetarium_guides.drawCircle(0, 0, horizon_radius);
 		planetarium_guides.lineStyle(1, 0xCCCCCC);
 		planetarium_guides.drawCircle(0, 0, 2*horizon_radius/3);
 		planetarium_guides.drawCircle(0, 0, horizon_radius/3);
 		planetarium_guides.endFill()
-		planetarium_guides.lineStyle(1, 0x206676);		// azimuth lines
+		planetarium_guides.lineStyle(1, 0x226F95);		// azimuth lines
 		planetarium_guides.moveTo(0, -horizon_radius);
 		planetarium_guides.lineTo(0,  horizon_radius);
 		planetarium_guides.moveTo(-horizon_radius, 0);
@@ -112,14 +112,14 @@ function PixiJS(WorkerManager) {
 		var azimuth_guides = new PIXI.Graphics();
 		azimuth_guides.position = azimuth_center;
 		azimuth_guides.beginFill(0xFFFFFF, 0);
-		azimuth_guides.lineStyle(3, 0x206676);
+		azimuth_guides.lineStyle(3, 0x226F95);
 		azimuth_guides.drawCircle(0, 0, compass_radius);
 		
 		// Add in elevation compass
 		var elevation_guides = new PIXI.Graphics();
 		elevation_guides.position = elevation_center;
 		elevation_guides.beginFill(0xFFFFFF, 0);
-		elevation_guides.lineStyle(3, 0x206676);
+		elevation_guides.lineStyle(3, 0x226F95);
 		elevation_guides.drawCircle(0, 0, compass_radius);
 		
 		//var test = new PIXI.Graphics();
@@ -282,12 +282,13 @@ function PixiJS(WorkerManager) {
 	function live_update_callback(data) {
 		var sat_item = data.sat_item;					// data!!!
 		var satnum = sat_item.satnum;
-		
+		console.log(data);
 		var sat_az = rad2deg(sat_item.look_angles[0]);
 		var sat_el = rad2deg(sat_item.look_angles[1]);
-;
-		var mot_az = rad2deg(sat_item.motor_azimuth);
-		var mot_el = rad2deg(sat_item.motor_elevation);
+
+		var mot_az = rad2deg(data.motor_azimuth);
+		var mot_el = rad2deg(data.motor_elevation);
+		console.log(sat_item.look_angles[0]);
 		
 		
 		if(!sat_table[satnum]) {
@@ -296,7 +297,7 @@ function PixiJS(WorkerManager) {
 		if(sat_table[satnum]["is_tracking"]) {
 			//console.log("Does it update the satellite marker?");
 			update_satellite_marker(satnum, sat_az, sat_el);
-			update_motor_marker(mot_az, mot_el);
+			//update_motor_marker(mot_az, mot_el);
 		};
 	};
 	
@@ -357,17 +358,17 @@ function PixiJS(WorkerManager) {
 	 */
 	function add_satellite_marker(satnum) {
 		sat_marker[satnum] = new PIXI.Graphics();
-		sat_marker[satnum].lineStyle(1, 0xFFFFFF, 1);
+		sat_marker[satnum].lineStyle(1, 0xF9BD77, 1);
 		sat_marker[satnum].drawCircle(0, 0, horizon_radius/30);
 		sat_marker[satnum].endFill()
-		sat_marker[satnum].lineStyle(1, 0xFFFFFF);		// azimuth lines
+		sat_marker[satnum].lineStyle(1, 0xF9BD77);		// azimuth lines
 		sat_marker[satnum].moveTo(0, -horizon_radius/20);
 		sat_marker[satnum].lineTo(0,  horizon_radius/20);
 		sat_marker[satnum].moveTo(-horizon_radius/20, 0);
 		sat_marker[satnum].lineTo( horizon_radius/20, 0);
 		
 		sat_text[satnum] = new PIXI.Text(
-			"SAT",													// change this later
+			sat_table[satnum]["name"],													// change this later
 			{font:"12px Arial", fill:"white"}
 		);
 		//sat_text[satnum].anchor.x = sat_text[satnum].y = 0;
@@ -429,7 +430,7 @@ function PixiJS(WorkerManager) {
 			
 			sat_path[satnum] = new PIXI.Graphics();
 			sat_path[satnum].beginFill(0xFFFFFF, 0);
-			sat_path[satnum].lineStyle(1, 0x777777);
+			sat_path[satnum].lineStyle(1, 0xEB6D2D);
 			
 			// Step through list
 			for(var i=0; i<lookangles_list.length; i++) {
@@ -526,7 +527,8 @@ function PixiJS(WorkerManager) {
 	
 	function update_motor_marker(az, el) {
 		//motor_marker.visible = true;
-		motor_marker.position = azel2pixi(az,el);
+		console.log("az="+az+", el="+el);
+		motor_marker.position = azel2pixi(az, el);
 	}
 	
 	
@@ -598,6 +600,7 @@ function PixiJS(WorkerManager) {
 		stop_animation: 			stop_animation,
 		add_satellite: 			add_satellite,
 		remove_satellite: 		remove_satellite,
+		update_motor_marker:	update_motor_marker,
 		add_to_time_offset:		add_to_time_offset,
 		reset_time_offset:		reset_time_offset,
 		get_time:					get_time,
