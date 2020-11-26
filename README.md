@@ -90,13 +90,13 @@ Hardware Architecture
 -----------------
 The Tracking Software runs on a Computer, and connects to an external Motor Controller. The Computer sends the Motor Controller aiming directions. The Motor Controller then sends Power to the Motors to move the Antenna. The Computer also connects to the Radio and corrects the transmission frequencies for the Doppler effect.
 
-![Hardware Block Diagram](http://i.imgur.com/fclQhJy.jpg Hardware Block Diagram)
+![Hardware Block Diagram](http://i.imgur.com/fclQhJy.jpg)
 
 Software Architecture
 ----------------------
 Ideally, we make use of WebWorkers to offload the mathematically intense logic to separate threads.
 
-![Chrome Data Flow](http://i.imgur.com/yd313ze.jpg Chrome Data Flow)
+![Chrome Data Flow](http://i.imgur.com/yd313ze.jpg)
 
 The Main Thread (which includes Worker Manager) ONLY deals with initial setting up of the JS environment, and responding to various callbacks. This ensures that it's number one priority remains Graphics Refresh, via the requestAnimationFrame() call. Otherwise, the Main Thread will delay Graphics updates for other logic, the graphics will appear choppy, and the UI will seem non-responsive.
 
@@ -112,7 +112,7 @@ AngularJS Architecture
 -----------------------
 AngularJS divides a project into four sections, Controllers, Services, Filters, and Directives. The Controllers and Services are the most important aspects of this particular project.
 
-![AngularJS Architecture](http://i.imgur.com/AGGz7A5.png AngularJS Organization)
+![AngularJS Architecture](http://i.imgur.com/AGGz7A5.png)
 
 ### Controllers
 The Controllers should all be very small, and should be limited to setting up the Model, instantiating the Services, defining callbacks for UI events, and not much else.
