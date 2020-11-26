@@ -12,7 +12,7 @@ The goals of this software are to make satellite radio contacts:
 
 We considered many different approaches to building this app before settling on making a Google Chrome Packaged App. High on our list of priorities was cross OS support, and Chrome is available on all major OSs. The Packaged App approach allows us to access USB and COM ports, to manipulate external hardware. Further, a Packaged App is installed on the user's computer, which means it can run completely offline. Finally, the relatively new `performance.now()` function gives us microsecond precise timing.
 
-###ARS Ground Station Team
+### ARS Ground Station Team
 
 **Jason Ragland** *AG6RM*
 
@@ -30,14 +30,14 @@ Digital Motor Control
 
 Tracking Software
 
-###Mentors
+### Mentors
 **Professor Steve Petersen** *AC6P*
 
 **Professor John Vesecky** *AE6TL*
 
 **Paul Naud**
 
-###Acknowledgments
+### Acknowledgments
 [Professor Steve Petersen (AC6P)](http://www.soe.ucsc.edu/people/petersen)
 
 [TS Kelso](http://celestrak.com/webmaster.asp)
@@ -52,10 +52,10 @@ Tracking Software
 
 Major TODOs
 ===========
-####Logic
+#### Logic
 -   AOS, TCA, LOS calculations, via the Propagation Worker
 
-####UI
+#### UI
 -   Sorted, filterable, collapsible, hide-able, list of sats.
 -   Tooltips with opentip.
 -   ThreeJS mousehover detection.
@@ -65,10 +65,10 @@ Major TODOs
 
 How To Run
 ----------
-###Build The Project
+### Build The Project
 1. Clone this Git repo.
 
-###Run The App
+### Run The App
 Eventually, the app will be available on the Google Chrome Web Store. For now:
 
 1. Install the Google Chrome web browser.
@@ -114,12 +114,12 @@ AngularJS divides a project into four sections, Controllers, Services, Filters, 
 
 ![AngularJS Architecture](http://i.imgur.com/AGGz7A5.png AngularJS Organization)
 
-###Controllers
+### Controllers
 The Controllers should all be very small, and should be limited to setting up the Model, instantiating the Services, defining callbacks for UI events, and not much else.
 
 This app is a single view, currently run by `UICtrl`, which is quite simple. `UICtrl` takes in user mouse/keyboard actions and relays them to Services like `ThreeJS` and `WorkerManager`.
 
-###Services
+### Services
 Services are singletons, often used to encapsulate Web APIs, but here they are used to wrap up complex local logic.
 
 `ThreeJS` is used to abstract the WebGL world from the AngularJS/HTML/CSS world. `UICtrl` detects user actions, such as scrolling, and informs `ThreeJS` to appropriately update the 3D objects.
@@ -128,10 +128,10 @@ Services are singletons, often used to encapsulate Web APIs, but here they are u
 
 The `Radio` and `Motor` Services encapsulate the hardware control logic. It does not rely on WebWorkers, because the chrome.serial API is only available from the Main Thread. They both rely on `WorkerManager` to provide them with up-to-date tracking information.
 
-###Filters
+### Filters
 Filters provide a modular way to format and present data dynamically in the HTML. We've set up filters to neatly print out coordinates and large numbers.
 
-###Directives
+### Directives
 Directives add functionality to the DOM, allowing us to create new events and capture DOM changes and User actions.
 
 Serial Hardware Interfacing
@@ -140,7 +140,7 @@ With the goal of keeping the motor control logic as modular as possible, one can
 
 The hardware logic should be a self executing function that returns a set of functions with preset names, as follows.
 
-###Motors
+### Motors
 
 ```javascript
   your_motor_global = (function(){
@@ -178,7 +178,7 @@ The hardware logic should be a self executing function that returns a set of fun
   })();
 ```
 
-###Radios
+### Radios
 
 ```javascript
   your_radio_global = (function() {
